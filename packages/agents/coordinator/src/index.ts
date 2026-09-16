@@ -17,6 +17,7 @@ export interface PackageManifest {
 
 export const manifest: PackageManifest = {
   name: '@sales-os/agent-coordinator',
-  description: 'Coordinador de outreach: máquina de estados, cadencias y parada cruzada entre canales',
+  description:
+    'Coordinador de outreach: máquina de estados, cadencias y parada cruzada entre canales',
   phase: 'F6',
 };

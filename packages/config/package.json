@@ -11,7 +11,10 @@
     "./tsconfig/node.json": "./tsconfig/node.json",
     "./prettier": "./src/prettier.mjs"
   },
-  "files": ["tsconfig", "src"],
+  "files": [
+    "tsconfig",
+    "src"
+  ],
   "scripts": {
     "typecheck": "echo \"@sales-os/config no tiene TypeScript propio\"",
     "test": "echo \"@sales-os/config no tiene tests\""

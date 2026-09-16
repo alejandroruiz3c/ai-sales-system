@@ -17,6 +17,7 @@ export interface PackageManifest {
 
 export const manifest: PackageManifest = {
   name: '@sales-os/agent-onboarding',
-  description: 'Agente de Onboarding: interpreta deck, web y argumentario y genera el perfil comercial',
+  description:
+    'Agente de Onboarding: interpreta deck, web y argumentario y genera el perfil comercial',
   phase: 'F3',
 };

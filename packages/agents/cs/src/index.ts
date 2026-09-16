@@ -17,6 +17,7 @@ export interface PackageManifest {
 
 export const manifest: PackageManifest = {
   name: '@sales-os/agent-cs',
-  description: 'Agente Upsales + Customer Success: limpieza de CRM, campañas, feedback y ampliación',
+  description:
+    'Agente Upsales + Customer Success: limpieza de CRM, campañas, feedback y ampliación',
   phase: 'F11',
 };

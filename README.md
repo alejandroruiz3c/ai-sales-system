@@ -41,9 +41,9 @@ infra/                Hetzner (Docker) y Supabase
 
 ## Estado
 
-| Fase | Estado |
-|---|---|
+| Fase                         | Estado                                                           |
+| ---------------------------- | ---------------------------------------------------------------- |
 | F0 · Fundaciones y auditoría | En validación — ver [`docs/entregas/F0.md`](docs/entregas/F0.md) |
-| F1 · Núcleo multi-tenant | Bloqueada hasta `GO F0` |
+| F1 · Núcleo multi-tenant     | Bloqueada hasta `GO F0`                                          |
 
 Ninguna fase empieza sin el `GO FX` de Alex. Ver la regla de parada en `CLAUDE.md`.

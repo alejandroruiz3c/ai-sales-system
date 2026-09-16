@@ -8,8 +8,8 @@ const nextConfig: NextConfig = {
     typedEnv: true,
   },
   // Cabeceras mínimas. La política completa llega con F13.
-  async headers() {
-    return [
+  headers() {
+    return Promise.resolve([
       {
         source: '/(.*)',
         headers: [
@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
-    ];
+    ]);
   },
 };
 

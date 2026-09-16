@@ -17,6 +17,7 @@ export interface PackageManifest {
 
 export const manifest: PackageManifest = {
   name: '@sales-os/core',
-  description: 'Tipos, contratos de eventos Zod, máquina de estados, errores y reglas transversales',
+  description:
+    'Tipos, contratos de eventos Zod, máquina de estados, errores y reglas transversales',
   phase: 'F1–F6',
 };
