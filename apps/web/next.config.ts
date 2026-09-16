@@ -4,9 +4,6 @@ const nextConfig: NextConfig = {
   // Los paquetes del workspace se consumen como TypeScript, sin paso de build.
   transpilePackages: ['@sales-os/core', '@sales-os/integrations'],
   typedRoutes: true,
-  experimental: {
-    typedEnv: true,
-  },
   // Cabeceras mínimas. La política completa llega con F13.
   headers() {
     return Promise.resolve([

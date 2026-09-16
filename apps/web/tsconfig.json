@@ -1,6 +1,9 @@
 {
   "extends": "@sales-os/config/tsconfig/next.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "${configDir}/node_modules/.cache/tsbuildinfo.json"
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json"
   }
 }

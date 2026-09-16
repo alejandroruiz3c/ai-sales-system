@@ -7,10 +7,7 @@
     "jsx": "preserve",
     "allowJs": true,
     "types": ["node"],
-    "plugins": [{ "name": "next" }],
-    "paths": {
-      "@/*": ["${configDir}/src/*"]
-    }
+    "plugins": [{ "name": "next" }]
   },
   "include": [
     "${configDir}/next-env.d.ts",
