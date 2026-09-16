@@ -1,0 +1,93 @@
+name: 🐞 Bug
+description: Algo del sistema no hace lo que debería
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Si es una fuga de datos entre tenants, un secreto expuesto o un envío a
+        un destinatario real desde staging, **no abras un issue público**:
+        avisa a Alex directamente. Es un incidente de seguridad, no un bug.
+
+  - type: textarea
+    id: que-pasa
+    attributes:
+      label: Qué pasa
+      description: Qué hiciste, qué esperabas y qué pasó en realidad.
+      placeholder: |
+        1. Entro en Estudio → agente de emailing
+        2. Cambio el tono a "cercano" y publico
+        3. Esperaba que el siguiente envío usara el tono nuevo
+        4. Sigue usando el anterior
+    validations:
+      required: true
+
+  - type: input
+    id: entorno
+    attributes:
+      label: Dónde
+      description: staging, preview de un PR, local o producción. Con la URL si la tienes.
+      placeholder: staging.sales.turbineh.com
+    validations:
+      required: true
+
+  - type: input
+    id: tenant
+    attributes:
+      label: Tenant
+      description: Qué tenant. Nunca pegues datos personales de un prospecto real.
+      placeholder: Clínica Aurora Demo
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - Panel / Estudio
+        - Copiloto
+        - Onboarding (F3)
+        - Prospección (F5)
+        - Coordinador (F6)
+        - Emailing (F7)
+        - LinkedIn (F8)
+        - Llamadas (F9)
+        - Cierre y facturación (F10)
+        - Upsales + CS (F11)
+        - Generador de opinión (F12)
+        - Capacidad y coste (F13)
+        - Infraestructura / CI
+        - No lo sé
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gravedad
+    attributes:
+      label: Gravedad
+      options:
+        - Bloqueante — el sistema no se puede usar
+        - Alta — una función clave no funciona y no hay alternativa
+        - Media — molesta pero hay forma de seguir
+        - Baja — cosmético o poco frecuente
+    validations:
+      required: true
+
+  - type: textarea
+    id: pistas
+    attributes:
+      label: Pistas
+      description: |
+        Todo lo que ayude: evento del visor de `/lab`, id de traza de Langfuse,
+        id de Sentry, hora exacta, captura. Sin datos personales.
+
+  - type: checkboxes
+    id: comprobaciones
+    attributes:
+      label: Antes de enviar
+      options:
+        - label: He comprobado que no hay ya un issue abierto por lo mismo
+          required: true
+        - label: No he incluido datos personales reales ni secretos
+          required: true

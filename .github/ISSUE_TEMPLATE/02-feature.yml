@@ -1,0 +1,58 @@
+name: ✨ Feature
+description: Una capacidad nueva o un cambio de comportamiento
+labels: ['feature', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Si esto ya está en `docs/plan-sales-os.md`, no hace falta justificarlo:
+        pon el ID de la tarea y lo demás se puede dejar corto. Si **no** está en
+        el plan, hace falta decisión antes de escribir código.
+
+  - type: input
+    id: tarea
+    attributes:
+      label: Tarea del plan
+      description: El ID si existe (F5.7, F8.3…). Escribe "fuera del plan" si no está.
+      placeholder: F5.7
+    validations:
+      required: true
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema resuelve
+      description: El problema de negocio, no la solución técnica. Para quién y por qué le importa.
+    validations:
+      required: true
+
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Propuesta
+      description: Qué habría que construir.
+    validations:
+      required: true
+
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definición de terminado
+      description: Cómo se comprueba que está hecho. Si es verificable en menos de un día, mejor.
+      placeholder: |
+        - Un prospecto con X entra en la secuencia Y
+        - Test que lo demuestra en packages/agents/...
+        - Caso del kit de prueba en la fase correspondiente
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: transversal
+    attributes:
+      label: Si afecta a un agente
+      description: La Definición de Hecho transversal (CLAUDE.md, regla permanente 2) es obligatoria.
+      options:
+        - label: Requiere configuración nueva en el Estudio
+        - label: Requiere actualizar la ficha en docs/agents/
+        - label: Requiere una regla de diagnóstico nueva en el Copiloto
+        - label: Requiere casos nuevos en el kit de prueba

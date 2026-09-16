@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Duda sobre el plan o la arquitectura
+    url: https://github.com/turbineh/ai-sales-system/blob/main/docs/plan-sales-os.md
+    about: Antes de abrir un issue, comprueba si la respuesta está en el plan o en docs/adr/.

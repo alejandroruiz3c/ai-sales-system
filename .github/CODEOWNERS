@@ -1,0 +1,57 @@
+# CODEOWNERS de SALES OS
+#
+# Revisión obligatoria por área (plan §4). GitHub exige que los equipos citados
+# existan en la organización turbineh y tengan acceso de escritura al repo; si un
+# equipo no existe, la regla se ignora en silencio y el área queda sin revisor.
+# Ver docs/entregas/F0.md: la creación de estos equipos está pendiente de Alex.
+
+# Por defecto, el equipo responsable de la plataforma
+*                             @turbineh/sales-os-platform
+
+# Reglas permanentes, plan y decisiones: solo dirección técnica
+/CLAUDE.md                    @turbineh/sales-os-leads
+/CONTRIBUTING.md              @turbineh/sales-os-leads
+/docs/plan-sales-os.md        @turbineh/sales-os-leads
+/docs/adr/                    @turbineh/sales-os-leads
+/docs/entregas/               @turbineh/sales-os-leads
+/.github/                     @turbineh/sales-os-platform @turbineh/sales-os-leads
+
+# Núcleo: cambiar un contrato de evento afecta a todos los agentes
+/packages/core/               @turbineh/sales-os-platform @turbineh/sales-os-leads
+/packages/db/                 @turbineh/sales-os-platform @turbineh/sales-os-leads
+/packages/config/             @turbineh/sales-os-platform
+
+# Aislamiento entre tenants y seguridad: revisión reforzada
+/packages/integrations/src/sandbox/  @turbineh/sales-os-leads
+
+# Coste y modelos
+/packages/llm/                @turbineh/sales-os-platform
+/packages/prompts/            @turbineh/sales-os-prompts @turbineh/sales-os-platform
+
+# Estudio y Copiloto
+/packages/studio/             @turbineh/sales-os-platform
+/packages/agents/copilot/     @turbineh/sales-os-platform
+
+# Integraciones externas
+/packages/integrations/       @turbineh/sales-os-integrations
+
+# Agentes: un equipo por canal
+/packages/agents/onboarding/  @turbineh/sales-os-platform
+/packages/agents/prospecting/ @turbineh/sales-os-prospecting
+/packages/agents/coordinator/ @turbineh/sales-os-platform
+/packages/agents/email/       @turbineh/sales-os-email
+/packages/agents/linkedin/    @turbineh/sales-os-linkedin
+/packages/agents/voice/       @turbineh/sales-os-voice
+/packages/agents/closing/     @turbineh/sales-os-platform @turbineh/sales-os-leads
+/packages/agents/cs/          @turbineh/sales-os-cs
+/packages/agents/opinion/     @turbineh/sales-os-opinion
+
+# Capacidad y coste
+/packages/capacity/           @turbineh/sales-os-platform
+
+# Aplicaciones
+/apps/web/                    @turbineh/sales-os-platform
+/apps/worker-browser/         @turbineh/sales-os-linkedin @turbineh/sales-os-platform
+
+# Infraestructura
+/infra/                       @turbineh/sales-os-platform @turbineh/sales-os-leads

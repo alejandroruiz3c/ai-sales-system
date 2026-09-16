@@ -1,0 +1,128 @@
+name: 🤖 Nuevo agente
+description: Proponer e incorporar un agente nuevo al sistema
+labels: ['agent', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Un agente nuevo se integra **suscribiéndose a eventos**, sin tocar a los
+        demás (plan §2.5). Si para que funcione hay que modificar otro agente,
+        el diseño está mal: replantéalo antes de abrir esto.
+
+        Todo agente arranca en **L1** (un humano aprueba cada envío) y no sube de
+        nivel hasta superar sus métricas de calidad.
+
+  - type: input
+    id: nombre
+    attributes:
+      label: Nombre del agente
+      placeholder: Agente de reactivación de clientes dormidos
+    validations:
+      required: true
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Qué hace y para qué
+      description: En una frase que entienda un comercial, y por qué el sistema lo necesita.
+    validations:
+      required: true
+
+  - type: textarea
+    id: eventos-entrada
+    attributes:
+      label: Eventos que consume
+      description: Nombres exactos del bus. Si necesitas uno que no existe, dilo aquí.
+      placeholder: |
+        - customer.created
+        - cs.feedback.product
+    validations:
+      required: true
+
+  - type: textarea
+    id: eventos-salida
+    attributes:
+      label: Eventos que emite
+      placeholder: |
+        - outreach.step.scheduled
+        - deal.close_intent
+    validations:
+      required: true
+
+  - type: textarea
+    id: configuracion
+    attributes:
+      label: Qué se configura desde el Estudio
+      description: |
+        Campos de comportamiento (objetivo, tono, idioma, autonomía, ventanas
+        horarias, límites, criterios) y los bloques de prompt con nombre
+        ("Quién eres", "Qué vendes", "Cómo escribes", "Qué nunca dices",
+        "Formato de salida").
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Dónde corre
+      options:
+        - Inngest (función durable en Vercel)
+        - Worker de navegador en Hetzner (necesita sesión persistente o IP fija)
+        - Ambos
+    validations:
+      required: true
+
+  - type: dropdown
+    id: modelo
+    attributes:
+      label: Nivel de modelo que necesita
+      options:
+        - Ligero — clasificar, deduplicar, detectar intención
+        - Medio — redactar, resumir
+        - Alto — razonamiento sobre casos ambiguos (uso muy puntual)
+        - Ninguno — determinista
+    validations:
+      required: true
+
+  - type: textarea
+    id: maquinas
+    attributes:
+      label: Máquinas y límites
+      description: |
+        ¿Consume buzones, cuentas de LinkedIn, líneas de voz o cuotas de API?
+        ¿Cuál es el límite seguro de partida y de dónde sale ese número?
+
+  - type: textarea
+    id: riesgos
+    attributes:
+      label: Riesgos legales y de plataforma
+      description: |
+        Condiciones de la plataforma, consentimiento, aviso de IA, publicidad
+        encubierta. Ver plan §7. Si no aplica ninguno, explica por qué.
+    validations:
+      required: true
+
+  - type: textarea
+    id: metricas
+    attributes:
+      label: Métricas de calidad
+      description: Qué mide si lo hace bien y qué umbral hace falta para subirlo a L2.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definición de Hecho transversal
+      description: Las cinco son obligatorias para cerrar el issue (CLAUDE.md, regla permanente 2).
+      options:
+        - label: Declara su esquema de configuración y sus prompts por bloques en el registro de agentes y aparece completo en el Estudio
+          required: true
+        - label: Todo su comportamiento relevante se puede cambiar desde el Estudio, sin despliegue
+          required: true
+        - label: Tiene ficha en docs/agents/, indexada para el Copiloto
+          required: true
+        - label: El Copiloto puede diagnosticar sus fallos típicos
+          required: true
+        - label: Su kit de prueba incluye los casos TC.1–TC.6
+          required: true
