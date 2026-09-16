@@ -43,3 +43,7 @@ pnpm-debug.log*
 
 # Playwright browser profiles (worker-browser)
 data/chrome-profiles/
+
+# Playwright: el config vive en apps/web, sus artefactos no
+apps/web/test-results/
+apps/web/playwright-report/

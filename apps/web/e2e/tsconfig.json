@@ -1,0 +1,9 @@
+{
+  "extends": "@sales-os/config/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "types": ["node"],
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo-e2e.json"
+  },
+  "include": ["**/*.ts"]
+}
