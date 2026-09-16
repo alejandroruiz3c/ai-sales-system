@@ -1,0 +1,57 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      # Un PR por familia en vez de veinte PR sueltos: menos ruido y menos
+      # riesgo de fusionar media actualización.
+      next:
+        patterns:
+          ['next', 'react', 'react-dom', '@types/react', '@types/react-dom', 'eslint-config-next']
+      tooling:
+        patterns:
+          [
+            'eslint*',
+            'typescript',
+            'typescript-eslint',
+            'prettier*',
+            'turbo',
+            'vitest',
+            '@playwright/*',
+          ]
+      observabilidad:
+        patterns: ['@sentry/*', 'langfuse*']
+      resto:
+        patterns: ['*']
+        exclude-patterns:
+          [
+            'next',
+            'react',
+            'react-dom',
+            '@types/react',
+            '@types/react-dom',
+            'eslint-config-next',
+            'eslint*',
+            'typescript',
+            'typescript-eslint',
+            'prettier*',
+            'turbo',
+            'vitest',
+            '@playwright/*',
+            '@sentry/*',
+            'langfuse*',
+          ]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'ci(deps)'
