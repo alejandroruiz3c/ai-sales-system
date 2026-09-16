@@ -1,0 +1,1492 @@
+{
+  "generadoDesde": "docs/plan-sales-os.md",
+  "fases": [
+    {
+      "id": "F0",
+      "nombre": "Fundaciones y auditoría"
+    },
+    {
+      "id": "F1",
+      "nombre": "Núcleo multi-tenant"
+    },
+    {
+      "id": "F2",
+      "nombre": "Librería LLM y prompts"
+    },
+    {
+      "id": "F2B",
+      "nombre": "Estudio de configuración y Copiloto SALES OS"
+    },
+    {
+      "id": "F3",
+      "nombre": "Onboarding IA del corporate"
+    },
+    {
+      "id": "F4",
+      "nombre": "Integraciones base"
+    },
+    {
+      "id": "F5",
+      "nombre": "Prospección BRAIN"
+    },
+    {
+      "id": "F6",
+      "nombre": "Coordinador de outreach"
+    },
+    {
+      "id": "F7",
+      "nombre": "Agente de emailing"
+    },
+    {
+      "id": "F8",
+      "nombre": "Agente de pantalla LinkedIn"
+    },
+    {
+      "id": "F9",
+      "nombre": "Agente de llamadas"
+    },
+    {
+      "id": "F10",
+      "nombre": "Cierre y facturación"
+    },
+    {
+      "id": "F11",
+      "nombre": "Agente Upsales + Customer Success"
+    },
+    {
+      "id": "F12",
+      "nombre": "Agente Generador de Opinión"
+    },
+    {
+      "id": "F13",
+      "nombre": "Planificador de capacidad, coste y seguridad"
+    },
+    {
+      "id": "F14",
+      "nombre": "Despliegue, piloto y operación"
+    }
+  ],
+  "tareas": [
+    {
+      "id": "F0.1",
+      "fase": "F0",
+      "titulo": "Auditar el Agentic Sales System actual y listar módulos reutilizables (safety gates, Pipedrive, campañas, facturación)",
+      "tecnologia": "Python existente",
+      "dod": "Documento `docs/adr/0001-reuse-ass.md` con decisión por módulo: portar, envolver o descartar"
+    },
+    {
+      "id": "F0.2",
+      "fase": "F0",
+      "titulo": "Crear repo `turbineh/sales-os` con monorepo pnpm + Turborepo",
+      "tecnologia": "pnpm, Turborepo",
+      "dod": "`pnpm build` verde en vacío"
+    },
+    {
+      "id": "F0.3",
+      "fase": "F0",
+      "titulo": "Configurar TypeScript estricto, ESLint, Prettier compartidos",
+      "tecnologia": "packages/config",
+      "dod": "Lint y typecheck pasan"
+    },
+    {
+      "id": "F0.4",
+      "fase": "F0",
+      "titulo": "Añadir commitlint, Husky, lint-staged, Changesets",
+      "tecnologia": "Node tooling",
+      "dod": "Commit no convencional rechazado"
+    },
+    {
+      "id": "F0.5",
+      "fase": "F0",
+      "titulo": "Crear `CLAUDE.md`, `CONTRIBUTING.md`, `CODEOWNERS`, plantillas de PR e issues",
+      "tecnologia": "Markdown",
+      "dod": "Plantillas visibles en GitHub"
+    },
+    {
+      "id": "F0.6",
+      "fase": "F0",
+      "titulo": "Workflow CI: install, lint, typecheck, test con caché",
+      "tecnologia": "GitHub Actions",
+      "dod": "PR de prueba con checks verdes"
+    },
+    {
+      "id": "F0.7",
+      "fase": "F0",
+      "titulo": "Protección de `main`, Dependabot, secret scanning, CodeQL",
+      "tecnologia": "GitHub",
+      "dod": "Push directo a main bloqueado"
+    },
+    {
+      "id": "F0.8",
+      "fase": "F0",
+      "titulo": "Crear proyecto Vercel conectado al repo con previews por PR",
+      "tecnologia": "Vercel",
+      "dod": "URL de preview por PR"
+    },
+    {
+      "id": "F0.9",
+      "fase": "F0",
+      "titulo": "Crear proyectos Supabase staging y producción en región UE",
+      "tecnologia": "Supabase",
+      "dod": "Conexión desde local y Vercel"
+    },
+    {
+      "id": "F0.10",
+      "fase": "F0",
+      "titulo": "Crear cuenta Inngest con entornos y conectar a Vercel",
+      "tecnologia": "Inngest",
+      "dod": "Función \"hello\" ejecutada en preview"
+    },
+    {
+      "id": "F0.11",
+      "fase": "F0",
+      "titulo": "Configurar Sentry, Better Stack y Langfuse (UE)",
+      "tecnologia": "SaaS observabilidad",
+      "dod": "Error y traza de prueba visibles"
+    },
+    {
+      "id": "F0.12",
+      "fase": "F0",
+      "titulo": "Escribir ADRs iniciales: stack, multi-tenant, plano de control/ejecución, proveedor de voz, proveedor de firma",
+      "tecnologia": "Markdown",
+      "dod": "5 ADRs aprobados por Alex"
+    },
+    {
+      "id": "F0.13",
+      "fase": "F0",
+      "titulo": "Crear GitHub Project con épicas F0–F14 e issues de este plan",
+      "tecnologia": "GitHub Projects",
+      "dod": "Tablero poblado"
+    },
+    {
+      "id": "F0.14",
+      "fase": "F0",
+      "titulo": "Desplegar staging fijo (`staging.sales.turbineh.com`) con página de inicio y `/status`",
+      "tecnologia": "Vercel, Next.js",
+      "dod": "URL accesible con servicios en verde"
+    },
+    {
+      "id": "F0.15",
+      "fase": "F0",
+      "titulo": "Interceptor de modo sandbox con lista blanca de destinatarios, activo en staging y previews",
+      "tecnologia": "packages/integrations",
+      "dod": "Test: envío a destino no permitido bloqueado"
+    },
+    {
+      "id": "F0.16",
+      "fase": "F0",
+      "titulo": "Esqueleto de la sala de pruebas `/lab` (solo administradores) con visor de eventos",
+      "tecnologia": "Next.js",
+      "dod": "`/lab` accesible solo con rol admin"
+    },
+    {
+      "id": "F0.17",
+      "fase": "F0",
+      "titulo": "Estructura de pruebas E2E por fase (`apps/web/e2e/FX/`) ejecutándose en CI contra staging",
+      "tecnologia": "Playwright Test, GitHub Actions",
+      "dod": "Test E2E de F0 verde en CI"
+    },
+    {
+      "id": "F0.18",
+      "fase": "F0",
+      "titulo": "Plantilla de Informe de entrega en `docs/entregas/` y regla de parada tras cada fase",
+      "tecnologia": "Markdown",
+      "dod": "`docs/entregas/F0.md` generado"
+    },
+    {
+      "id": "F1.1",
+      "fase": "F1",
+      "titulo": "Esquema `tenants`, `memberships`, roles",
+      "tecnologia": "Drizzle",
+      "dod": "Migración aplicada"
+    },
+    {
+      "id": "F1.2",
+      "fase": "F1",
+      "titulo": "Políticas RLS por `tenant_id` en todas las tablas y test que intenta leer otro tenant",
+      "tecnologia": "Postgres RLS, Vitest",
+      "dod": "Test de fuga falla correctamente"
+    },
+    {
+      "id": "F1.3",
+      "fase": "F1",
+      "titulo": "Auth con login, invitación de usuarios y cambio de tenant",
+      "tecnologia": "Supabase Auth, Next.js",
+      "dod": "Usuario con dos tenants cambia entre ellos"
+    },
+    {
+      "id": "F1.4",
+      "fase": "F1",
+      "titulo": "Middleware que inyecta tenant y rol en cada request",
+      "tecnologia": "Next.js middleware",
+      "dod": "Rutas protegidas por rol"
+    },
+    {
+      "id": "F1.5",
+      "fase": "F1",
+      "titulo": "Esquema `tenant_files` y subida a Storage por carpeta (context, inputs, outputs)",
+      "tecnologia": "Supabase Storage",
+      "dod": "Subida, listado, descarga y borrado por tenant"
+    },
+    {
+      "id": "F1.6",
+      "fase": "F1",
+      "titulo": "Visor/gestor de archivos en panel con versiones",
+      "tecnologia": "shadcn/ui",
+      "dod": "Archivo reemplazado conserva versión anterior"
+    },
+    {
+      "id": "F1.7",
+      "fase": "F1",
+      "titulo": "Servicio de secretos: guardar y leer credenciales cifradas por tenant",
+      "tecnologia": "Supabase Vault",
+      "dod": "Secreto nunca devuelto al frontend"
+    },
+    {
+      "id": "F1.8",
+      "fase": "F1",
+      "titulo": "Esquemas `agent_configs` y `flow_configs` versionados con validación Zod",
+      "tecnologia": "Drizzle, Zod",
+      "dod": "Config inválida rechazada con mensaje claro"
+    },
+    {
+      "id": "F1.9",
+      "fase": "F1",
+      "titulo": "Editor de configuración general y por agente (formulario + vista JSON avanzada)",
+      "tecnologia": "Next.js, react-hook-form",
+      "dod": "Cambio guardado crea nueva versión y permite revertir"
+    },
+    {
+      "id": "F1.10",
+      "fase": "F1",
+      "titulo": "Esquemas `events` (append-only) y `approvals`",
+      "tecnologia": "Drizzle",
+      "dod": "Evento registrado en cada acción"
+    },
+    {
+      "id": "F1.11",
+      "fase": "F1",
+      "titulo": "Cola de aprobaciones humana en panel (aprobar, editar, rechazar)",
+      "tecnologia": "Next.js",
+      "dod": "Elemento aprobado dispara su evento"
+    },
+    {
+      "id": "F1.12",
+      "fase": "F1",
+      "titulo": "Selector de nivel de autonomía L0–L3 por agente",
+      "tecnologia": "Next.js, Zod",
+      "dod": "Nivel respetado por el agente de prueba"
+    },
+    {
+      "id": "F1.13",
+      "fase": "F1",
+      "titulo": "Esquema `spend_ledger` y servicio de presupuesto con avisos y corte",
+      "tecnologia": "Drizzle, Inngest",
+      "dod": "Tenant sin presupuesto no ejecuta llamadas LLM"
+    },
+    {
+      "id": "F1.14",
+      "fase": "F1",
+      "titulo": "Panel de inicio del tenant: embudo, coste por lead/reunión/cierre, salud de máquinas",
+      "tecnologia": "Next.js, Recharts",
+      "dod": "Métricas con datos seed"
+    },
+    {
+      "id": "F2.1",
+      "fase": "F2",
+      "titulo": "Cliente LLM con router por nivel de tarea (ligero, medio, alto)",
+      "tecnologia": "Anthropic SDK",
+      "dod": "Tarea de clasificación usa modelo ligero"
+    },
+    {
+      "id": "F2.2",
+      "fase": "F2",
+      "titulo": "Caché de prompts: bloque fijo de perfil comercial + bloque variable",
+      "tecnologia": "Prompt caching",
+      "dod": "Traza muestra aciertos de caché"
+    },
+    {
+      "id": "F2.3",
+      "fase": "F2",
+      "titulo": "Modo lote para tareas no urgentes con recogida de resultados vía Inngest",
+      "tecnologia": "Batch API",
+      "dod": "Lote de 100 cualificaciones completado"
+    },
+    {
+      "id": "F2.4",
+      "fase": "F2",
+      "titulo": "Salidas estructuradas validadas con Zod y reintento único",
+      "tecnologia": "Zod",
+      "dod": "Salida malformada corregida o marcada"
+    },
+    {
+      "id": "F2.5",
+      "fase": "F2",
+      "titulo": "Contabilidad de coste por llamada en `spend_ledger` y Langfuse",
+      "tecnologia": "Langfuse",
+      "dod": "Coste por tenant y agente visible"
+    },
+    {
+      "id": "F2.6",
+      "fase": "F2",
+      "titulo": "Sistema de plantillas de prompt versionadas con variables del perfil",
+      "tecnologia": "packages/prompts",
+      "dod": "Plantilla renderizada con perfil seed"
+    },
+    {
+      "id": "F2.7",
+      "fase": "F2",
+      "titulo": "Integrar promptfoo en CI con umbral por agente",
+      "tecnologia": "promptfoo, GitHub Actions",
+      "dod": "PR que empeora un agente falla"
+    },
+    {
+      "id": "F2.8",
+      "fase": "F2",
+      "titulo": "Interfaz `ModelProvider` para enchufar en el futuro modelos propios TurbineH",
+      "tecnologia": "TypeScript",
+      "dod": "Proveedor simulado intercambiable en test"
+    },
+    {
+      "id": "F2B.1",
+      "fase": "F2B",
+      "titulo": "Esquema de capas: plantilla base (repo) + capa del tenant (BD) con resolución y versionado",
+      "tecnologia": "packages/prompts, Drizzle",
+      "dod": "Test: la capa del tenant prevalece sobre la base"
+    },
+    {
+      "id": "F2B.2",
+      "fase": "F2B",
+      "titulo": "Registro de agentes: cada agente declara su esquema de configuración, sus prompts por bloques y su ficha",
+      "tecnologia": "packages/core, Zod",
+      "dod": "Agente de ejemplo registrado"
+    },
+    {
+      "id": "F2B.3",
+      "fase": "F2B",
+      "titulo": "Generador automático de formularios del Estudio a partir del esquema declarado",
+      "tecnologia": "react-hook-form, Zod",
+      "dod": "Añadir un campo al esquema lo muestra en el Estudio sin tocar la UI"
+    },
+    {
+      "id": "F2B.4",
+      "fase": "F2B",
+      "titulo": "Editor de prompts por bloques con variables resaltadas",
+      "tecnologia": "CodeMirror, Next.js",
+      "dod": "Variable inexistente marcada como error"
+    },
+    {
+      "id": "F2B.5",
+      "fase": "F2B",
+      "titulo": "Edición en lenguaje natural con propuesta de diferencias",
+      "tecnologia": "Modelo medio",
+      "dod": "La petición \"más corto\" genera diff aplicable"
+    },
+    {
+      "id": "F2B.6",
+      "fase": "F2B",
+      "titulo": "Pestaña Probar con comparación lado a lado actual vs editado",
+      "tecnologia": "Inngest, Next.js",
+      "dod": "Dos salidas con modelo y coste"
+    },
+    {
+      "id": "F2B.7",
+      "fase": "F2B",
+      "titulo": "Publicación con evals automáticas y aviso si baja la calidad",
+      "tecnologia": "promptfoo",
+      "dod": "Cambio que empeora pide confirmación expresa"
+    },
+    {
+      "id": "F2B.8",
+      "fase": "F2B",
+      "titulo": "Historial, diferencias y reversión",
+      "tecnologia": "Drizzle, Next.js",
+      "dod": "Reversión en un clic"
+    },
+    {
+      "id": "F2B.9",
+      "fase": "F2B",
+      "titulo": "Permisos: Editor edita, Lector propone, salvaguardas bloqueadas",
+      "tecnologia": "RLS, middleware",
+      "dod": "Test: lector no publica; nadie del tenant edita salvaguardas"
+    },
+    {
+      "id": "F2B.10",
+      "fase": "F2B",
+      "titulo": "Exportar mejora del tenant como PR al repositorio",
+      "tecnologia": "GitHub API",
+      "dod": "PR creado con el diff y su resultado de evals"
+    },
+    {
+      "id": "F2B.11",
+      "fase": "F2B",
+      "titulo": "Exportar e importar configuración completa de un tenant (JSON)",
+      "tecnologia": "Zod",
+      "dod": "Configuración clonada a otro tenant"
+    },
+    {
+      "id": "F2B.12",
+      "fase": "F2B",
+      "titulo": "Índice de documentación del repo (docs, fichas, runbooks, ADRs) regenerado en cada despliegue",
+      "tecnologia": "pgvector, GitHub Actions",
+      "dod": "Documento nuevo buscable tras el despliegue"
+    },
+    {
+      "id": "F2B.13",
+      "fase": "F2B",
+      "titulo": "Copiloto: chat fijo en todas las pantallas con contexto de la página actual",
+      "tecnologia": "Next.js, streaming",
+      "dod": "El Copiloto sabe en qué pantalla estás"
+    },
+    {
+      "id": "F2B.14",
+      "fase": "F2B",
+      "titulo": "Herramientas de lectura del Copiloto (config, eventos, secuencias, máquinas, métricas, presupuesto) con permisos del usuario",
+      "tecnologia": "Tool use",
+      "dod": "Lector no obtiene datos que no puede ver"
+    },
+    {
+      "id": "F2B.15",
+      "fase": "F2B",
+      "titulo": "Herramienta de diagnóstico \"¿por qué no pasó X?\" que recorre eventos y reglas",
+      "tecnologia": "Tool use + reglas",
+      "dod": "Causa correcta en los casos de prueba"
+    },
+    {
+      "id": "F2B.16",
+      "fase": "F2B",
+      "titulo": "Herramienta de cambios guiados con confirmación",
+      "tecnologia": "Tool use + Estudio",
+      "dod": "Ningún cambio sin confirmación"
+    },
+    {
+      "id": "F2B.17",
+      "fase": "F2B",
+      "titulo": "Herramienta de escalado: issue en GitHub sin datos personales y aviso a responsable",
+      "tecnologia": "GitHub API, notificaciones",
+      "dod": "Issue creado con diagnóstico anonimizado"
+    },
+    {
+      "id": "F2B.18",
+      "fase": "F2B",
+      "titulo": "Canal WhatsApp opcional del Copiloto",
+      "tecnologia": "WhatsApp Cloud API",
+      "dod": "Pregunta por WhatsApp respondida con permisos del usuario"
+    },
+    {
+      "id": "F2B.19",
+      "fase": "F2B",
+      "titulo": "Protección frente a inyección de instrucciones en el Copiloto",
+      "tecnologia": "Evals de seguridad",
+      "dod": "Contenido malicioso de un prospecto no altera su conducta"
+    },
+    {
+      "id": "F2B.20",
+      "fase": "F2B",
+      "titulo": "Evals del Copiloto (ayuda, diagnóstico, cambios, rechazos)",
+      "tecnologia": "promptfoo",
+      "dod": "Umbral superado"
+    },
+    {
+      "id": "F3.1",
+      "fase": "F3",
+      "titulo": "Asistente de alta: datos básicos + subida de deck, argumentario y URL web",
+      "tecnologia": "Next.js",
+      "dod": "Tres inputs guardados en `inputs/`"
+    },
+    {
+      "id": "F3.2",
+      "fase": "F3",
+      "titulo": "Parser de deck PDF/PPTX a texto estructurado por diapositiva",
+      "tecnologia": "Parsers + documento nativo en Claude",
+      "dod": "Deck de TurbineH extraído completo"
+    },
+    {
+      "id": "F3.3",
+      "fase": "F3",
+      "titulo": "Parser de argumentario (PDF, DOCX, MD)",
+      "tecnologia": "Parsers",
+      "dod": "Argumentario extraído con secciones"
+    },
+    {
+      "id": "F3.4",
+      "fase": "F3",
+      "titulo": "Crawler de web con límite de páginas y respeto a robots.txt",
+      "tecnologia": "Playwright (worker)",
+      "dod": "Web de TurbineH rastreada en texto limpio"
+    },
+    {
+      "id": "F3.5",
+      "fase": "F3",
+      "titulo": "Definir esquema `CompanySalesProfile` (empresa, oferta, precios, ICP, personas decisoras, dolores, propuesta de valor 30s/60s/3min, objeciones y respuestas, pruebas sociales, CTA, tono, afirmaciones prohibidas, recursos adjuntables, idiomas)",
+      "tecnologia": "Zod",
+      "dod": "Esquema documentado en `docs/agents/onboarding.md`"
+    },
+    {
+      "id": "F3.6",
+      "fase": "F3",
+      "titulo": "Prompt de extracción del perfil a partir de los tres inputs con citas a la fuente de cada campo",
+      "tecnologia": "Modelo alto",
+      "dod": "Cada campo enlaza a su origen"
+    },
+    {
+      "id": "F3.7",
+      "fase": "F3",
+      "titulo": "Detector de huecos: preguntas al administrador sobre campos críticos vacíos",
+      "tecnologia": "Modelo ligero, Next.js",
+      "dod": "Perfil sin precios genera pregunta en panel"
+    },
+    {
+      "id": "F3.8",
+      "fase": "F3",
+      "titulo": "Detector de contradicciones entre inputs (por ejemplo, precios distintos en deck y argumentario)",
+      "tecnologia": "Modelo medio",
+      "dod": "Contradicción mostrada para resolución humana"
+    },
+    {
+      "id": "F3.9",
+      "fase": "F3",
+      "titulo": "Generador de prompt packs por agente a partir del perfil y plantillas",
+      "tecnologia": "packages/prompts",
+      "dod": "Nueve paquetes generados y validados"
+    },
+    {
+      "id": "F3.10",
+      "fase": "F3",
+      "titulo": "Generador de `flow_config` inicial (criterios de cualificación, cadencias, oferta de cierre)",
+      "tecnologia": "Modelo medio + reglas",
+      "dod": "Config válida por esquema"
+    },
+    {
+      "id": "F3.11",
+      "fase": "F3",
+      "titulo": "Pantalla de revisión con diff por agente y aprobación",
+      "tecnologia": "Next.js",
+      "dod": "Cambios aprobados versionados"
+    },
+    {
+      "id": "F3.12",
+      "fase": "F3",
+      "titulo": "Checklist de conexiones del tenant (CRM, buzones, LinkedIn, voz, Stripe, calendario, notificaciones)",
+      "tecnologia": "Next.js",
+      "dod": "Estado verde/rojo por conexión"
+    },
+    {
+      "id": "F3.13",
+      "fase": "F3",
+      "titulo": "Botón Activar con prueba de humo de cada agente en modo L0",
+      "tecnologia": "Inngest",
+      "dod": "Informe de activación en `outputs/`"
+    },
+    {
+      "id": "F3.14",
+      "fase": "F3",
+      "titulo": "Regeneración parcial: al subir una nueva versión de un input, proponer cambios solo en lo afectado",
+      "tecnologia": "Modelo medio",
+      "dod": "Nuevo precio propaga solo a cierre y emailing"
+    },
+    {
+      "id": "F3.15",
+      "fase": "F3",
+      "titulo": "Evals del onboarding con 3 corporates de prueba (TurbineH + 2 ficticios)",
+      "tecnologia": "promptfoo",
+      "dod": "Precisión de campos ≥ umbral fijado"
+    },
+    {
+      "id": "F4.1",
+      "fase": "F4",
+      "titulo": "Interfaz `CrmAdapter` (personas, organizaciones, leads, deals, actividades, notas, campos personalizados, webhooks)",
+      "tecnologia": "TypeScript",
+      "dod": "Interfaz con test de contrato"
+    },
+    {
+      "id": "F4.2",
+      "fase": "F4",
+      "titulo": "App OAuth de Pipedrive y conexión por tenant",
+      "tecnologia": "Pipedrive OAuth",
+      "dod": "Tenant conecta su Pipedrive"
+    },
+    {
+      "id": "F4.3",
+      "fase": "F4",
+      "titulo": "Provisión automática de campos personalizados y etapas en Pipedrive del tenant",
+      "tecnologia": "Pipedrive API",
+      "dod": "Campos de contexto creados sin duplicar"
+    },
+    {
+      "id": "F4.4",
+      "fase": "F4",
+      "titulo": "Implementar `PipedriveAdapter` con control de límites de API y reintentos",
+      "tecnologia": "Pipedrive API, Inngest throttle",
+      "dod": "Carga de 1.000 leads sin errores 429"
+    },
+    {
+      "id": "F4.5",
+      "fase": "F4",
+      "titulo": "Receptor de webhooks de Pipedrive con verificación",
+      "tecnologia": "Next.js route",
+      "dod": "Cambio de etapa genera evento"
+    },
+    {
+      "id": "F4.6",
+      "fase": "F4",
+      "titulo": "Deduplicación de personas y empresas antes de escribir en CRM",
+      "tecnologia": "Reglas + modelo ligero",
+      "dod": "Mismo contacto por dos fuentes = un registro"
+    },
+    {
+      "id": "F4.7",
+      "fase": "F4",
+      "titulo": "Conector de calendario (Calendly y Cal.com) vía webhooks",
+      "tecnologia": "Webhooks",
+      "dod": "Reunión agendada emite `meeting.booked`"
+    },
+    {
+      "id": "F4.8",
+      "fase": "F4",
+      "titulo": "Servicio de notificaciones humanas multicanal con preferencias por tenant",
+      "tecnologia": "Slack API, WhatsApp Cloud API, Resend",
+      "dod": "Respuesta de prospecto notificada en canal elegido"
+    },
+    {
+      "id": "F4.9",
+      "fase": "F4",
+      "titulo": "Adaptador de enriquecimiento con proveedores intercambiables y coste por crédito",
+      "tecnologia": "Hunter.io + adaptadores",
+      "dod": "Contacto enriquecido con coste registrado"
+    },
+    {
+      "id": "F4.10",
+      "fase": "F4",
+      "titulo": "Lista de supresión global por tenant (bajas, rebotes, Robinson, exclusiones)",
+      "tecnologia": "Postgres",
+      "dod": "Contacto suprimido nunca recibe outreach"
+    },
+    {
+      "id": "F5.1",
+      "fase": "F5",
+      "titulo": "Endpoint universal de ingesta (API con clave por tenant, formulario web embebible, CSV)",
+      "tecnologia": "Next.js, Zod",
+      "dod": "Tres vías crean `prospect.ingested`"
+    },
+    {
+      "id": "F5.2",
+      "fase": "F5",
+      "titulo": "Conectores de fuentes externas: webhook de formulario, CSV de eventos, leads del Generador de Opinión",
+      "tecnologia": "Next.js",
+      "dod": "Fuente registrada en cada prospecto"
+    },
+    {
+      "id": "F5.3",
+      "fase": "F5",
+      "titulo": "Normalización de datos (nombres, cargos, dominios, teléfonos E.164)",
+      "tecnologia": "libphonenumber",
+      "dod": "Datos normalizados en test"
+    },
+    {
+      "id": "F5.4",
+      "fase": "F5",
+      "titulo": "Precalificación barata contra ICP antes de enriquecer",
+      "tecnologia": "Modelo ligero",
+      "dod": "Descartes no consumen créditos"
+    },
+    {
+      "id": "F5.5",
+      "fase": "F5",
+      "titulo": "Enriquecimiento de los cinco campos obligatorios (email, teléfono, empresa, rol, LinkedIn)",
+      "tecnologia": "Adaptador enriquecimiento + worker",
+      "dod": "Prospecto marcado completo o incompleto con motivo"
+    },
+    {
+      "id": "F5.6",
+      "fase": "F5",
+      "titulo": "Cualificación con LinkedIn: lectura de perfil y empresa desde el worker",
+      "tecnologia": "Playwright",
+      "dod": "Señales de LinkedIn en contexto"
+    },
+    {
+      "id": "F5.7",
+      "fase": "F5",
+      "titulo": "Puntuación de encaje con motivo explicable según criterios del `flow_config`",
+      "tecnologia": "Modelo ligero/medio",
+      "dod": "Puntuación y razón guardadas"
+    },
+    {
+      "id": "F5.8",
+      "fase": "F5",
+      "titulo": "Maximizador de decisores: si el contacto no decide, buscar y añadir decisores de la misma empresa",
+      "tecnologia": "Worker + enriquecimiento",
+      "dod": "Empresa con al menos un decisor identificado"
+    },
+    {
+      "id": "F5.9",
+      "fase": "F5",
+      "titulo": "Detección de contactos personales/red cercana del tenant para priorizarlos",
+      "tecnologia": "Datos de conexiones del tenant",
+      "dod": "Prioridad alta marcada"
+    },
+    {
+      "id": "F5.10",
+      "fase": "F5",
+      "titulo": "Resumen de contexto y ángulo de mensaje recomendado",
+      "tecnologia": "Modelo medio (lote)",
+      "dod": "Nota de contexto legible por humano"
+    },
+    {
+      "id": "F5.11",
+      "fase": "F5",
+      "titulo": "Registro en Pipedrive: persona, organización, lead y nota completa de contexto",
+      "tecnologia": "PipedriveAdapter",
+      "dod": "Lead con todos los campos visibles en Pipedrive"
+    },
+    {
+      "id": "F5.12",
+      "fase": "F5",
+      "titulo": "Nutrición de prospectos no listos: marcado para secuencia de contenido de valor",
+      "tecnologia": "Coordinador",
+      "dod": "Prospecto \"nutrir\" no entra en cierre"
+    },
+    {
+      "id": "F5.13",
+      "fase": "F5",
+      "titulo": "Prospección activa BRAIN en web con búsqueda por ICP",
+      "tecnologia": "Brave Search API (ya en uso) + worker",
+      "dod": "Lote diario de prospectos nuevos"
+    },
+    {
+      "id": "F5.14",
+      "fase": "F5",
+      "titulo": "Envío de conexiones LinkedIn desde prospección delegado al agente de pantalla",
+      "tecnologia": "Evento al worker",
+      "dod": "Invitación encolada respetando límites"
+    },
+    {
+      "id": "F5.15",
+      "fase": "F5",
+      "titulo": "Métricas del agente: tasa de completitud, precisión de cualificación, coste por cualificado",
+      "tecnologia": "Langfuse, panel",
+      "dod": "Métricas en panel"
+    },
+    {
+      "id": "F6.1",
+      "fase": "F6",
+      "titulo": "Máquina de estados del prospecto (NUEVO → CUALIFICADO → EN_OUTREACH → RESPONDIÓ → REUNIÓN → NEGOCIACIÓN → GANADO/PERDIDO → CLIENTE, más NUTRIR y SUPRIMIDO)",
+      "tecnologia": "packages/core",
+      "dod": "Transiciones inválidas imposibles en test"
+    },
+    {
+      "id": "F6.2",
+      "fase": "F6",
+      "titulo": "Lector de leads de Pipedrive por fecha de creación (webhook + sondeo de respaldo)",
+      "tecnologia": "Inngest cron",
+      "dod": "Ningún lead se pierde ni se duplica"
+    },
+    {
+      "id": "F6.3",
+      "fase": "F6",
+      "titulo": "Planificador de secuencias por canal según `flow_config` (orden, esperas, ventanas horarias, zona horaria del prospecto)",
+      "tecnologia": "Inngest `step.sleep`",
+      "dod": "Secuencia visible en panel"
+    },
+    {
+      "id": "F6.4",
+      "fase": "F6",
+      "titulo": "Regla \"hasta un canal con éxito\": cancelar pasos pendientes de otros canales al primer éxito",
+      "tecnologia": "Inngest `cancelOn`",
+      "dod": "Test: respuesta por email cancela LinkedIn y llamada"
+    },
+    {
+      "id": "F6.5",
+      "fase": "F6",
+      "titulo": "Clasificador de respuestas (interesado, no ahora, no interesado, baja, fuera de oficina, pregunta)",
+      "tecnologia": "Modelo ligero",
+      "dod": "Precisión validada en evals"
+    },
+    {
+      "id": "F6.6",
+      "fase": "F6",
+      "titulo": "Registro de cada paso como actividad y avance de etapa en Pipedrive",
+      "tecnologia": "PipedriveAdapter",
+      "dod": "Historial completo en el deal"
+    },
+    {
+      "id": "F6.7",
+      "fase": "F6",
+      "titulo": "Creación del deal en CRM al primer interés",
+      "tecnologia": "PipedriveAdapter",
+      "dod": "Deal creado con valor estimado"
+    },
+    {
+      "id": "F6.8",
+      "fase": "F6",
+      "titulo": "Difusión de eventos al resto de agentes y a notificaciones",
+      "tecnologia": "Inngest events",
+      "dod": "Agentes suscritos reciben evento"
+    },
+    {
+      "id": "F6.9",
+      "fase": "F6",
+      "titulo": "Asignador de máquina: elige buzón, cuenta o línea con capacidad disponible y salud buena",
+      "tecnologia": "Inngest concurrency keys",
+      "dod": "Ninguna máquina supera su límite"
+    },
+    {
+      "id": "F6.10",
+      "fase": "F6",
+      "titulo": "Vista de secuencias en panel con pausa, reanudación y salto manual",
+      "tecnologia": "Next.js",
+      "dod": "Humano pausa un prospecto"
+    },
+    {
+      "id": "F6.11",
+      "fase": "F6",
+      "titulo": "Test end-to-end del flujo completo con proveedores simulados",
+      "tecnologia": "Vitest, mocks",
+      "dod": "Prospecto llega a REUNIÓN en test"
+    },
+    {
+      "id": "F7.1",
+      "fase": "F7",
+      "titulo": "Conexión de buzones por tenant (OAuth Google y Microsoft) como máquinas",
+      "tecnologia": "Gmail API, Microsoft Graph",
+      "dod": "Buzón conectado aparece en `machines`"
+    },
+    {
+      "id": "F7.2",
+      "fase": "F7",
+      "titulo": "Comprobación de SPF, DKIM y DMARC del dominio de envío",
+      "tecnologia": "DNS lookup",
+      "dod": "Dominio mal configurado bloquea activación"
+    },
+    {
+      "id": "F7.3",
+      "fase": "F7",
+      "titulo": "Plan de calentamiento por buzón con rampa configurable",
+      "tecnologia": "Inngest cron",
+      "dod": "Límite diario sube según calendario"
+    },
+    {
+      "id": "F7.4",
+      "fase": "F7",
+      "titulo": "Redacción personalizada con perfil, contexto del prospecto y tono configurable",
+      "tecnologia": "Modelo medio + caché",
+      "dod": "Email validado por esquema y reglas de estilo"
+    },
+    {
+      "id": "F7.5",
+      "fase": "F7",
+      "titulo": "Reglas de seguridad antes de enviar (afirmaciones prohibidas, enlaces, longitud, datos personales, supresión)",
+      "tecnologia": "Reglas + modelo ligero",
+      "dod": "Email con promesa prohibida bloqueado"
+    },
+    {
+      "id": "F7.6",
+      "fase": "F7",
+      "titulo": "Envío con espaciado aleatorio dentro de ventana y límite por buzón",
+      "tecnologia": "Inngest throttle",
+      "dod": "Test de carga respeta límites"
+    },
+    {
+      "id": "F7.7",
+      "fase": "F7",
+      "titulo": "Seguimientos automáticos según secuencia",
+      "tecnologia": "Coordinador",
+      "dod": "Seguimiento cancelado si hay respuesta"
+    },
+    {
+      "id": "F7.8",
+      "fase": "F7",
+      "titulo": "Lectura de respuestas y rebotes por buzón",
+      "tecnologia": "Gmail API / Graph push",
+      "dod": "Respuesta emite `outreach.reply.received`"
+    },
+    {
+      "id": "F7.9",
+      "fase": "F7",
+      "titulo": "Enlace y cabecera de baja en cada email",
+      "tecnologia": "List-Unsubscribe",
+      "dod": "Baja añade a supresión"
+    },
+    {
+      "id": "F7.10",
+      "fase": "F7",
+      "titulo": "Monitor de salud del buzón (tasa de rebote, respuestas negativas) con pausa automática",
+      "tecnologia": "Inngest",
+      "dod": "Buzón degradado se pausa y avisa"
+    },
+    {
+      "id": "F7.11",
+      "fase": "F7",
+      "titulo": "Editor de contexto, plantillas tipo, tono y comportamiento en panel",
+      "tecnologia": "Next.js",
+      "dod": "Cambio probado con vista previa"
+    },
+    {
+      "id": "F7.12",
+      "fase": "F7",
+      "titulo": "Evals de calidad de email por tenant",
+      "tecnologia": "promptfoo",
+      "dod": "Umbral superado para activar L2"
+    },
+    {
+      "id": "F8.1",
+      "fase": "F8",
+      "titulo": "Imagen Docker del worker de navegador con Playwright y Chromium",
+      "tecnologia": "Docker",
+      "dod": "Imagen publicada en registro"
+    },
+    {
+      "id": "F8.2",
+      "fase": "F8",
+      "titulo": "Gestión de perfiles persistentes: un directorio de perfil por cuenta, cifrado en reposo",
+      "tecnologia": "Playwright, Docker volumes",
+      "dod": "Sesión sobrevive a reinicio"
+    },
+    {
+      "id": "F8.3",
+      "fase": "F8",
+      "titulo": "Asignación de IP estática por cuenta vía proxy",
+      "tecnologia": "Proxies ISP estáticos",
+      "dod": "Cada cuenta sale siempre por su IP"
+    },
+    {
+      "id": "F8.4",
+      "fase": "F8",
+      "titulo": "Flujo de conexión de cuenta: el titular inicia sesión él mismo desde una sesión remota segura; el sistema nunca guarda la contraseña",
+      "tecnologia": "noVNC o navegador remoto",
+      "dod": "Cuenta conectada sin credenciales almacenadas"
+    },
+    {
+      "id": "F8.5",
+      "fase": "F8",
+      "titulo": "Cliente de eventos en el worker (recibe trabajos del orquestador, reporta resultados)",
+      "tecnologia": "Inngest SDK",
+      "dod": "Trabajo de prueba completado"
+    },
+    {
+      "id": "F8.6",
+      "fase": "F8",
+      "titulo": "Acción: visitar perfil y extraer datos para cualificación",
+      "tecnologia": "Playwright",
+      "dod": "Datos estructurados devueltos"
+    },
+    {
+      "id": "F8.7",
+      "fase": "F8",
+      "titulo": "Acción: enviar invitación con nota opcional",
+      "tecnologia": "Playwright",
+      "dod": "Invitación registrada en `interactions`"
+    },
+    {
+      "id": "F8.8",
+      "fase": "F8",
+      "titulo": "Acción: enviar mensaje a primer grado con adjunto (recurso del tenant)",
+      "tecnologia": "Playwright",
+      "dod": "Mensaje con PDF enviado en test"
+    },
+    {
+      "id": "F8.9",
+      "fase": "F8",
+      "titulo": "Acción: leer bandeja y detectar respuestas nuevas",
+      "tecnologia": "Playwright",
+      "dod": "Respuesta emite evento"
+    },
+    {
+      "id": "F8.10",
+      "fase": "F8",
+      "titulo": "Comportamiento humano: pausas variables, horario laboral, límites diarios y semanales por tipo de cuenta",
+      "tecnologia": "Reglas en worker",
+      "dod": "Ningún límite superado en simulación"
+    },
+    {
+      "id": "F8.11",
+      "fase": "F8",
+      "titulo": "Selectores resilientes y respaldo con agente de uso de ordenador cuando falla un selector",
+      "tecnologia": "Playwright + computer use",
+      "dod": "Cambio de interfaz simulado resuelto o escalado"
+    },
+    {
+      "id": "F8.12",
+      "fase": "F8",
+      "titulo": "Detector de avisos de LinkedIn (verificación, restricción) con pausa inmediata y aviso humano",
+      "tecnologia": "Playwright",
+      "dod": "Aviso detectado pausa la cuenta"
+    },
+    {
+      "id": "F8.13",
+      "fase": "F8",
+      "titulo": "Redacción de mensajes tipo con contexto, tono y recursos configurables",
+      "tecnologia": "Modelo medio + caché",
+      "dod": "Mensaje validado"
+    },
+    {
+      "id": "F8.14",
+      "fase": "F8",
+      "titulo": "Calculadora de cuentas óptimas y límites por tipo de cuenta y por servidor",
+      "tecnologia": "packages/capacity",
+      "dod": "Recomendación mostrada en panel"
+    },
+    {
+      "id": "F8.15",
+      "fase": "F8",
+      "titulo": "Panel de cuentas: estado, uso del día y de la semana, salud",
+      "tecnologia": "Next.js",
+      "dod": "Vista operativa en tiempo real"
+    },
+    {
+      "id": "F8.16",
+      "fase": "F8",
+      "titulo": "Runbook de cuenta restringida",
+      "tecnologia": "docs/runbooks",
+      "dod": "Procedimiento documentado"
+    },
+    {
+      "id": "F9.1",
+      "fase": "F9",
+      "titulo": "Integración con la plataforma de voz elegida en ADR y con Twilio para números",
+      "tecnologia": "Retell o Vapi, Twilio",
+      "dod": "Llamada de prueba completa"
+    },
+    {
+      "id": "F9.2",
+      "fase": "F9",
+      "titulo": "Alta de líneas por tenant como máquinas con límites y rotación",
+      "tecnologia": "Twilio",
+      "dod": "Línea visible en `machines`"
+    },
+    {
+      "id": "F9.3",
+      "fase": "F9",
+      "titulo": "Generador de guiones tipo por perfil (apertura, descubrimiento, propuesta de valor, objeciones, agenda, cierre)",
+      "tecnologia": "Modelo medio",
+      "dod": "Guion base aprobado por tenant"
+    },
+    {
+      "id": "F9.4",
+      "fase": "F9",
+      "titulo": "Adaptación del guion a cada prospecto con su contexto CRM",
+      "tecnologia": "Modelo medio + caché",
+      "dod": "Guion personalizado por llamada"
+    },
+    {
+      "id": "F9.5",
+      "fase": "F9",
+      "titulo": "Aviso de IA al inicio de la llamada y grabación con consentimiento, configurables por país",
+      "tecnologia": "Plataforma de voz",
+      "dod": "Aviso presente en todas las llamadas"
+    },
+    {
+      "id": "F9.6",
+      "fase": "F9",
+      "titulo": "Herramientas en llamada: consultar disponibilidad y agendar reunión en directo",
+      "tecnologia": "Function calling + calendario",
+      "dod": "Reunión agendada durante la llamada"
+    },
+    {
+      "id": "F9.7",
+      "fase": "F9",
+      "titulo": "Detección de intención de cierre y evento `deal.close_intent` con aviso humano inmediato",
+      "tecnologia": "Plataforma de voz + webhook",
+      "dod": "Humano recibe aviso con resumen"
+    },
+    {
+      "id": "F9.8",
+      "fase": "F9",
+      "titulo": "Gestión de contestador, número erróneo y \"llame más tarde\"",
+      "tecnologia": "Plataforma de voz",
+      "dod": "Reintento programado según resultado"
+    },
+    {
+      "id": "F9.9",
+      "fase": "F9",
+      "titulo": "Ventanas horarias por zona y comprobación de supresión antes de marcar",
+      "tecnologia": "Coordinador",
+      "dod": "Número suprimido nunca se marca"
+    },
+    {
+      "id": "F9.10",
+      "fase": "F9",
+      "titulo": "Resumen, transcripción y resultado registrados en Pipedrive",
+      "tecnologia": "PipedriveAdapter",
+      "dod": "Actividad de llamada con resumen"
+    },
+    {
+      "id": "F9.11",
+      "fase": "F9",
+      "titulo": "Calculadora de líneas y coste por minuto por tipo de línea",
+      "tecnologia": "packages/capacity",
+      "dod": "Coste mensual estimado en panel"
+    },
+    {
+      "id": "F9.12",
+      "fase": "F9",
+      "titulo": "Evals de guion y revisión de muestra de llamadas",
+      "tecnologia": "promptfoo + revisión humana",
+      "dod": "Umbral superado para L2"
+    },
+    {
+      "id": "F10.1",
+      "fase": "F10",
+      "titulo": "Conexión Stripe por tenant (Stripe Connect o clave restringida en Vault, decisión en ADR)",
+      "tecnologia": "Stripe",
+      "dod": "Tenant conectado"
+    },
+    {
+      "id": "F10.2",
+      "fase": "F10",
+      "titulo": "Configuración de oferta de cierre por tenant (precio, tramos, promociones, procesos incluidos)",
+      "tecnologia": "flow_config",
+      "dod": "Oferta validada por esquema"
+    },
+    {
+      "id": "F10.3",
+      "fase": "F10",
+      "titulo": "Generación de enlace de pago o suscripción por deal",
+      "tecnologia": "Stripe Checkout / Billing",
+      "dod": "Enlace ligado al deal"
+    },
+    {
+      "id": "F10.4",
+      "fase": "F10",
+      "titulo": "Envío de NDA para firma electrónica",
+      "tecnologia": "Docuseal o Signaturit",
+      "dod": "NDA firmado emite evento"
+    },
+    {
+      "id": "F10.5",
+      "fase": "F10",
+      "titulo": "Generación del Excel de onboarding desde plantilla del tenant",
+      "tecnologia": "ExcelJS",
+      "dod": "Excel con datos del cliente precargados"
+    },
+    {
+      "id": "F10.6",
+      "fase": "F10",
+      "titulo": "Envío del paquete de cierre por el canal donde se confirmó (email o WhatsApp)",
+      "tecnologia": "Email, WhatsApp Cloud API",
+      "dod": "Paquete recibido en test"
+    },
+    {
+      "id": "F10.7",
+      "fase": "F10",
+      "titulo": "Webhook de Stripe: pago confirmado → deal Ganado en Pipedrive",
+      "tecnologia": "Stripe webhooks",
+      "dod": "Etapa actualizada automáticamente"
+    },
+    {
+      "id": "F10.8",
+      "fase": "F10",
+      "titulo": "Interfaz `BillingAdapter` y adaptador Stripe Invoicing por defecto",
+      "tecnologia": "TypeScript",
+      "dod": "Factura emitida en test"
+    },
+    {
+      "id": "F10.9",
+      "fase": "F10",
+      "titulo": "Adaptador al sistema de facturación actual de TurbineH (reutilizando lo existente según F0.1)",
+      "tecnologia": "Adaptador",
+      "dod": "Cliente creado en el sistema actual"
+    },
+    {
+      "id": "F10.10",
+      "fase": "F10",
+      "titulo": "Creación de `customer` y evento `customer.created` que activa CS",
+      "tecnologia": "Inngest",
+      "dod": "Cliente visible en panel de CS"
+    },
+    {
+      "id": "F10.11",
+      "fase": "F10",
+      "titulo": "Aviso humano en cada paso sensible (envío de pago, firma, pago recibido)",
+      "tecnologia": "Notificaciones",
+      "dod": "Avisos recibidos"
+    },
+    {
+      "id": "F11.1",
+      "fase": "F11",
+      "titulo": "Identificación de clientes reales en CRM (deals ganados + pagos activos en Stripe)",
+      "tecnologia": "Pipedrive + Stripe",
+      "dod": "Lista conciliada"
+    },
+    {
+      "id": "F11.2",
+      "fase": "F11",
+      "titulo": "Limpieza: duplicados, campos vacíos, etapas incoherentes, con propuesta de cambios para aprobación",
+      "tecnologia": "Modelo ligero (lote)",
+      "dod": "Informe de limpieza aplicado tras aprobación"
+    },
+    {
+      "id": "F11.3",
+      "fase": "F11",
+      "titulo": "Enriquecimiento de contexto de cliente (uso, antigüedad, procesos contratados, interacciones)",
+      "tecnologia": "Modelo medio (lote)",
+      "dod": "Nota de contexto actualizada"
+    },
+    {
+      "id": "F11.4",
+      "fase": "F11",
+      "titulo": "Programación periódica configurable por tenant",
+      "tecnologia": "Inngest cron",
+      "dod": "Campaña ejecutada en fecha"
+    },
+    {
+      "id": "F11.5",
+      "fase": "F11",
+      "titulo": "Mensajes de novedades y casos de éxito desde archivos de contexto del tenant",
+      "tecnologia": "Modelo medio",
+      "dod": "Mensaje con caso real citado"
+    },
+    {
+      "id": "F11.6",
+      "fase": "F11",
+      "titulo": "Encuesta de experiencia y feedback con clasificación (producto, servicio, comercial)",
+      "tecnologia": "Modelo ligero",
+      "dod": "Feedback clasificado"
+    },
+    {
+      "id": "F11.7",
+      "fase": "F11",
+      "titulo": "Aviso a Sales Manager y Tech Support Manager si el feedback es de producto",
+      "tecnologia": "Notificaciones",
+      "dod": "Aviso recibido con contexto"
+    },
+    {
+      "id": "F11.8",
+      "fase": "F11",
+      "titulo": "Oferta de paquetes de procesos con descuento según perfil del cliente",
+      "tecnologia": "Modelo medio + flow_config",
+      "dod": "Oferta coherente con precios del tenant"
+    },
+    {
+      "id": "F11.9",
+      "fase": "F11",
+      "titulo": "Comunicación del programa de partners (beneficios por revender)",
+      "tecnologia": "Plantilla + modelo medio",
+      "dod": "Mensaje enviado a clientes elegibles"
+    },
+    {
+      "id": "F11.10",
+      "fase": "F11",
+      "titulo": "Detección de señales de upsell y creación de deal de ampliación en CRM",
+      "tecnologia": "Reglas + modelo ligero",
+      "dod": "Deal de upsell creado"
+    },
+    {
+      "id": "F11.11",
+      "fase": "F11",
+      "titulo": "Límites por máquina reutilizando las de email y WhatsApp",
+      "tecnologia": "packages/capacity",
+      "dod": "Sin exceso de envíos"
+    },
+    {
+      "id": "F12.1",
+      "fase": "F12",
+      "titulo": "Conectores de lectura: YouTube Data API, Reddit API, GitHub API, X API",
+      "tecnologia": "APIs oficiales",
+      "dod": "Búsqueda por palabras clave por plataforma"
+    },
+    {
+      "id": "F12.2",
+      "fase": "F12",
+      "titulo": "Lectura de LinkedIn vía worker de navegador",
+      "tecnologia": "Playwright",
+      "dod": "Publicaciones relevantes extraídas"
+    },
+    {
+      "id": "F12.3",
+      "fase": "F12",
+      "titulo": "Configuración por tenant: temas, palabras clave, comunidades, cuentas a seguir, exclusiones",
+      "tecnologia": "flow_config",
+      "dod": "Configuración validada"
+    },
+    {
+      "id": "F12.4",
+      "fase": "F12",
+      "titulo": "Detector de conversaciones de valor con puntuación",
+      "tecnologia": "Modelo ligero (lote)",
+      "dod": "Oportunidades ordenadas"
+    },
+    {
+      "id": "F12.5",
+      "fase": "F12",
+      "titulo": "Redactor de respuestas que aportan valor real, con transparencia de afiliación cuando la plataforma lo exige",
+      "tecnologia": "Modelo medio",
+      "dod": "Respuesta cumple reglas de la comunidad"
+    },
+    {
+      "id": "F12.6",
+      "fase": "F12",
+      "titulo": "Cola de aprobación obligatoria por defecto",
+      "tecnologia": "approvals",
+      "dod": "Nada se publica sin aprobación en L1"
+    },
+    {
+      "id": "F12.7",
+      "fase": "F12",
+      "titulo": "Publicación por API donde exista (YouTube, Reddit, GitHub, X) y por worker en LinkedIn",
+      "tecnologia": "APIs + Playwright",
+      "dod": "Comentario publicado en test"
+    },
+    {
+      "id": "F12.8",
+      "fase": "F12",
+      "titulo": "Enlaces con UTM y atribución de leads a la oportunidad original",
+      "tecnologia": "UTM + ingesta",
+      "dod": "Lead web ligado a su comentario"
+    },
+    {
+      "id": "F12.9",
+      "fase": "F12",
+      "titulo": "Límites por plataforma, por cuenta y por máquina, con cuotas de API",
+      "tecnologia": "packages/capacity",
+      "dod": "Cuota respetada"
+    },
+    {
+      "id": "F12.10",
+      "fase": "F12",
+      "titulo": "Métricas: oportunidades, publicaciones, clics, leads y coste por lead",
+      "tecnologia": "Panel",
+      "dod": "Métricas visibles"
+    },
+    {
+      "id": "F13.1",
+      "fase": "F13",
+      "titulo": "Verificar y documentar límites vigentes de cada proveedor y plataforma",
+      "tecnologia": "Investigación",
+      "dod": "Tabla de límites con fecha y fuente"
+    },
+    {
+      "id": "F13.2",
+      "fase": "F13",
+      "titulo": "Motor de cálculo de máquinas por canal y servidores por RAM/CPU",
+      "tecnologia": "packages/capacity",
+      "dod": "Tests con casos conocidos"
+    },
+    {
+      "id": "F13.3",
+      "fase": "F13",
+      "titulo": "Estimador de coste mensual por tenant (máquinas, LLM, enriquecimiento, voz, APIs)",
+      "tecnologia": "packages/capacity",
+      "dod": "Estimación mostrada al activar"
+    },
+    {
+      "id": "F13.4",
+      "fase": "F13",
+      "titulo": "Simulador \"qué pasa si\" (volumen objetivo → máquinas y coste)",
+      "tecnologia": "Next.js",
+      "dod": "Deslizadores recalculan en vivo"
+    },
+    {
+      "id": "F13.5",
+      "fase": "F13",
+      "titulo": "Registro de actividades de tratamiento y base legal por canal",
+      "tecnologia": "docs",
+      "dod": "Documento revisado por asesor legal"
+    },
+    {
+      "id": "F13.6",
+      "fase": "F13",
+      "titulo": "Gestión de derechos de interesados (acceso, supresión) por tenant",
+      "tecnologia": "Next.js + DB",
+      "dod": "Petición de borrado ejecutada en cascada"
+    },
+    {
+      "id": "F13.7",
+      "fase": "F13",
+      "titulo": "Retención configurable de datos y grabaciones",
+      "tecnologia": "Inngest cron",
+      "dod": "Datos caducados eliminados"
+    },
+    {
+      "id": "F13.8",
+      "fase": "F13",
+      "titulo": "Registro de auditoría consultable por tenant",
+      "tecnologia": "events",
+      "dod": "Toda acción de agente trazable"
+    },
+    {
+      "id": "F13.9",
+      "fase": "F13",
+      "titulo": "Pruebas de seguridad: aislamiento entre tenants, inyección de prompts desde contenido de prospectos y webs",
+      "tecnologia": "Vitest, evals",
+      "dod": "Ataques simulados bloqueados"
+    },
+    {
+      "id": "F13.10",
+      "fase": "F13",
+      "titulo": "Rotación de secretos y revocación de conexiones",
+      "tecnologia": "Vault",
+      "dod": "Conexión revocada deja de funcionar"
+    },
+    {
+      "id": "F14.1",
+      "fase": "F14",
+      "titulo": "Provisionar servidor(es) worker en Hetzner con Docker, firewall y copias",
+      "tecnologia": "Hetzner, Docker",
+      "dod": "Worker sano en staging"
+    },
+    {
+      "id": "F14.2",
+      "fase": "F14",
+      "titulo": "Pipeline de despliegue de workers (build, push, deploy con aprobación)",
+      "tecnologia": "GitHub Actions",
+      "dod": "Despliegue reproducible"
+    },
+    {
+      "id": "F14.3",
+      "fase": "F14",
+      "titulo": "Dominio y subdominios de la app (por ejemplo, sales.turbineh.com)",
+      "tecnologia": "Vercel DNS",
+      "dod": "HTTPS activo"
+    },
+    {
+      "id": "F14.4",
+      "fase": "F14",
+      "titulo": "Tenant 0: onboarding de TurbineH con deck, web y playbook de BRAIN OS",
+      "tecnologia": "Sistema propio",
+      "dod": "Perfil aprobado por Alex"
+    },
+    {
+      "id": "F14.5",
+      "fase": "F14",
+      "titulo": "Tenant 0 en L0 durante una semana: revisar todas las salidas",
+      "tecnologia": "Panel",
+      "dod": "Informe de calidad"
+    },
+    {
+      "id": "F14.6",
+      "fase": "F14",
+      "titulo": "Tenant 0 en L1 con volumen bajo",
+      "tecnologia": "Panel",
+      "dod": "Primeras reuniones agendadas"
+    },
+    {
+      "id": "F14.7",
+      "fase": "F14",
+      "titulo": "Tenant 1 piloto externo con sus propios inputs y conexiones",
+      "tecnologia": "Sistema",
+      "dod": "Sistema activo sin intervención de código"
+    },
+    {
+      "id": "F14.8",
+      "fase": "F14",
+      "titulo": "Alertas operativas (worker caído, cuenta restringida, presupuesto, errores)",
+      "tecnologia": "Better Stack, Sentry",
+      "dod": "Alerta de prueba recibida"
+    },
+    {
+      "id": "F14.9",
+      "fase": "F14",
+      "titulo": "Runbooks de operación y guía de usuario del panel",
+      "tecnologia": "docs",
+      "dod": "Documentos publicados"
+    },
+    {
+      "id": "F14.10",
+      "fase": "F14",
+      "titulo": "Revisión de rendimiento y coste tras 30 días y ajuste de router y límites",
+      "tecnologia": "Langfuse, panel",
+      "dod": "Informe de optimización"
+    }
+  ]
+}
