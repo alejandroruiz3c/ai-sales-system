@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/prompts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Plantillas de prompt versionadas por agente y sus evals de promptfoo",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

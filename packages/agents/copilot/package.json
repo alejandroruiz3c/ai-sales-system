@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/agent-copilot",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Copiloto SALES OS: ayuda, diagnóstico, métricas y cambios guiados",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

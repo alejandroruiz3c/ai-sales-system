@@ -1,0 +1,26 @@
+{
+  "//": "Raíz solo para el editor. Cada paquete tiene su propio tsconfig y `turbo run typecheck` los recorre todos.",
+  "files": [],
+  "include": [],
+  "references": [
+    { "path": "./apps/web" },
+    { "path": "./apps/worker-browser" },
+    { "path": "./packages/core" },
+    { "path": "./packages/db" },
+    { "path": "./packages/llm" },
+    { "path": "./packages/prompts" },
+    { "path": "./packages/studio" },
+    { "path": "./packages/integrations" },
+    { "path": "./packages/capacity" },
+    { "path": "./packages/agents/onboarding" },
+    { "path": "./packages/agents/prospecting" },
+    { "path": "./packages/agents/coordinator" },
+    { "path": "./packages/agents/email" },
+    { "path": "./packages/agents/linkedin" },
+    { "path": "./packages/agents/voice" },
+    { "path": "./packages/agents/closing" },
+    { "path": "./packages/agents/cs" },
+    { "path": "./packages/agents/opinion" },
+    { "path": "./packages/agents/copilot" }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/agent-closing",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agente de cierre y facturación: pago, NDA, Excel de onboarding y paso en CRM",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/agent-voice",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agente de llamadas: guion adaptado, agenda en directo y detección de cierre",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

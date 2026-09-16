@@ -1,0 +1,19 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "packages/agents/*"
+
+catalog:
+  "@types/node": 24.10.1
+  eslint: 10.10.0
+  typescript: 6.0.3
+  vitest: 4.1.11
+  zod: 4.6.5
+
+onlyBuiltDependencies:
+  - "@sentry/cli"
+  - protobufjs
+  - "@tailwindcss/oxide"
+  - esbuild
+  - sharp
+  - unrs-resolver

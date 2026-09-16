@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/agent-coordinator",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Coordinador de outreach: máquina de estados, cadencias y parada cruzada entre canales",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

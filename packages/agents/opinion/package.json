@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/agent-opinion",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agente Generador de Opinión: detecta conversaciones de valor y propone respuestas",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

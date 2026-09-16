@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "SALES OS · aplicación Next.js",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "jsx": "preserve",
+    "allowJs": true,
+    "types": ["node"],
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["${configDir}/src/*"]
+    }
+  },
+  "include": [
+    "${configDir}/next-env.d.ts",
+    "${configDir}/**/*.ts",
+    "${configDir}/**/*.tsx",
+    "${configDir}/.next/types/**/*.ts"
+  ],
+  "exclude": ["${configDir}/node_modules", "${configDir}/.next", "${configDir}/e2e"]
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "SALES OS · paquete de librería (se consume como TypeScript)",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["${configDir}/src/**/*.ts", "${configDir}/src/**/*.tsx"]
+}

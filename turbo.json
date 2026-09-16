@@ -1,0 +1,49 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalDependencies": [".env.example", "tsconfig.json", "eslint.config.mjs"],
+  "globalEnv": [
+    "NODE_ENV",
+    "VERCEL_ENV",
+    "VERCEL_GIT_COMMIT_SHA",
+    "SALES_OS_ENV",
+    "SANDBOX_MODE",
+    "SANDBOX_ALLOWLIST",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "INNGEST_EVENT_KEY",
+    "INNGEST_SIGNING_KEY",
+    "SENTRY_DSN",
+    "NEXT_PUBLIC_SENTRY_DSN",
+    "LANGFUSE_HOST",
+    "LANGFUSE_PUBLIC_KEY",
+    "LANGFUSE_SECRET_KEY",
+    "LAB_ACCESS_PASSWORD"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "e2e": {
+      "cache": false,
+      "dependsOn": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

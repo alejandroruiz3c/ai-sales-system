@@ -1,0 +1,50 @@
+{
+  "name": "sales-os",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Sistema de ventas agéntico multi-corporate de TurbineH",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "e2e": "turbo run e2e",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2",
+    "@eslint/js": "10.0.1",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import-x": "4.16.1",
+    "globals": "16.5.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.5.1",
+    "prettier": "3.9.7",
+    "turbo": "2.10.13",
+    "typescript": "catalog:",
+    "typescript-eslint": "8.70.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
+  }
+}

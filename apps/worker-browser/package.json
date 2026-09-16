@@ -1,0 +1,19 @@
+{
+  "name": "@sales-os/worker-browser",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Worker de navegador (Playwright) para LinkedIn y generación de opinión. Corre en Hetzner, no en Vercel.",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/main.ts",
+    "start": "node src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@sales-os/integrations",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Adaptadores de servicios externos e interceptor de modo sandbox",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./sandbox": "./src/sandbox/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

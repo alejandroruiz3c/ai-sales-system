@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Esquema Drizzle, migraciones versionadas, políticas RLS y seeds",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

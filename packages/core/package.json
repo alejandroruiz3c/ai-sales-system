@@ -1,0 +1,20 @@
+{
+  "name": "@sales-os/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tipos, contratos de eventos Zod, máquina de estados, errores y reglas transversales",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
