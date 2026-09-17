@@ -1,57 +1,88 @@
 # CODEOWNERS de SALES OS
 #
-# Revisión obligatoria por área (plan §4). GitHub exige que los equipos citados
-# existan en la organización turbineh y tengan acceso de escritura al repo; si un
-# equipo no existe, la regla se ignora en silencio y el área queda sin revisor.
-# Ver docs/entregas/F0.md: la creación de estos equipos está pendiente de Alex.
+# El plan (§4) pide revisión obligatoria por área, con un equipo responsable de
+# cada parte del sistema. Eso necesita una organización de GitHub: los equipos
+# (`@turbineh/sales-os-platform` y compañía) no existen en un repositorio
+# personal, y GitHub ignora en silencio a un propietario que no puede resolver,
+# dejando el área sin revisor sin avisar a nadie.
+#
+# El repositorio vive hoy en la cuenta personal `alejandroruiz3c`
+# (decisión de Alex, 2026-09-17), así que el fichero declara un solo
+# propietario. Sigue sirviendo para dos cosas: documenta qué áreas son
+# sensibles, y hace que GitHub pida revisión automáticamente en cada PR que las
+# toque.
+#
+# Consecuencias de no tener organización, que hay que tener presentes:
+#
+#   - La revisión por área no se puede exigir: `require_code_owner_reviews`
+#     queda en `false` en `scripts/proteger-main.sh`, porque nadie puede
+#     aprobar su propio PR y Alex es el único propietario. Se exige 1 revisión
+#     aprobatoria y Alex, como administrador, puede fusionar sin ella
+#     (`enforce_admins: false`).
+#   - Los equipos colaboradores externos que prevé el plan no se pueden separar
+#     por área hasta que exista la organización.
+#
+# Cuando se cree la organización: se restauran los equipos por área tal y como
+# están comentados abajo y se pone `require_code_owner_reviews` en `true`.
 
-# Por defecto, el equipo responsable de la plataforma
-*                             @turbineh/sales-os-platform
+# Todo el repositorio
+*                                    @alejandroruiz3c
 
-# Reglas permanentes, plan y decisiones: solo dirección técnica
-/CLAUDE.md                    @turbineh/sales-os-leads
-/CONTRIBUTING.md              @turbineh/sales-os-leads
-/docs/plan-sales-os.md        @turbineh/sales-os-leads
-/docs/adr/                    @turbineh/sales-os-leads
-/docs/entregas/               @turbineh/sales-os-leads
-/.github/                     @turbineh/sales-os-platform @turbineh/sales-os-leads
+# ── Áreas sensibles ────────────────────────────────────────────────────────────
+# Están listadas explícitamente aunque el propietario sea el mismo: cuando haya
+# organización, aquí se sustituye el usuario por su equipo sin tocar nada más.
+# Al lado de cada una, el equipo que le corresponderá.
+
+# Reglas permanentes, plan y decisiones: dirección técnica (sales-os-leads)
+/CLAUDE.md                           @alejandroruiz3c
+/CONTRIBUTING.md                     @alejandroruiz3c
+/docs/plan-sales-os.md               @alejandroruiz3c
+/docs/adr/                           @alejandroruiz3c
+/docs/entregas/                      @alejandroruiz3c
+/.github/                            @alejandroruiz3c
+
+# El sistema nace vacío: relajar esta comprobación es una decisión de dirección
+# (sales-os-leads)
+/scripts/terminos-vetados.json       @alejandroruiz3c
+/scripts/src/sistema-vacio.ts        @alejandroruiz3c
 
 # Núcleo: cambiar un contrato de evento afecta a todos los agentes
-/packages/core/               @turbineh/sales-os-platform @turbineh/sales-os-leads
-/packages/db/                 @turbineh/sales-os-platform @turbineh/sales-os-leads
-/packages/config/             @turbineh/sales-os-platform
+# (sales-os-platform + sales-os-leads)
+/packages/core/                      @alejandroruiz3c
+/packages/db/                        @alejandroruiz3c
+/packages/config/                    @alejandroruiz3c
 
-# Aislamiento entre tenants y seguridad: revisión reforzada
-/packages/integrations/src/sandbox/  @turbineh/sales-os-leads
+# Aislamiento entre tenants y sandbox: revisión reforzada (sales-os-leads)
+/packages/integrations/src/sandbox/   @alejandroruiz3c
 
-# Coste y modelos
-/packages/llm/                @turbineh/sales-os-platform
-/packages/prompts/            @turbineh/sales-os-prompts @turbineh/sales-os-platform
+# Coste y modelos (sales-os-platform, sales-os-prompts)
+/packages/llm/                       @alejandroruiz3c
+/packages/prompts/                   @alejandroruiz3c
 
-# Estudio y Copiloto
-/packages/studio/             @turbineh/sales-os-platform
-/packages/agents/copilot/     @turbineh/sales-os-platform
+# Estudio y Copiloto (sales-os-platform)
+/packages/studio/                    @alejandroruiz3c
+/packages/agents/copilot/            @alejandroruiz3c
 
-# Integraciones externas
-/packages/integrations/       @turbineh/sales-os-integrations
+# Integraciones externas (sales-os-integrations)
+/packages/integrations/              @alejandroruiz3c
 
-# Agentes: un equipo por canal
-/packages/agents/onboarding/  @turbineh/sales-os-platform
-/packages/agents/prospecting/ @turbineh/sales-os-prospecting
-/packages/agents/coordinator/ @turbineh/sales-os-platform
-/packages/agents/email/       @turbineh/sales-os-email
-/packages/agents/linkedin/    @turbineh/sales-os-linkedin
-/packages/agents/voice/       @turbineh/sales-os-voice
-/packages/agents/closing/     @turbineh/sales-os-platform @turbineh/sales-os-leads
-/packages/agents/cs/          @turbineh/sales-os-cs
-/packages/agents/opinion/     @turbineh/sales-os-opinion
+# Agentes: un equipo por canal cuando haya organización
+/packages/agents/onboarding/         @alejandroruiz3c
+/packages/agents/prospecting/        @alejandroruiz3c
+/packages/agents/coordinator/        @alejandroruiz3c
+/packages/agents/email/              @alejandroruiz3c
+/packages/agents/linkedin/           @alejandroruiz3c
+/packages/agents/voice/              @alejandroruiz3c
+/packages/agents/closing/            @alejandroruiz3c
+/packages/agents/cs/                 @alejandroruiz3c
+/packages/agents/opinion/            @alejandroruiz3c
 
-# Capacidad y coste
-/packages/capacity/           @turbineh/sales-os-platform
+# Capacidad y coste (sales-os-platform)
+/packages/capacity/                  @alejandroruiz3c
 
-# Aplicaciones
-/apps/web/                    @turbineh/sales-os-platform
-/apps/worker-browser/         @turbineh/sales-os-linkedin @turbineh/sales-os-platform
+# Aplicaciones (sales-os-platform, sales-os-linkedin)
+/apps/web/                           @alejandroruiz3c
+/apps/worker-browser/                @alejandroruiz3c
 
-# Infraestructura
-/infra/                       @turbineh/sales-os-platform @turbineh/sales-os-leads
+# Infraestructura (sales-os-platform + sales-os-leads)
+/infra/                              @alejandroruiz3c

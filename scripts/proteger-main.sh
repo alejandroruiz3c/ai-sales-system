@@ -10,7 +10,7 @@
 #
 set -euo pipefail
 
-REPO="${SALES_OS_REPO:-turbineh/ai-sales-system}"
+REPO="${SALES_OS_REPO:-alejandroruiz3c/ai-sales-system}"
 
 echo "▸ Protegiendo main en $REPO"
 
@@ -20,12 +20,12 @@ gh api -X PUT "repos/$REPO/branches/main/protection" \
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["Lint · Typecheck · Test · Build"]
+    "contexts": ["Lint · Sistema vacío · Typecheck · Test · Build"]
   },
   "enforce_admins": false,
   "required_pull_request_reviews": {
     "required_approving_review_count": 1,
-    "require_code_owner_reviews": true,
+    "require_code_owner_reviews": false,
     "dismiss_stale_reviews": true,
     "require_last_push_approval": false
   },

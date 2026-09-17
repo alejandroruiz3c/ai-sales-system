@@ -5,14 +5,14 @@ El panel, la API, los webhooks y las funciones de Inngest se despliegan aquí
 
 ## Proyecto
 
-| Ajuste              | Valor                      | Por qué                                                  |
-| ------------------- | -------------------------- | -------------------------------------------------------- |
-| Nombre              | `sales-os`                 | —                                                        |
-| Repositorio         | `turbineh/ai-sales-system` | Previews automáticas por PR (F0.8)                       |
-| Root Directory      | `apps/web`                 | Es un monorepo; Vercel detecta pnpm workspaces desde ahí |
-| Framework           | Next.js                    | —                                                        |
-| Región de funciones | `fra1` (Fráncfort)         | Todo el tratamiento de datos se queda en la UE           |
-| Node                | 22.x                       | Igual que en CI                                          |
+| Ajuste              | Valor                             | Por qué                                                  |
+| ------------------- | --------------------------------- | -------------------------------------------------------- |
+| Nombre              | `sales-os`                        | —                                                        |
+| Repositorio         | `alejandroruiz3c/ai-sales-system` | Previews automáticas por PR (F0.8)                       |
+| Root Directory      | `apps/web`                        | Es un monorepo; Vercel detecta pnpm workspaces desde ahí |
+| Framework           | Next.js                           | —                                                        |
+| Región de funciones | `fra1` (Fráncfort)                | Todo el tratamiento de datos se queda en la UE           |
+| Node                | 22.x                              | Igual que en CI                                          |
 
 `apps/web/vercel.json` fija framework, comandos y región. El `ignoreCommand` con
 `turbo-ignore` evita reconstruir el panel cuando un PR solo toca documentación o
