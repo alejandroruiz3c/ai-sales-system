@@ -54,8 +54,10 @@ export default {
         'opinion',
         'copilot',
         // Transversales
+        'plan',
         'adr',
         'entregas',
+        'scripts',
         'infra',
         'ci',
         'deps',
