@@ -2,7 +2,7 @@
   "name": "sales-os",
   "version": "0.0.0",
   "private": true,
-  "description": "Sistema de ventas agéntico multi-corporate de TurbineH",
+  "description": "Plataforma de ventas agéntica multi-corporate. Nace vacía: ningún dato de negocio en el código",
   "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=22"

@@ -2,7 +2,7 @@
 /**
  * Puebla GitHub con el plan: etiquetas, hitos por fase e issues (F0.13).
  *
- * Lee `scripts/backlog.json`, que se genera del plan y contiene las 203 tareas
+ * Lee `scripts/backlog.json`, que se genera del plan y contiene las 204 tareas
  * atómicas de F0 a F14. Cada tarea es un issue, como pide el plan (§4).
  *
  * Requiere el CLI `gh` autenticado con permiso de escritura en el repositorio.

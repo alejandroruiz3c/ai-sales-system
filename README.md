@@ -1,6 +1,12 @@
 # SALES OS
 
-Sistema de ventas agéntico multi-corporate de **TurbineH**.
+Plataforma de ventas agéntica multi-corporate, desarrollada por TurbineH.
+
+**SALES OS nace vacío.** No trae ningún corporate, producto, precio, ICP,
+argumentario ni modelo de negocio precargado, tampoco el de TurbineH, que solo
+aporta el dominio, el repositorio y la marca de la plataforma. Todo el
+conocimiento comercial entra por el onboarding de cada corporate y vive en la
+base de datos de su tenant. Lo comprueba `pnpm sistema-vacio` en cada PR.
 
 Cada corporate es un tenant aislado que, a partir de tres inputs (deck, web y
 argumentario), obtiene su propio sistema de ventas completo: prospección,

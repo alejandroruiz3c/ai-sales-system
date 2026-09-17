@@ -101,8 +101,16 @@ lista blanca y falla cerrado. No lo desactives, no lo puentees en un test con un
 mock que se salte la comprobación, y no añadas a la lista blanca a nadie que no
 haya aceptado participar.
 
-Nunca uses datos personales reales en fixtures ni en tests. Los tenants de prueba
-son **TurbineH** (datos reales propios) y **Clínica Aurora Demo** (ficticio).
+Nunca uses datos personales reales en fixtures ni en tests, y **nunca datos de
+negocio reales**: ni un corporate, ni un producto, ni un precio, ni un ICP, ni un
+argumentario, tampoco de TurbineH. SALES OS nace vacío; todo el conocimiento
+comercial entra por el onboarding de cada corporate y vive en la base de datos de
+su tenant (plan §0, regla permanente 3 de `CLAUDE.md`).
+
+Los corporates de prueba son ficticios y se dan de alta desde el propio panel:
+**Clínica Aurora Demo** y **Logística Norte Demo**. Si necesitas un fixture con
+perfil comercial, invéntalo y márcalo con el comentario `CORPORATE FICTICIO`, que
+es lo que busca la comprobación de `pnpm sistema-vacio`.
 
 ## 7. Preguntas
 

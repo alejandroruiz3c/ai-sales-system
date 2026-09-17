@@ -47,3 +47,8 @@ data/chrome-profiles/
 # Playwright: el config vive en apps/web, sus artefactos no
 apps/web/test-results/
 apps/web/playwright-report/
+
+# Ficheros de claves que Alex deja en local. Nunca se versionan.
+KEYS
+KEYS.*
+claves.*
