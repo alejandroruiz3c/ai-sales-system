@@ -23,7 +23,7 @@ env:
 
 jobs:
   quality:
-    name: Lint · Typecheck · Test · Build
+    name: Lint · Sistema vacío · Typecheck · Test · Build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -54,6 +54,11 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      # F0.19 · El sistema nace vacío. Si esto falla, hay un dato de negocio
+      # real en el repositorio y no se fusiona hasta que salga.
+      - name: Sistema vacío
+        run: pnpm sistema-vacio
 
       - name: Typecheck
         run: pnpm typecheck

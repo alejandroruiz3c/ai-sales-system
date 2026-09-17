@@ -5,7 +5,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'SALES OS',
-  description: 'Sistema de ventas agéntico multi-corporate de TurbineH',
+  description: 'Plataforma de ventas agéntica multi-corporate',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -103,7 +103,7 @@ haya aceptado participar.
 
 Nunca uses datos personales reales en fixtures ni en tests, y **nunca datos de
 negocio reales**: ni un corporate, ni un producto, ni un precio, ni un ICP, ni un
-argumentario, tampoco de TurbineH. SALES OS nace vacío; todo el conocimiento
+argumentario, tampoco el de TurbineH. SALES OS nace vacío; todo el conocimiento
 comercial entra por el onboarding de cada corporate y vive en la base de datos de
 su tenant (plan §0, regla permanente 3 de `CLAUDE.md`).
 

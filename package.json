@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "turbo run e2e",
+    "sistema-vacio": "node scripts/src/sistema-vacio-cli.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "prepare": "husky"

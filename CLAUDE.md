@@ -10,7 +10,7 @@ Cuando algo no esté en este fichero, la respuesta está en el plan.
 
 ---
 
-## 0. Las dos reglas que no se rompen nunca
+## 0. Las tres reglas que no se rompen nunca
 
 ### REGLA PERMANENTE 1 · Parada al final de cada fase
 
@@ -50,6 +50,40 @@ Ningún agente ni paso del flujo está terminado hasta que cumple las cinco:
 "Funciona" no es "está hecho". Un agente que funciona pero no se puede
 configurar ni diagnosticar es un agente que Alex no puede operar, y entonces el
 sistema no sirve.
+
+### REGLA PERMANENTE 3 · El sistema nace vacío
+
+SALES OS **no contiene ningún dato de negocio real**. Ni un corporate, ni un
+producto, ni un precio, ni una oferta, ni un ICP, ni un argumentario, ni un
+modelo de negocio. Tampoco los de TurbineH: TurbineH aporta el dominio, el
+repositorio y la marca de la plataforma, y nada más. No es un tenant, no es un
+corporate y no es la fuente de los datos de nadie.
+
+Esto vale para **todo**: código, plantillas de prompt, seeds, migraciones,
+fixtures, tests, evals, documentación y ADRs. No hay grados ni excepciones "solo
+para un test": un fixture es código, se copia, se comparte con equipos externos y
+acaba en un log.
+
+Todo el conocimiento comercial entra por **un solo camino**: el onboarding del
+corporate (deck, web y argumentario), y vive en la base de datos de su tenant.
+Las plantillas base de `packages/prompts` son genéricas y solo contienen
+variables del perfil comercial. Si al escribir una plantilla necesitas saber qué
+vende el corporate, el dato que falta es una variable, no una frase.
+
+Los corporates de prueba son **ficticios**, se dan de alta desde el propio panel
+y se pueden publicar: Clínica Aurora Demo y Logística Norte Demo. Si un fichero
+de datos de prueba habla de precios, ICP u ofertas, declara `CORPORATE FICTICIO`
+dentro del propio fichero.
+
+Lo comprueba `pnpm sistema-vacio` (F0.19) y es obligatorio en CI. Si un hallazgo
+es legítimo, no se silencia en el código: se añade la excepción con su motivo en
+`scripts/terminos-vetados.json`, y se revisa en el PR como cualquier otro cambio.
+
+El motivo es doble. Uno de producto: un sistema que trae precargado el negocio de
+su fabricante no es multi-corporate, es una herramienta interna con un panel. Y
+uno de riesgo: los datos comerciales de un corporate (sus precios, su ICP, sus
+objeciones) son de lo más sensible que nos va a confiar, y lo que no está en el
+repositorio no se puede filtrar desde el repositorio.
 
 ---
 
