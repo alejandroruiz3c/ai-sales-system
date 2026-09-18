@@ -34,6 +34,9 @@ export const env = {
 
   sentryDsn: read('SENTRY_DSN') ?? read('NEXT_PUBLIC_SENTRY_DSN'),
 
+  betterStackSourceToken: read('BETTER_STACK_SOURCE_TOKEN'),
+  betterStackIngestingHost: read('BETTER_STACK_INGESTING_HOST'),
+
   langfuseHost: read('LANGFUSE_HOST'),
   langfusePublicKey: read('LANGFUSE_PUBLIC_KEY'),
   langfuseSecretKey: read('LANGFUSE_SECRET_KEY'),

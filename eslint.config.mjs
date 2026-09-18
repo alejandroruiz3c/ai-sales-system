@@ -137,6 +137,17 @@ export default tseslint.config(
     },
   },
 
+  // Las dos comprobaciones de seguridad tienen que escribir los prefijos de
+  // secreto para poder buscarlos. Es el único caso en que un literal con pinta
+  // de secreto es correcto, y por eso la excepción nombra los dos ficheros en
+  // vez de relajar la regla en todo `scripts/`.
+  {
+    files: ['scripts/src/variables-publicas.ts', 'scripts/src/variables-publicas.test.ts'],
+    rules: {
+      'no-restricted-syntax': ['error', HTML_EXTERNO, SHELL_INTERPOLADO, SERVICE_ROLE],
+    },
+  },
+
   // packages/llm es el paquete que envuelve las llamadas a modelo: es el único
   // que puede importar el SDK.
   {
