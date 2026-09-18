@@ -22,6 +22,7 @@
     "e2e:staging": "node scripts/e2e-staging.mjs",
     "sistema-vacio": "node scripts/src/sistema-vacio-cli.ts",
     "variables-publicas": "node scripts/src/variables-publicas-cli.ts",
+    "verify:bundle": "node scripts/src/variables-publicas-cli.ts --bundle apps/web/.next/static",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "prepare": "husky"

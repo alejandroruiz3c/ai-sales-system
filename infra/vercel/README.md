@@ -23,12 +23,22 @@ Creado el 2026-09-17 en el equipo **TURBINEH** (`turbineh`).
 **El build ejecuta `pnpm verify` antes de `next build`** (F0.7, ADR 0007):
 
 ```json
-"buildCommand": "pnpm -w run verify && pnpm build"
+"buildCommand": "pnpm -w run verify && pnpm build && pnpm -w run verify:bundle"
 ```
 
-Si `verify` falla —formato, lint con reglas de seguridad, typecheck, tests,
-sistema vacío o `pnpm audit`—, Vercel no construye y no despliega, y el PR
-muestra su check en rojo. Con GitHub Actions bloqueado a nivel de cuenta y sin
+Son **dos** comprobaciones, antes y después de construir:
+
+- **Antes**, `pnpm verify`: formato, lint con reglas de seguridad, typecheck,
+  tests, sistema vacío, variables públicas y `pnpm audit`.
+- **Después**, `pnpm verify:bundle`: rastrea el JavaScript ya construido
+  buscando secretos. Existe por el incidente del 2026-09-18, en el que un token
+  de Sentry acabó servido en el bundle público: revisar las variables no basta,
+  porque un secreto puede llegar al cliente por otros caminos —un literal en un
+  componente, datos de servidor serializados en el HTML—. Lo único que ve la
+  verdad es lo que el navegador descarga.
+
+Si cualquiera de las dos falla, Vercel no despliega y el PR muestra su check en
+rojo. Con GitHub Actions bloqueado a nivel de cuenta y sin
 protección de ramas en el plan gratuito, **este check es la única puerta de
 calidad real del repositorio**.
 
@@ -47,12 +57,22 @@ un dato de negocio real sin revisión.
 | Production real (F14.3) | `sales.turbineh.com`         | `production`   | desactivable |
 
 Sí: mientras dure el desarrollo, el entorno _Production_ de Vercel sirve
-**staging**. Es deliberado, porque un dominio fijo solo se puede colgar del
-entorno de producción de un proyecto, y el plan pide una URL de staging estable
-(§5B.2). Lo que evita el accidente es que `SALES_OS_ENV=staging` mantiene el
-sandbox activo: el interceptor no se puede desactivar fuera de
-`SALES_OS_ENV=production` (F0.15). En F14.3 se separa el proyecto o el dominio de
-producción real.
+**staging**. Es una **desviación deliberada**, decidida por Alex el 2026-09-18 y
+documentada en [ADR 0008](../../docs/adr/0008-topologia-de-entornos-vercel-hobby.md):
+en el plan Hobby el único entorno con dominio fijo es _Production_, y el plan
+pide una URL de staging estable (§5B.2).
+
+Lo que evita el accidente no es la topología, son tres cosas que no dependen de
+ella: `SALES_OS_ENV=staging` mantiene el sandbox activo, el interceptor **no se
+puede desactivar** fuera de `SALES_OS_ENV=production` y **falla cerrado**
+(F0.15), y `ai-sales-prod` **no está conectado a ningún entorno**, así que ningún
+despliegue puede escribir en él.
+
+Se revierte en **F14.3** (subtareas F14.3a–F14.3f). Ojo con la primera:
+**el plan Hobby de Vercel no permite uso comercial**, así que hay que contratar
+Pro antes de dar de alta el primer corporate real (F14.5), no después. El mismo
+paso desbloquea los Custom Environments, que es lo que permite separar los
+entornos bien.
 
 ## DNS del dominio de staging
 
@@ -103,9 +123,23 @@ LANGFUSE_PUBLIC_KEY             cifrada
 LANGFUSE_SECRET_KEY             cifrada
 ```
 
-Alex añadió el 2026-09-17 las que faltaban: `INNGEST_EVENT_KEY`, `SENTRY_DSN`,
+Al día el 2026-09-18, en los tres entornos: `INNGEST_EVENT_KEY`, `SENTRY_DSN`,
 `NEXT_PUBLIC_SENTRY_DSN`, `BETTER_STACK_SOURCE_TOKEN` y
 `BETTER_STACK_INGESTING_HOST`.
+
+**`NEXT_PUBLIC_SENTRY_DSN` tiene que ser el DSN**, con la forma
+`https://<clave>@<host>/<idProyecto>`, que es público por diseño. Un token de
+organización (`sntrys_…`) o de usuario (`sntryu_…`) **no sirve y no puede ser
+público**: el 2026-09-18 esa variable contenía un token de usuario y se estuvo
+sirviendo en el bundle público de staging. Ahora lo impiden `pnpm
+variables-publicas` y `pnpm verify:bundle`, las dos dentro del build.
+
+**Fuente de logs: hoy los tres entornos comparten la de staging.** Es
+consecuencia del ADR 0008 — mientras _Production_ sirva staging, poner ahí la
+fuente de producción mandaría los logs de staging a la fuente equivocada. Cada
+entrada de log lleva su campo `environment` (`staging`, `preview`, `dev`) para
+distinguirlas. **En F14.3d, `Production` pasa a la fuente de producción** y cada
+entorno queda con la suya.
 
 El proyecto de producción de Supabase (`Ai-sales-prod`) existe pero **no se usa
 todavía**: el entorno _Production_ de Vercel sirve staging, así que apunta al

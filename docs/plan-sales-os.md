@@ -1,7 +1,7 @@
 # SALES OS · Plan de acción, arquitectura y funcionamiento
 
 **Sistema de ventas agéntico multi-corporate · plataforma desarrollada por TurbineH**
-Documento de dirección técnica · v1.4 · 18 sept 2026
+Documento de dirección técnica · v1.5 · 18 sept 2026
 Autor: CTO (Claude) · Destinatario: Alejandro Ruiz, Director General del proyecto · Ejecutor: Claude Code local + equipos colaboradores en GitHub
 
 ---
@@ -267,6 +267,8 @@ Los agentes viven en `packages/agents` sin depender del runtime: la misma lógic
 CODEOWNERS usa usuarios individuales en lugar de equipos, y sirve para asignar revisores automáticamente. La revisión es obligatoria por norma, no por bloqueo técnico: mientras Alex sea el único revisor, él aprueba y fusiona sus propios PRs. Dependabot y el secret scanning disponibles en el plan gratuito quedan activos; CodeQL no está disponible en repos privados gratuitos y se sustituye por reglas de seguridad de ESLint y `pnpm audit` en `pnpm verify`. Ningún secreto en el repo: `.env.example` documentado y variables en Vercel, GitHub Environments y Vault.
 
 **Entornos.** `dev` (local con Supabase local), `preview` (una por PR en Vercel con base de datos de rama), `staging` y `production`. Workers con imagen Docker etiquetada por versión y despliegue automático a staging, manual con aprobación a producción.
+
+**Desviación deliberada hasta F14.3** ([ADR 0008](adr/0008-topologia-de-entornos-vercel-hobby.md)): el equipo de Vercel está en plan Hobby, donde el único entorno con dominio fijo es *Production*. Así que hoy **el entorno _Production_ del proyecto sirve `staging.sales.turbineh.com`**, con `SALES_OS_ENV=staging` y la base `ai-sales-staging`; los tres entornos comparten esa base. Lo que evita el accidente no es la topología sino que el interceptor de sandbox se activa por `SALES_OS_ENV`, no se puede desactivar fuera de `production` y falla cerrado, y que `ai-sales-prod` no está conectado a ningún entorno. Se revierte en F14.3, que además **exige contratar Vercel Pro antes del primer corporate real**: el plan Hobby no permite uso comercial.
 
 **Documentación como código.** Cada decisión relevante tiene un ADR. Cada agente tiene su ficha en `docs/agents` (entradas, salidas, eventos, límites, métricas). `CLAUDE.md` fija las convenciones para Claude Code y para cualquier IA de los colaboradores.
 
@@ -631,7 +633,13 @@ Cada agente o paso del flujo solo se considera terminado cuando cumple estas cin
 |---|---|---|---|
 | F14.1 | Provisionar servidor(es) worker en Hetzner con Docker, firewall y copias | Hetzner, Docker | Worker sano en staging |
 | F14.2 | Pipeline de despliegue de workers (build, push, deploy con aprobación) | GitHub Actions | Despliegue reproducible |
-| F14.3 | Dominio y subdominios de la app (por ejemplo, sales.turbineh.com) | Vercel DNS | HTTPS activo |
+| F14.3 | Separar entornos de verdad: dominio de producción y `staging` como entorno propio (ver [ADR 0008](adr/0008-topologia-de-entornos-vercel-hobby.md)) | Vercel | HTTPS activo en los dos entornos y sandbox activo en staging |
+| F14.3a | Contratar **Vercel Pro** en el equipo. **Bloqueante:** el plan Hobby no permite uso comercial, así que esto va antes de F14.5 | Vercel | Plan Pro activo |
+| F14.3b | Crear el Custom Environment `staging` y mover `staging.sales.turbineh.com` a él | Vercel | Staging responde desde su propio entorno |
+| F14.3c | Repuntar Production a `sales.turbineh.com` con `SALES_OS_ENV=production` y `ai-sales-prod` | Vercel, DNS | HTTPS activo en el dominio de producción |
+| F14.3d | Migrar las variables por entorno, incluida la fuente de logs de producción | Vercel | Cada entorno con sus propias credenciales |
+| F14.3e | Aplicar migraciones en `ai-sales-prod` y comprobar que arranca vacío | packages/db | Base de producción con esquema y sin tenants |
+| F14.3f | Comprobar el corte: E2E contra el nuevo staging, `/status` verde en los dos entornos, sandbox activo en staging | Playwright | Suite verde en los dos entornos |
 | F14.4 | Verificar que producción arranca vacía (sin tenants ni datos de negocio) | Script | Base de producción sin tenants |
 | F14.5 | Alta del primer corporate real elegido por Alex, solo desde el panel | Sistema | Perfil aprobado por Alex sin tocar código |
 | F14.6 | Primer corporate en L0 durante una semana y después L1 con volumen bajo | Panel | Primeras reuniones agendadas |
