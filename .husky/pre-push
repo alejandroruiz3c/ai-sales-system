@@ -1,0 +1,63 @@
+#!/usr/bin/env sh
+#
+# F0.7 · Primera capa de protección de `main`.
+#
+# El repositorio vive en una cuenta personal de GitHub con plan gratuito, que no
+# permite proteger ramas (ADR 0007). Este hook hace en local lo que haría la
+# protección nativa: rechaza el push directo a `main` y exige que `pnpm verify`
+# esté en verde antes de subir nada.
+#
+# Se instala solo: `pnpm install` ejecuta `prepare` → `husky`, que apunta
+# `core.hooksPath` a esta carpeta. Cualquiera que clone el repositorio lo tiene
+# activo sin hacer nada.
+#
+# Se puede saltar con `git push --no-verify`. No es un agujero olvidado: es que
+# un hook local nunca es una garantía, solo una red. Por eso existe la tercera
+# capa, el workflow guardián, que abre un issue si un commit aparece en `main`
+# sin venir de un PR fusionado.
+
+set -e
+
+RAMA_PROTEGIDA="main"
+
+# Git pasa por la entrada estándar una línea por referencia que se va a subir:
+#   <ref local> <sha local> <ref remota> <sha remoto>
+while read -r _ref_local _sha_local ref_remota _sha_remoto; do
+  [ -z "$ref_remota" ] && continue
+
+  if [ "$ref_remota" = "refs/heads/$RAMA_PROTEGIDA" ]; then
+    rama_actual=$(git rev-parse --abbrev-ref HEAD)
+    cat >&2 <<MENSAJE
+
+  ✖ Push directo a "$RAMA_PROTEGIDA" rechazado.
+
+    En SALES OS nada entra en "$RAMA_PROTEGIDA" sin pasar por un PR: ni un
+    arreglo de una línea, ni un cambio de documentación. Es la regla permanente
+    4 de CLAUDE.md, y existe porque "$RAMA_PROTEGIDA" siempre tiene que estar
+    desplegable: el check de Vercel sobre el PR es lo único que lo garantiza
+    (ADR 0007).
+
+    Estás en la rama: $rama_actual
+
+    Qué hacer ahora:
+
+      git switch -c feat/fX.Y-descripcion-corta   # o fix/… o chore/…
+      git push -u origin feat/fX.Y-descripcion-corta
+      gh pr create --fill
+
+    Si ya habías comiteado sobre "$RAMA_PROTEGIDA" por error, los commits se
+    llevan a una rama sin perder nada:
+
+      git switch -c feat/fX.Y-descripcion-corta
+      git switch $RAMA_PROTEGIDA
+      git reset --hard origin/$RAMA_PROTEGIDA
+      git switch feat/fX.Y-descripcion-corta
+
+MENSAJE
+    exit 1
+  fi
+done
+
+echo "▸ pre-push: pnpm verify"
+echo "  (formato, lint, typecheck, tests, sistema vacío y auditoría de dependencias)"
+pnpm verify

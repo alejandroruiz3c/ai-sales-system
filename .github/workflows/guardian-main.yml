@@ -1,0 +1,103 @@
+# F0.7 · Tercera capa de protección de `main`.
+#
+# El plan gratuito de GitHub no permite proteger ramas (ADR 0007), así que nada
+# impide técnicamente un `git push` a `main`: el hook pre-push se salta con
+# `--no-verify` y un cambio hecho desde la web de GitHub ni pasa por el hook.
+#
+# Este workflow no lo impide: lo hace visible. Si aparece un commit en `main` que
+# no viene de un PR fusionado, abre un issue con lo que ha pasado y qué revisar.
+# Detectarlo el mismo día es la diferencia entre revisar un commit y auditar una
+# semana de historia.
+
+name: Guardián de main
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  vigilar:
+    name: Un commit en main sin PR abre un issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Comprobar el origen del push
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          FORZADO: ${{ github.event.forced }}
+        run: |
+          set -euo pipefail
+
+          # ¿Hay un PR fusionado cuyo commit de fusión sea exactamente este? Es la única
+          # señal fiable. El título del commit se puede escribir a mano («algo (#42)»), y
+          # la lista de PR asociados a un commit incluye también los PR abiertos que lo
+          # contienen.
+          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+                 --jq "[.[] | select(.merged_at != null and .merge_commit_sha == \"$SHA\") | .number] | first // empty")
+
+          if [ "$FORZADO" = "true" ]; then
+            echo "::error title=Force push a main::El historial de main se ha reescrito."
+            {
+              echo 'alerta=si'
+              echo 'motivo=Se ha hecho un **force push** a `main`: el historial se ha reescrito.'
+            } >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          if [ -n "$pr" ]; then
+            echo "▸ El commit $SHA es la fusión del PR #$pr. Todo en orden."
+            echo 'alerta=no' >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          echo "::error title=Push directo a main::Este commit no viene de ningún PR fusionado."
+          {
+            echo 'alerta=si'
+            echo 'motivo=Este commit ha llegado a `main` **sin pasar por un PR**.'
+          } >> "$GITHUB_ENV"
+
+      - name: Abrir el issue de alerta
+        if: env.alerta == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SERVIDOR: ${{ github.server_url }}
+          SHA: ${{ github.sha }}
+          PUSHER: ${{ github.event.pusher.name }}
+          AUTOR: ${{ github.event.head_commit.author.name }}
+          MENSAJE: ${{ github.event.head_commit.message }}
+          EJECUCION: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          titulo="⚠ Commit en main sin PR: ${SHA:0:7}"
+
+          # Idempotente: si ya hay un issue para este commit, no se abre otro. Un workflow
+          # que abre duplicados se acaba silenciando, y entonces deja de avisar del que
+          # importa.
+          existente=$(gh issue list --repo "$REPO" --state all --search "\"${SHA:0:7}\" in:title" \
+                        --json number --jq '.[0].number // empty')
+          if [ -n "$existente" ]; then
+            echo "Ya existe el issue #$existente para este commit."
+            exit 0
+          fi
+
+          # La sustitución la hace Python leyendo el entorno, no el shell: el mensaje de un
+          # commit es texto de un tercero, y un `$(...)` expandido por el shell se
+          # ejecutaría en el runner.
+          python3 .github/plantillas/guardian-main.py
+
+          gh issue create --repo "$REPO" \
+            --title "$titulo" \
+            --body-file cuerpo.md \
+            --label seguridad \
+            --label prioridad:alta

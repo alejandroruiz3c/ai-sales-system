@@ -16,6 +16,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm sistema-vacio && pnpm audit --audit-level high",
+    "verify:rapido": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm sistema-vacio",
     "e2e": "turbo run e2e",
     "sistema-vacio": "node scripts/src/sistema-vacio-cli.ts",
     "changeset": "changeset",
