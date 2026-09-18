@@ -26,8 +26,26 @@ import {
   type Fichero,
 } from './sistema-vacio.ts';
 
+/**
+ * La comprobación se apoya en git para saber qué ficheros mirar. Si no hay
+ * repositorio, falla con un mensaje que se entiende, no con un error de
+ * `execFileSync`: esto corre dentro del build de Vercel, y un fallo opaco ahí
+ * cuesta media hora de logs.
+ */
 function raizDelRepositorio(): string {
-  return execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+  try {
+    return execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    throw new Error(
+      'No hay repositorio de git aquí, y la comprobación de sistema vacío lo necesita ' +
+        'para saber qué ficheros mirar y cuáles están versionados.\n' +
+        '  · En local: ejecútalo desde dentro del repositorio.\n' +
+        '  · En el build de Vercel: comprueba que .vercelignore no excluye .git.',
+    );
+  }
 }
 
 /**
