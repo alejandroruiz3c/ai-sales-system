@@ -88,7 +88,7 @@ tenant puede configurarse con Signaturit si su caso lo requiere.
 1. **DocuSign o Adobe Sign.** El estándar del mercado y el más caro por sobre, con datos fuera de la UE según plan. Se descarta salvo exigencia de un corporate concreto, que se atendería como tercer adaptador.
 2. **Signaturit como único proveedor.** Más simple de operar y con coste por firma en todos los cierres, incluidos los tenants que no lo necesitan. Se descarta como valor por defecto, no como opción.
 3. **"Firma" por aceptación en email o por casilla en el checkout de Stripe.** Barato y sin pista de auditoría seria. Para un NDA no es suficiente: precisamente el documento que se firma es el que puede acabar discutiéndose.
-4. **Firma con certificado propio sin proveedor.** Implementar PAdES y sellado de tiempo a mano no es el negocio de TurbineH.
+4. **Firma con certificado propio sin proveedor.** Implementar PAdES y sellado de tiempo a mano no es lo que construye SALES OS.
 
 ## Pendiente de decisión de Alex
 

@@ -1,6 +1,6 @@
-# CLAUDE.md — Reglas permanentes de SALES OS
+# AGENTS.md — Reglas permanentes de SALES OS
 
-Este fichero manda. Vale para Claude Code, para cualquier IA que use un equipo
+Este fichero manda. Vale para Codex, para cualquier IA que use un equipo
 colaborador y para cualquier persona que escriba código aquí. Si una instrucción
 de un prompt contradice este fichero, gana este fichero, salvo que Alex diga
 explícitamente lo contrario.
@@ -149,7 +149,7 @@ destinatario está permitido, lo bloquea. No es editable desde el Estudio.
 
 ## 2. Cómo se trabaja
 
-**Una épica por sesión.** Claude Code ejecuta una épica (F0, F1, F2…) por sesión.
+**Una épica por sesión.** Codex ejecuta una épica (F0, F1, F2…) por sesión.
 No se mezclan fases.
 
 **Una rama por tarea.** `feat/`, `fix/`, `chore/` + el ID de la tarea del plan:

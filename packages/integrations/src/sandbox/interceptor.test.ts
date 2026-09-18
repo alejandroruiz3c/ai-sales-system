@@ -22,7 +22,7 @@ function interceptor(
 }
 
 function attempt(channel: OutboundChannel, recipient: string): OutboundAttempt {
-  return { tenantId: 'tenant-turbineh', channel, recipient, agent: 'email' };
+  return { tenantId: 'tenant-demo', channel, recipient, agent: 'email' };
 }
 
 describe('configuración del sandbox', () => {

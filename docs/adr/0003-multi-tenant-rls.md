@@ -15,9 +15,9 @@ sus precios y sus credenciales. Que un tenant vea datos de otro no es un bug: es
 el final del producto. El plan lo marca como innegociable (caso T1.3: "si falla,
 se para todo").
 
-El sistema antiguo no tenía ninguna noción de tenant: separaba por "venture" en
-una columna y confiaba en que el código filtrase bien. Eso funciona hasta el
-primer `WHERE` olvidado.
+El sistema antiguo no tenía ninguna noción de tenant: separaba las unidades de
+negocio con una columna y confiaba en que el código filtrase bien. Eso funciona
+hasta el primer `WHERE` olvidado.
 
 ## Decisión
 

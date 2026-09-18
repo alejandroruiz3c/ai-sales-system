@@ -103,8 +103,8 @@ valida un abogado antes de activar el canal.
 1. **Vapi.** Más flexible como framework y con más piezas que configurar. Queda
    como segundo adaptador y como candidato si gana la prueba de campo.
 2. **Construirlo con Twilio Media Streams + STT + TTS propios.** Control total y
-   un problema de ingeniería de latencia en tiempo real que no es el negocio de
-   TurbineH. Rechazada.
+   un problema de ingeniería de latencia en tiempo real que no es lo que
+   construye SALES OS. Rechazada.
 3. **ElevenLabs Agents.** Excelente voz; hay que verificar en la prueba de campo
    la gestión del ciclo de llamada telefónica y las herramientas en llamada. Se
    incluye en la batería como tercer candidato si Alex quiere.

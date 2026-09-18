@@ -15,12 +15,12 @@
 
 ## 1. Dónde probarlo
 
-| Qué                 | Dónde                                       |
-| ------------------- | ------------------------------------------- |
-| Staging             | https://staging.sales.turbineh.com          |
-| Estado de servicios | https://staging.sales.turbineh.com/status   |
-| Sala de pruebas     | https://staging.sales.turbineh.com/lab      |
-| Repositorio         | https://github.com/turbineh/ai-sales-system |
+| Qué                 | Dónde                                              |
+| ------------------- | -------------------------------------------------- |
+| Staging             | https://staging.sales.turbineh.com                 |
+| Estado de servicios | https://staging.sales.turbineh.com/status          |
+| Sala de pruebas     | https://staging.sales.turbineh.com/lab             |
+| Repositorio         | https://github.com/alejandroruiz3c/ai-sales-system |
 
 ## 2. Qué puedes probar
 

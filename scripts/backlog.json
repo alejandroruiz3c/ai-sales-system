@@ -43,7 +43,7 @@
     },
     {
       "id": "F9",
-      "nombre": "Agente de llamadas"
+      "nombre": "Agente de llamadas (outreach + cierre potencial)"
     },
     {
       "id": "F10",
@@ -192,6 +192,13 @@
       "titulo": "Plantilla de Informe de entrega en `docs/entregas/` y regla de parada tras cada fase",
       "tecnologia": "Markdown",
       "dod": "`docs/entregas/F0.md` generado"
+    },
+    {
+      "id": "F0.19",
+      "fase": "F0",
+      "titulo": "Comprobación \"sistema vacío\": el código, las plantillas, los seeds y los fixtures no contienen ningún dato de negocio real (nombres de corporates o productos, precios, ICP, argumentarios). Los fixtures de test usan solo corporates ficticios",
+      "tecnologia": "Script en CI + lista de términos vetados",
+      "dod": "CI falla si aparece un dato de negocio real"
     },
     {
       "id": "F1.1",
@@ -343,7 +350,7 @@
     {
       "id": "F2.8",
       "fase": "F2",
-      "titulo": "Interfaz `ModelProvider` para enchufar en el futuro modelos propios TurbineH",
+      "titulo": "Interfaz `ModelProvider` para enchufar en el futuro otros proveedores o modelos propios",
       "tecnologia": "TypeScript",
       "dod": "Proveedor simulado intercambiable en test"
     },
@@ -499,7 +506,7 @@
       "fase": "F3",
       "titulo": "Parser de deck PDF/PPTX a texto estructurado por diapositiva",
       "tecnologia": "Parsers + documento nativo en Claude",
-      "dod": "Deck de TurbineH extraído completo"
+      "dod": "Deck de prueba ficticio extraído completo"
     },
     {
       "id": "F3.3",
@@ -513,7 +520,7 @@
       "fase": "F3",
       "titulo": "Crawler de web con límite de páginas y respeto a robots.txt",
       "tecnologia": "Playwright (worker)",
-      "dod": "Web de TurbineH rastreada en texto limpio"
+      "dod": "Web de prueba rastreada en texto limpio"
     },
     {
       "id": "F3.5",
@@ -588,7 +595,7 @@
     {
       "id": "F3.15",
       "fase": "F3",
-      "titulo": "Evals del onboarding con 3 corporates de prueba (TurbineH + 2 ficticios)",
+      "titulo": "Evals del onboarding con 3 corporates ficticios de sectores distintos",
       "tecnologia": "promptfoo",
       "dod": "Precisión de campos ≥ umbral fijado"
     },
@@ -1183,9 +1190,9 @@
     {
       "id": "F10.9",
       "fase": "F10",
-      "titulo": "Adaptador al sistema de facturación actual de TurbineH (reutilizando lo existente según F0.1)",
-      "tecnologia": "Adaptador",
-      "dod": "Cliente creado en el sistema actual"
+      "titulo": "Adaptador genérico por webhook para que cada corporate conecte su propio sistema de facturación externo",
+      "tecnologia": "Webhooks firmados",
+      "dod": "Cliente enviado a un sistema externo de prueba"
     },
     {
       "id": "F10.10",
@@ -1442,30 +1449,30 @@
     {
       "id": "F14.4",
       "fase": "F14",
-      "titulo": "Tenant 0: onboarding de TurbineH con deck, web y playbook de BRAIN OS",
-      "tecnologia": "Sistema propio",
-      "dod": "Perfil aprobado por Alex"
+      "titulo": "Verificar que producción arranca vacía (sin tenants ni datos de negocio)",
+      "tecnologia": "Script",
+      "dod": "Base de producción sin tenants"
     },
     {
       "id": "F14.5",
       "fase": "F14",
-      "titulo": "Tenant 0 en L0 durante una semana: revisar todas las salidas",
-      "tecnologia": "Panel",
-      "dod": "Informe de calidad"
+      "titulo": "Alta del primer corporate real elegido por Alex, solo desde el panel",
+      "tecnologia": "Sistema",
+      "dod": "Perfil aprobado por Alex sin tocar código"
     },
     {
       "id": "F14.6",
       "fase": "F14",
-      "titulo": "Tenant 0 en L1 con volumen bajo",
+      "titulo": "Primer corporate en L0 durante una semana y después L1 con volumen bajo",
       "tecnologia": "Panel",
       "dod": "Primeras reuniones agendadas"
     },
     {
       "id": "F14.7",
       "fase": "F14",
-      "titulo": "Tenant 1 piloto externo con sus propios inputs y conexiones",
+      "titulo": "Alta de un segundo corporate real con sus propios inputs y conexiones",
       "tecnologia": "Sistema",
-      "dod": "Sistema activo sin intervención de código"
+      "dod": "Ambos activos y aislados sin intervención de código"
     },
     {
       "id": "F14.8",

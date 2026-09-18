@@ -2,7 +2,7 @@
 /**
  * Puebla GitHub con el plan: etiquetas, hitos por fase e issues (F0.13).
  *
- * Lee `scripts/backlog.json`, que se genera del plan y contiene las 203 tareas
+ * Lee `scripts/backlog.json`, que se genera del plan y contiene las 204 tareas
  * atómicas de F0 a F14. Cada tarea es un issue, como pide el plan (§4).
  *
  * Requiere el CLI `gh` autenticado con permiso de escritura en el repositorio.
@@ -20,7 +20,7 @@ import { promisify } from 'node:util';
 
 const run = promisify(execFile);
 
-const REPO = process.env.SALES_OS_REPO ?? 'turbineh/ai-sales-system';
+const REPO = process.env.SALES_OS_REPO ?? 'alejandroruiz3c/ai-sales-system';
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const soloFase = args.includes('--fase') ? args[args.indexOf('--fase') + 1] : null;
@@ -250,7 +250,8 @@ async function main() {
   await crearIssues(tareas, hitos, await issuesExistentes());
 
   console.log('\nListo. Crea el tablero en GitHub Projects y añade los issues por hito:');
-  console.log(`  gh project create --owner turbineh --title "SALES OS"`);
+  console.log(`  gh project create --owner @me --title "SALES OS"`);
+  console.log('  (necesita el scope project: gh auth refresh -s project,read:project)');
   console.log('  (después, en el tablero: Add items → filtra por hito y añádelos)');
 }
 

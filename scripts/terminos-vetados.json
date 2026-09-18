@@ -1,0 +1,134 @@
+{
+  "descripcion": "F0.19 · Términos vetados en SALES OS. El sistema nace vacío: ningún corporate, producto, precio, ICP, argumentario ni modelo de negocio real entra en el código, las plantillas, los seeds, los fixtures, los tests ni la documentación. Esta lista detecta la reincidencia de datos concretos que ya estuvieron aquí o que vienen del sistema antiguo; la comprobación de datosDePrueba cubre lo nuevo. Se ejecuta con `pnpm sistema-vacio` y es obligatoria en CI.",
+
+  "rutasExcluidas": [
+    "pnpm-lock.yaml",
+    "scripts/terminos-vetados.json",
+    "scripts/src/sistema-vacio.test.ts",
+    ".husky/_/**"
+  ],
+
+  "extensionesExcluidas": [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".ico",
+    ".pdf",
+    ".pptx",
+    ".docx",
+    ".xlsx",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".zip",
+    ".gz",
+    ".tar",
+    ".zst",
+    ".mp3",
+    ".mp4",
+    ".rtf"
+  ],
+
+  "excepciones": [
+    {
+      "id": "dominio-de-la-plataforma",
+      "patron": "[a-z0-9.-]*turbineh\\.(com|es)",
+      "motivo": "El dominio es de la plataforma, no de un corporate: staging.sales.turbineh.com y los alias de correo de la lista blanca del sandbox."
+    },
+    {
+      "id": "repositorio-y-organizacion",
+      "patron": "(@|--owner |organización |github\\.com/)`?turbineh(/[a-z0-9-]+)?|@turbineh/[a-z0-9-]+",
+      "motivo": "El repositorio, la organización de GitHub y los equipos de CODEOWNERS viven en la cuenta turbineh."
+    },
+    {
+      "id": "marca-de-la-plataforma",
+      "patron": "(desarrollada|desarrollado|plataforma) por TurbineH",
+      "motivo": "TurbineH aporta la marca de la plataforma. Eso es lo único que aporta."
+    },
+    {
+      "id": "enunciado-del-principio",
+      "patron": "(tampoco (el|los) de TurbineH|TurbineH solo aporta|TurbineH como corporate|de TurbineH como negocio)",
+      "motivo": "El propio enunciado del principio (plan §0, CLAUDE.md, CONTRIBUTING) tiene que poder nombrar lo que prohíbe."
+    }
+  ],
+
+  "reglas": [
+    {
+      "id": "entidad-emisora-de-facturas",
+      "patron": "yesworks",
+      "motivo": "Entidad legal real que emite las facturas del sistema antiguo. Se queda en el sistema envuelto (ADR 0001), no entra aquí."
+    },
+    {
+      "id": "producto-real",
+      "patron": "\\bbrain[\\s_-]?os\\b",
+      "motivo": "Producto real de TurbineH. Lo que vende un corporate lo define su perfil comercial, generado en el onboarding (F3)."
+    },
+    {
+      "id": "unidades-de-negocio-reales",
+      "patron": "brain-turbineh|turbineh-optimize|my-?estatia|checktobuild|floor[\\s-]?flatness",
+      "motivo": "Nombres de las unidades de negocio reales del sistema antiguo. Los corporates de prueba son ficticios: Clínica Aurora Demo y Logística Norte Demo."
+    },
+    {
+      "id": "tenant-precargado",
+      "patron": "\\btenant[\\s_-]?0\\b|tenant cero",
+      "motivo": "No hay tenant precargado. El primer corporate real se da de alta desde el panel, como cualquier otro (F14.5)."
+    },
+    {
+      "id": "sistema-como-cliente-de-si-mismo",
+      "patron": "dogfooding",
+      "motivo": "Implica que TurbineH es el primer corporate del sistema, que es justo lo que el plan v1.3 descartó."
+    },
+    {
+      "id": "tarifa-real-por-tramos",
+      "patron": "\\b(390|890|1\\.990|4\\.500|17\\.900|199\\.000)\\s*(€|EUR\\b|euros)",
+      "motivo": "Tramos de una tarifa real. Los precios son del perfil comercial de cada corporate y viven en su tenant."
+    },
+    {
+      "id": "precio-mensual-real",
+      "patron": "(€\\s*900|900\\s*€)\\s*/?\\s*(mes|month)",
+      "motivo": "Precio real del sistema antiguo. Ningún precio se hardcodea."
+    },
+    {
+      "id": "tarifa-propia-de-la-plataforma",
+      "patron": "tarifa oficial",
+      "motivo": "SALES OS no tiene tarifa propia ni la impone: cada corporate define la suya en su onboarding."
+    },
+    {
+      "id": "turbineh-como-corporate",
+      "patron": "(corporate|tenant|deck|argumentario|playbook|producto|oferta|precios|facturación|modelos propios|datos reales)[^.\\n|]{0,45}turbineh",
+      "motivo": "TurbineH solo aporta dominio, repositorio y marca de la plataforma: nunca es un corporate, un producto ni un origen de datos del sistema."
+    },
+    {
+      "id": "turbineh-vendiendo",
+      "patron": "turbineh[^.\\n|]{0,40}(vendiendo|como corporate|datos reales|primer tenant|su propio sistema de ventas)",
+      "motivo": "Mismo motivo: la plataforma no se vende a sí misma dentro del sistema."
+    }
+  ],
+
+  "datosDePrueba": {
+    "carpetas": [
+      "**/fixtures/**",
+      "**/__fixtures__/**",
+      "**/seeds/**",
+      "**/seed/**",
+      "**/evals/**",
+      "**/datos-de-prueba/**",
+      "packages/db/**/seed*",
+      "packages/prompts/**/ejemplos/**"
+    ],
+    "senales": [
+      "\\bICP\\b",
+      "argumentario",
+      "propuesta de valor",
+      "\\bprecios?\\b",
+      "\\btarifas?\\b",
+      "\\bofertas?\\b",
+      "afirmaciones prohibidas",
+      "\\bdeck\\b"
+    ],
+    "marcador": "CORPORATE FICTICIO"
+  }
+}

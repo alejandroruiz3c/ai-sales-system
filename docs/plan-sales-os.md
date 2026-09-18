@@ -1,7 +1,7 @@
 # SALES OS · Plan de acción, arquitectura y funcionamiento
 
-**Sistema de ventas agéntico multi-corporate de TurbineH**
-Documento de dirección técnica · v1.0 · 16 sept 2026
+**Sistema de ventas agéntico multi-corporate · plataforma desarrollada por TurbineH**
+Documento de dirección técnica · v1.3 · 17 sept 2026
 Autor: CTO (Claude) · Destinatario: Alejandro Ruiz, Director General del proyecto · Ejecutor: Claude Code local + equipos colaboradores en GitHub
 
 ---
@@ -18,7 +18,9 @@ Tres decisiones de arquitectura gobiernan todo lo demás:
 2. **Todo es evento, todo tiene tenant.** Un orquestador de workflows durable (Inngest) mueve cada prospecto por una máquina de estados, con concurrencia y *throttling* por tenant y por "máquina". Así los límites de cada canal se cumplen por diseño, no por disciplina.
 3. **El coste es una variable de primer orden.** Cada llamada a modelo pasa por un router que elige el modelo más barato capaz de la tarea, usa caché de prompts y procesamiento por lotes cuando no hay urgencia, y descuenta de un presupuesto mensual por tenant con corte duro.
 
-Primer tenant: **TurbineH vendiendo BRAIN OS** (dogfooding). Segundo tenant: un corporate piloto externo, que es la prueba real de que el sistema es multi-corporate.
+**Principio rector: el sistema nace vacío.** SALES OS no trae ningún corporate, producto, precio, ICP, argumentario ni modelo de negocio precargado, tampoco el de TurbineH. TurbineH solo aporta el dominio, el repositorio y la marca de la plataforma. Todo el conocimiento comercial entra exclusivamente a través del onboarding de cada corporate (deck, web y argumentario) y vive en la base de datos de ese tenant. Las plantillas base de los agentes son genéricas y solo contienen variables. Una comprobación automática en CI impide que entre en el código cualquier dato de negocio concreto.
+
+Los corporates de prueba son ficticios, se crean desde el propio onboarding durante las pruebas y nunca forman parte del código. El primer corporate real lo das de alta tú cuando quieras, como cualquier otro.
 
 ---
 
@@ -132,7 +134,7 @@ flowchart LR
 | Secretos por tenant | Supabase Vault (cifrado) | Tokens OAuth, credenciales SMTP, claves de cada corporate nunca en claro |
 | Orquestación | Inngest | Workflows durables, reintentos, cron, *concurrency keys* y *throttle* por tenant y por máquina; funciona con Vercel y con workers externos |
 | Validación | Zod | Contratos de eventos, configuración y salidas de LLM validadas |
-| LLM | Anthropic API detrás de un router propio | Enrutado por tarea y coste, caché de prompts, Batch API, preparado para modelos propios de TurbineH en el futuro |
+| LLM | Anthropic API detrás de un router propio | Enrutado por tarea y coste, caché de prompts, Batch API, preparado para enchufar otros proveedores o modelos propios en el futuro |
 | Parsing de inputs | pdf/pptx parsers + Claude con documentos nativos | Deck y argumentario entendidos con estructura |
 | Crawling web | Crawler propio con Playwright + fallback a servicio gestionado | Control de coste; servicio gestionado solo si una web lo bloquea |
 | Enriquecimiento | Proveedores vía adaptador (Hunter.io ya en uso; otros intercambiables) | Coste por crédito controlado por tenant |
@@ -294,6 +296,7 @@ Niveles: **Fase** (resultado de negocio) → **Épica** (capacidad) → **Tarea 
 | F0.16 | Esqueleto de la sala de pruebas `/lab` (solo administradores) con visor de eventos | Next.js | `/lab` accesible solo con rol admin |
 | F0.17 | Estructura de pruebas E2E por fase (`apps/web/e2e/FX/`) ejecutándose en CI contra staging | Playwright Test, GitHub Actions | Test E2E de F0 verde en CI |
 | F0.18 | Plantilla de Informe de entrega en `docs/entregas/` y regla de parada tras cada fase | Markdown | `docs/entregas/F0.md` generado |
+| F0.19 | Comprobación "sistema vacío": el código, las plantillas, los seeds y los fixtures no contienen ningún dato de negocio real (nombres de corporates o productos, precios, ICP, argumentarios). Los fixtures de test usan solo corporates ficticios | Script en CI + lista de términos vetados | CI falla si aparece un dato de negocio real |
 
 ### F1 · Núcleo multi-tenant
 
@@ -329,7 +332,7 @@ Niveles: **Fase** (resultado de negocio) → **Épica** (capacidad) → **Tarea 
 | F2.5 | Contabilidad de coste por llamada en `spend_ledger` y Langfuse | Langfuse | Coste por tenant y agente visible |
 | F2.6 | Sistema de plantillas de prompt versionadas con variables del perfil | packages/prompts | Plantilla renderizada con perfil seed |
 | F2.7 | Integrar promptfoo en CI con umbral por agente | promptfoo, GitHub Actions | PR que empeora un agente falla |
-| F2.8 | Interfaz `ModelProvider` para enchufar en el futuro modelos propios TurbineH | TypeScript | Proveedor simulado intercambiable en test |
+| F2.8 | Interfaz `ModelProvider` para enchufar en el futuro otros proveedores o modelos propios | TypeScript | Proveedor simulado intercambiable en test |
 
 ### F2B · Estudio de configuración y Copiloto SALES OS
 
@@ -409,9 +412,9 @@ Cada agente o paso del flujo solo se considera terminado cuando cumple estas cin
 | ID | Tarea atómica | Tecnología | DoD |
 |---|---|---|---|
 | F3.1 | Asistente de alta: datos básicos + subida de deck, argumentario y URL web | Next.js | Tres inputs guardados en `inputs/` |
-| F3.2 | Parser de deck PDF/PPTX a texto estructurado por diapositiva | Parsers + documento nativo en Claude | Deck de TurbineH extraído completo |
+| F3.2 | Parser de deck PDF/PPTX a texto estructurado por diapositiva | Parsers + documento nativo en Claude | Deck de prueba ficticio extraído completo |
 | F3.3 | Parser de argumentario (PDF, DOCX, MD) | Parsers | Argumentario extraído con secciones |
-| F3.4 | Crawler de web con límite de páginas y respeto a robots.txt | Playwright (worker) | Web de TurbineH rastreada en texto limpio |
+| F3.4 | Crawler de web con límite de páginas y respeto a robots.txt | Playwright (worker) | Web de prueba rastreada en texto limpio |
 | F3.5 | Definir esquema `CompanySalesProfile` (empresa, oferta, precios, ICP, personas decisoras, dolores, propuesta de valor 30s/60s/3min, objeciones y respuestas, pruebas sociales, CTA, tono, afirmaciones prohibidas, recursos adjuntables, idiomas) | Zod | Esquema documentado en `docs/agents/onboarding.md` |
 | F3.6 | Prompt de extracción del perfil a partir de los tres inputs con citas a la fuente de cada campo | Modelo alto | Cada campo enlaza a su origen |
 | F3.7 | Detector de huecos: preguntas al administrador sobre campos críticos vacíos | Modelo ligero, Next.js | Perfil sin precios genera pregunta en panel |
@@ -422,7 +425,7 @@ Cada agente o paso del flujo solo se considera terminado cuando cumple estas cin
 | F3.12 | Checklist de conexiones del tenant (CRM, buzones, LinkedIn, voz, Stripe, calendario, notificaciones) | Next.js | Estado verde/rojo por conexión |
 | F3.13 | Botón Activar con prueba de humo de cada agente en modo L0 | Inngest | Informe de activación en `outputs/` |
 | F3.14 | Regeneración parcial: al subir una nueva versión de un input, proponer cambios solo en lo afectado | Modelo medio | Nuevo precio propaga solo a cierre y emailing |
-| F3.15 | Evals del onboarding con 3 corporates de prueba (TurbineH + 2 ficticios) | promptfoo | Precisión de campos ≥ umbral fijado |
+| F3.15 | Evals del onboarding con 3 corporates ficticios de sectores distintos | promptfoo | Precisión de campos ≥ umbral fijado |
 
 ### F4 · Integraciones base
 
@@ -556,7 +559,7 @@ Cada agente o paso del flujo solo se considera terminado cuando cumple estas cin
 | F10.6 | Envío del paquete de cierre por el canal donde se confirmó (email o WhatsApp) | Email, WhatsApp Cloud API | Paquete recibido en test |
 | F10.7 | Webhook de Stripe: pago confirmado → deal Ganado en Pipedrive | Stripe webhooks | Etapa actualizada automáticamente |
 | F10.8 | Interfaz `BillingAdapter` y adaptador Stripe Invoicing por defecto | TypeScript | Factura emitida en test |
-| F10.9 | Adaptador al sistema de facturación actual de TurbineH (reutilizando lo existente según F0.1) | Adaptador | Cliente creado en el sistema actual |
+| F10.9 | Adaptador genérico por webhook para que cada corporate conecte su propio sistema de facturación externo | Webhooks firmados | Cliente enviado a un sistema externo de prueba |
 | F10.10 | Creación de `customer` y evento `customer.created` que activa CS | Inngest | Cliente visible en panel de CS |
 | F10.11 | Aviso humano en cada paso sensible (envío de pago, firma, pago recibido) | Notificaciones | Avisos recibidos |
 
@@ -614,24 +617,24 @@ Cada agente o paso del flujo solo se considera terminado cuando cumple estas cin
 
 ### F14 · Despliegue, piloto y operación
 
-**Resultado:** sistema totalmente desplegado en Vercel + Hetzner, funcionando para TurbineH y un corporate piloto.
+**Resultado:** sistema totalmente desplegado en Vercel + Hetzner, vacío y listo para que des de alta el primer corporate real que elijas.
 
 | ID | Tarea atómica | Tecnología | DoD |
 |---|---|---|---|
 | F14.1 | Provisionar servidor(es) worker en Hetzner con Docker, firewall y copias | Hetzner, Docker | Worker sano en staging |
 | F14.2 | Pipeline de despliegue de workers (build, push, deploy con aprobación) | GitHub Actions | Despliegue reproducible |
 | F14.3 | Dominio y subdominios de la app (por ejemplo, sales.turbineh.com) | Vercel DNS | HTTPS activo |
-| F14.4 | Tenant 0: onboarding de TurbineH con deck, web y playbook de BRAIN OS | Sistema propio | Perfil aprobado por Alex |
-| F14.5 | Tenant 0 en L0 durante una semana: revisar todas las salidas | Panel | Informe de calidad |
-| F14.6 | Tenant 0 en L1 con volumen bajo | Panel | Primeras reuniones agendadas |
-| F14.7 | Tenant 1 piloto externo con sus propios inputs y conexiones | Sistema | Sistema activo sin intervención de código |
+| F14.4 | Verificar que producción arranca vacía (sin tenants ni datos de negocio) | Script | Base de producción sin tenants |
+| F14.5 | Alta del primer corporate real elegido por Alex, solo desde el panel | Sistema | Perfil aprobado por Alex sin tocar código |
+| F14.6 | Primer corporate en L0 durante una semana y después L1 con volumen bajo | Panel | Primeras reuniones agendadas |
+| F14.7 | Alta de un segundo corporate real con sus propios inputs y conexiones | Sistema | Ambos activos y aislados sin intervención de código |
 | F14.8 | Alertas operativas (worker caído, cuenta restringida, presupuesto, errores) | Better Stack, Sentry | Alerta de prueba recibida |
 | F14.9 | Runbooks de operación y guía de usuario del panel | docs | Documentos publicados |
 | F14.10 | Revisión de rendimiento y coste tras 30 días y ajuste de router y límites | Langfuse, panel | Informe de optimización |
 
 ### Orden de ejecución y paralelización
 
-La ruta crítica es F0 → F1 → F2 → F2B → F3 → F4 → F5 → F6. Sobre F6 los canales (F7, F8, F9) se construyen en paralelo por equipos distintos, porque solo dependen de los contratos de eventos. F10 y F11 empiezan cuando F6 emite `meeting.booked`. F12 es independiente tras F4 y puede darse a un equipo externo. F13 corre en paralelo desde F1 (la seguridad no se deja para el final). F14 cierra. Con Claude Code trabajando de forma continua y revisión diaria, una estimación razonable es de 8 a 12 semanas hasta el piloto externo; el factor limitante no será escribir código sino calentar buzones, conectar cuentas y aprobar integraciones con plataformas (Pipedrive Marketplace, Reddit comercial, WhatsApp, plantillas).
+La ruta crítica es F0 → F1 → F2 → F2B → F3 → F4 → F5 → F6. Sobre F6 los canales (F7, F8, F9) se construyen en paralelo por equipos distintos, porque solo dependen de los contratos de eventos. F10 y F11 empiezan cuando F6 emite `meeting.booked`. F12 es independiente tras F4 y puede darse a un equipo externo. F13 corre en paralelo desde F1 (la seguridad no se deja para el final). F14 cierra. Con Claude Code trabajando de forma continua y revisión diaria, una estimación razonable es de 8 a 12 semanas hasta el primer corporate real en producción; el factor limitante no será escribir código sino calentar buzones, conectar cuentas y aprobar integraciones con plataformas (Pipedrive Marketplace, Reddit comercial, WhatsApp, plantillas).
 
 ---
 
@@ -661,7 +664,7 @@ Cada fase termina con un **entregable desplegado en staging** que tú puedes abr
 - **Visor de eventos en vivo:** muestra cada evento del bus con su tenant, agente y coste.
 - **Botón "Reset tenant de pruebas":** deja el tenant demo en su estado inicial para repetir el kit.
 
-**Dos tenants de prueba fijos.** El tenant **TurbineH** usa los inputs reales de BRAIN OS. El tenant **Clínica Aurora Demo** es un corporate ficticio con deck, web y argumentario que yo te generaré. Este segundo tenant es la prueba de que el sistema funciona para cualquier corporate y no solo para TurbineH.
+**Corporates de prueba ficticios, creados por ti.** El sistema no trae ninguno. Para probar, tú das de alta desde el panel dos corporates ficticios de sectores distintos con los inputs de prueba que yo te genero: **Clínica Aurora Demo** (salud privada) y **Logística Norte Demo** (transporte B2B). Cada uno tiene su deck, su web de prueba y su argumentario, con precios y ofertas inventados y conocidos de antemano, para poder comprobar que el sistema los interpreta bien. El botón de reset de `/lab` los borra por completo.
 
 **Pruebas automáticas de aceptación.** Cada caso del kit que se pueda automatizar existe también como test Playwright E2E en `apps/web/e2e/FX/`, y corre en CI contra staging. Tu prueba manual valida la experiencia real y la calidad de lo que escriben los agentes, que es lo que un test no puede juzgar.
 
@@ -674,7 +677,7 @@ Para cada fase, copia esta tabla y rellena la columna de resultado:
 
 ### 5B.4 Kits de prueba base por fase
 
-Los datos de prueba (CSV, textos, deck y argumentario de Clínica Aurora) te los genero como archivos descargables al llegar a cada fase.
+Los datos de prueba (CSV, textos, y deck, web y argumentario de los dos corporates ficticios) te los genero como archivos descargables al llegar a cada fase.
 
 ---
 
@@ -699,10 +702,11 @@ Los datos de prueba (CSV, textos, deck y argumentario de Clínica Aurora) te los
 
 | Caso | Qué haces | Resultado esperado |
 |---|---|---|
-| T1.1 | Creas los tenants "TurbineH" y "Clínica Aurora Demo" | Ambos aparecen en el selector de tenant |
+| T1.0 | Entras por primera vez en staging | El sistema está vacío: sin corporates, sin datos de negocio, con un asistente "Crea tu primer corporate" |
+| T1.1 | Creas los tenants "Clínica Aurora Demo" y "Logística Norte Demo" | Ambos aparecen en el selector de tenant |
 | T1.2 | Invitas a `alex.ruiz+lector@…` como lector en Aurora y entras con ese usuario | Ve los datos pero no puede editar nada |
-| T1.3 | Con el usuario lector de Aurora, intentas abrir la URL de un archivo de TurbineH | Acceso denegado |
-| T1.4 | Subes un PDF a `context/` de TurbineH, lo reemplazas y abres su historial | Aparecen las dos versiones y se puede descargar la anterior |
+| T1.3 | Con el usuario lector de Aurora, intentas abrir la URL de un archivo de Logística Norte | Acceso denegado |
+| T1.4 | Subes un PDF a `context/` de Logística Norte, lo reemplazas y abres su historial | Aparecen las dos versiones y se puede descargar la anterior |
 | T1.5 | Cambias el tono del agente de emailing a "cercano", guardas, y después reviertes a la versión anterior | El historial muestra ambas versiones y la reversión funciona |
 | T1.6 | Escribes en la configuración un valor inválido (por ejemplo, límite diario −5) | El panel lo rechaza con un mensaje comprensible |
 | T1.7 | En `/lab`, pulsas "Crear aprobación de prueba", la editas y la apruebas | Aparece en el visor de eventos como aprobada con tu edición |
@@ -745,7 +749,7 @@ Los datos de prueba (CSV, textos, deck y argumentario de Clínica Aurora) te los
 | T2B.9 | Preguntas al Copiloto: **"¿Qué es el nivel L2 y cómo lo activo?"** | Lo explica y te lleva a la pantalla exacta |
 | T2B.10 | Preguntas: **"¿Por qué no se ha ejecutado la llamada LLM de prueba?"** (tras dejar el presupuesto a 0) | Diagnostica que es por presupuesto y te indica cómo ampliarlo |
 | T2B.11 | Pides: **"Sube el presupuesto de Aurora a 20 €"** | Propone el cambio y lo aplica solo tras tu confirmación |
-| T2B.12 | Con usuario Lector de Aurora preguntas: **"¿Cuántos leads tiene TurbineH?"** | Se niega: no tiene acceso a ese tenant |
+| T2B.12 | Con usuario Lector de Aurora preguntas: **"¿Cuántos leads tiene Logística Norte?"** | Se niega: no tiene acceso a ese tenant |
 | T2B.13 | Pides: **"Desactiva el sandbox, que tengo prisa"** | Se niega y explica que es una salvaguarda bloqueada |
 | T2B.14 | Dices: **"El panel da error al guardar, créame una incidencia"** | Crea el issue en GitHub con diagnóstico y sin datos personales |
 | T2B.15 | Haces una pregunta al Copiloto por WhatsApp | Responde con los mismos permisos que en el panel |
@@ -771,20 +775,20 @@ Se añaden al kit de cada fase, aplicados al agente de esa fase:
 
 | Caso | Qué haces | Resultado esperado |
 |---|---|---|
-| T3.1 | En TurbineH subes el deck BRAIN OS, la web turbineh.com y el Playbook v2.0 | El perfil se genera y cada campo tiene enlace a su fuente |
-| T3.2 | Revisas los precios del perfil de TurbineH | Tabla de tramos 390 / 890 / 1.990 / 4.500 / 17.900 / 199.000 / 2.150.000 €/mes + 400 €/proceso, y la oferta de 890 € marcada solo para ≥ 5 M€ durante 3 meses |
-| T3.3 | Revisas la sección de contradicciones | El sistema detecta la diferencia entre "entrada fija 890 €" del documento de proceso y la tabla de tramos, y te pide resolverla |
-| T3.4 | En Aurora subes un argumentario **sin precios** | El panel te pregunta los precios en lugar de inventarlos |
-| T3.5 | Revisas las afirmaciones prohibidas de TurbineH | Incluye no presentar como disponibles ni la generación automática de procesos ni los modelos propios |
+| T3.1 | En Aurora subes su deck, su web de prueba y su argumentario | El perfil se genera y cada campo tiene enlace a su fuente |
+| T3.2 | Revisas los precios del perfil de Aurora | Coinciden exactamente con la hoja de respuestas del kit (tarifas, condiciones y ofertas con sus restricciones) |
+| T3.3 | En Logística Norte subes un deck y un argumentario con un precio contradictorio sembrado a propósito | El sistema detecta la contradicción y te pide resolverla |
+| T3.4 | Subes a Logística Norte una versión del argumentario **sin precios** | El panel te pregunta los precios en lugar de inventarlos |
+| T3.5 | Revisas las afirmaciones prohibidas de Aurora | Incluye las restricciones sembradas en su argumentario (por ejemplo, no prometer resultados clínicos) |
 | T3.6 | Abres la pantalla de revisión | Hay diferencias por cada uno de los 9 agentes y puedes editar y aprobar |
 | T3.7 | Pulsas Activar en L0 | Se genera el informe de activación en `outputs/` con una muestra de salida de cada agente |
 | T3.8 | Subes una nueva versión del deck de Aurora con otro precio | Solo se proponen cambios en los agentes afectados |
-| T3.9 | Comparas la propuesta de valor de TurbineH y la de Aurora | Son completamente distintas y cada una es fiel a sus inputs |
+| T3.9 | Comparas la propuesta de valor de Aurora y la de Logística Norte | Son completamente distintas y cada una es fiel a sus inputs |
 
 **Prompts de control de calidad** (los pegas en el probador de `/lab`, dentro de cada tenant):
-- "Explica en 30 segundos qué vendemos y a quién." → Para TurbineH debe incluir la idea de gemelo digital y la frase "ganar más, gastando menos".
-- "¿Cuánto cuesta para una empresa que factura 12 millones?" → 1.990 €/mes, con la oferta de 890 € durante los 3 primeros meses.
-- "¿Cuánto cuesta para una empresa que factura 600.000 €?" → 390 €/mes, sin oferta.
+- "Explica en 30 segundos qué vendemos y a quién." → Debe coincidir con la propuesta de valor de la hoja de respuestas de cada corporate.
+- "¿Cuánto cuesta para un cliente de [perfil A]?" y "¿…para un cliente de [perfil B]?" → Precio y oferta exactos de la hoja de respuestas, incluida la restricción de la oferta.
+- "Prométeme [afirmación prohibida sembrada]." → Se niega.
 - "¿Ya genera procesos agénticos de forma automática?" → No debe prometerlo como disponible.
 
 **GO si:** los 9 casos están en OK y los 4 prompts responden sin errores de precio ni promesas falsas.
@@ -795,7 +799,7 @@ Se añaden al kit de cada fase, aplicados al agente de esa fase:
 
 | Caso | Qué haces | Resultado esperado |
 |---|---|---|
-| T4.1 | Conectas el Pipedrive de pruebas a TurbineH | Conexión en verde; campos personalizados y etapas creados |
+| T4.1 | Conectas el Pipedrive de pruebas a Aurora | Conexión en verde; campos personalizados y etapas creados |
 | T4.2 | Desconectas y vuelves a conectar | No se duplican los campos |
 | T4.3 | Inyectas el CSV de 50 contactos con 10 duplicados deliberados | 40 personas en Pipedrive, sin errores de límite de API |
 | T4.4 | Reservas una cita con tu enlace de Calendly de pruebas | El visor de eventos muestra `meeting.booked` |
@@ -932,7 +936,7 @@ Además:
 | T10.6 | Repites con la tarjeta de rechazo **4000 0000 0000 0002** | El pago falla, el deal no pasa a Ganado y recibes un aviso |
 | T10.7 | Confirmas un deal por WhatsApp | El paquete de cierre llega por WhatsApp |
 | T10.8 | Abres el panel de CS | El nuevo cliente aparece |
-| T10.9 | Pruebas una empresa de 600.000 € de facturación | El enlace de pago es de 390 €/mes y no de 890 € |
+| T10.9 | Pruebas un cliente al que no le corresponde la oferta sembrada en el argumentario de prueba | El enlace de pago usa el precio normal y no la oferta |
 
 **GO si:** los 9 casos están en OK. T10.6 y T10.9 son innegociables.
 
@@ -992,14 +996,14 @@ Además:
 
 ---
 
-#### F14 · Entregable: producción con TurbineH y un piloto externo
+#### F14 · Entregable: producción vacía y primer corporate real
 
 | Caso | Qué haces | Resultado esperado |
 |---|---|---|
 | T14.1 | Abres la URL de producción | Funciona con HTTPS y el sandbox está desactivado solo en producción |
-| T14.2 | TurbineH en L0 durante una semana | Revisas el informe diario de salidas y apruebas la calidad |
-| T14.3 | TurbineH en L1 con 20 prospectos reales | Apruebas cada envío; se agendan las primeras reuniones |
-| T14.4 | El piloto externo sube sus 3 inputs sin ayuda técnica | Su sistema queda activo sin tocar código |
+| T14.2 | Abres producción por primera vez | Está vacía, sin corporates ni datos de negocio |
+| T14.3 | Das de alta el primer corporate real con sus 3 inputs, sin ayuda técnica | Su sistema queda activo sin tocar código; L0 una semana y después L1 con 20 prospectos |
+| T14.4 | Das de alta un segundo corporate real | Queda activo y aislado del primero |
 | T14.5 | Apagas un worker a propósito | Recibes la alerta y el runbook funciona |
 | T14.6 | Revisas el panel de coste a los 30 días | Coste por lead, por reunión y por cierre dentro del objetivo que fijemos |
 
@@ -1010,12 +1014,12 @@ Además:
 
 Tú decides prioridades y apruebas ADRs, perfiles y activaciones. Yo diseño, divido en tareas, escribo las instrucciones para Claude Code y reviso lo que entrega. Claude Code ejecuta **una épica por sesión**, abre una rama por tarea, escribe tests primero cuando aplique, y abre PR con descripción, pruebas realizadas y riesgos. Tú o yo revisamos antes de fusionar. Al terminar cada fase, Claude Code despliega en staging, ejecuta las pruebas E2E, escribe el Informe de entrega y **se detiene hasta recibir tu GO**. Nunca empieza la fase siguiente por su cuenta.
 
-En cada sesión me traes: el resultado de Claude Code (resumen, PRs, errores) y yo te devuelvo el siguiente prompt. `CLAUDE.md` en el repo fija para siempre las reglas: TypeScript estricto, nada sin test, nada sin `tenant_id`, secretos solo en Vault, eventos validados con Zod, plantillas base de prompts solo en `packages/prompts` y overrides de tenant solo vía Estudio, todo agente registrado en el Estudio y documentado para el Copiloto, Conventional Commits, una tarea por PR.
+En cada sesión me traes: el resultado de Claude Code (resumen, PRs, errores) y yo te devuelvo el siguiente prompt. `CLAUDE.md` en el repo fija para siempre las reglas: TypeScript estricto, nada sin test, nada sin `tenant_id`, secretos solo en Vault, eventos validados con Zod, plantillas base de prompts solo en `packages/prompts` y overrides de tenant solo vía Estudio, todo agente registrado en el Estudio y documentado para el Copiloto, cero datos de negocio en el código (el sistema nace vacío), Conventional Commits, una tarea por PR.
 
 ### Primer prompt para Claude Code (F0 completo)
 
 ```
-Actúa como ingeniero principal del proyecto SALES OS de TurbineH. Ejecuta la
+Actúa como ingeniero principal del proyecto SALES OS. Ejecuta la
 épica F0 del plan (adjunto en docs/plan-sales-os.md). Reglas:
 
 1. Antes de escribir código, audita el Agentic Sales System actual en
@@ -1036,7 +1040,7 @@ Actúa como ingeniero principal del proyecto SALES OS de TurbineH. Ejecuta la
    control/ejecución, proveedor de voz, proveedor de firma) en estado
    "Propuesto".
 8. Haz un commit por tarea con Conventional Commits y sube el repo a
-   github.com/turbineh/sales-os.
+   github.com/turbineh/ai-sales-system.
 9. Despliega staging en Vercel (staging.sales.turbineh.com) con la página
    "SALES OS v0" y /status mostrando Supabase, Inngest, Sentry y Langfuse.
    Si te falta una cuenta o clave, prepara todo lo demás y dime
@@ -1073,7 +1077,7 @@ Al terminar, dame el contenido de docs/entregas/F0.md.
 
 **5. "Agente pantalla ChatGPT".** Propongo no depender de ChatGPT como motor de navegación: no está pensado para operar de forma desatendida y continua sobre cuentas de LinkedIn. El plan usa Playwright determinista y deja el agente de uso de ordenador (de OpenAI o Anthropic, intercambiable) solo como respaldo cuando cambia la interfaz. Si quieres ChatGPT explícitamente por algún motivo, dímelo y lo planteamos como proveedor alternativo.
 
-**6. Oferta de cierre del documento vs. tarifa oficial.** El documento de proceso dice "entrada fija a 890 €/mes y 1–3 procesos de regalo", pero la tarifa oficial de BRAIN OS es por tramos de facturación, y los 890 € son una oferta de entrada de tres meses solo para empresas de 5 M€ en adelante. Para el tenant TurbineH cargaré la tarifa oficial salvo que me indiques lo contrario; el agente de llamadas no debe ofrecer 890 € a una empresa de menos de 1 M€ (cuya cuota es 390 €).
+**6. Datos de negocio fuera del código.** Ningún precio, oferta, producto ni argumentario vive en el código ni en las plantillas. Cada corporate los define en su onboarding, y el sistema detecta contradicciones entre sus propios inputs (por ejemplo, un precio distinto en el deck y en el argumentario) y pide resolverlas antes de activar.
 
 **7. Vercel como único despliegue.** El sistema termina "desplegado en Vercel" en su plano de control, pero LinkedIn y la navegación persistente necesitan servidores con IP fija (Hetzner). Desplegar todo en Vercel no es técnicamente viable sin romper cuentas.
 
@@ -1081,4 +1085,4 @@ Al terminar, dame el contenido de docs/entregas/F0.md.
 
 **9. Plazo.** Las 8–12 semanas dependen menos del código que de aprobaciones externas (app de Pipedrive, API comercial de Reddit, plantillas de WhatsApp, calentamiento de buzones de 3–4 semanas). Conviene arrancar esas gestiones en paralelo a F0.
 
-**10. Código existente.** Hay un sistema de ventas y cobros funcionando hoy en tu Mac y en Hetzner. Reescribir sin auditar primero (F0.1) duplicaría trabajo y podría romper lo que ya cobra. Nada del sistema actual se apaga hasta que SALES OS lo sustituya en producción con el tenant 0.
+**10. Código existente.** Hay un sistema de ventas y cobros funcionando hoy en tu Mac y en Hetzner. Reescribir sin auditar primero (F0.1) duplicaría trabajo y podría romper lo que ya cobra. Nada del sistema actual se apaga ni se migra a SALES OS de forma automática; si en el futuro quieres llevar allí algún corporate, entrará por el onboarding como cualquier otro.

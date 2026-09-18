@@ -7,3 +7,7 @@ playwright-report
 test-results
 pnpm-lock.yaml
 docs/plan-sales-os.md
+
+# Lo genera Next.js en cada build y dice "should not be edited": si prettier lo
+# reformatea, el siguiente build lo vuelve a cambiar y el repo queda sucio.
+apps/web/next-env.d.ts
