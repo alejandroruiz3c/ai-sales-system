@@ -1442,9 +1442,51 @@
     {
       "id": "F14.3",
       "fase": "F14",
-      "titulo": "Dominio y subdominios de la app (por ejemplo, sales.turbineh.com)",
-      "tecnologia": "Vercel DNS",
-      "dod": "HTTPS activo"
+      "titulo": "Separar entornos de verdad: dominio de producción y staging como entorno propio (ADR 0008)",
+      "tecnologia": "Vercel",
+      "dod": "HTTPS activo en los dos entornos y sandbox activo en staging"
+    },
+    {
+      "id": "F14.3a",
+      "fase": "F14",
+      "titulo": "Contratar Vercel Pro en el equipo. Bloqueante: el plan Hobby no permite uso comercial, así que va antes de F14.5",
+      "tecnologia": "Vercel",
+      "dod": "Plan Pro activo en el equipo turbineh"
+    },
+    {
+      "id": "F14.3b",
+      "fase": "F14",
+      "titulo": "Crear el Custom Environment «staging» y mover staging.sales.turbineh.com a él",
+      "tecnologia": "Vercel",
+      "dod": "Staging responde desde su propio entorno, con SALES_OS_ENV=staging"
+    },
+    {
+      "id": "F14.3c",
+      "fase": "F14",
+      "titulo": "Repuntar Production a sales.turbineh.com con SALES_OS_ENV=production y la base ai-sales-prod",
+      "tecnologia": "Vercel, DNS",
+      "dod": "HTTPS activo en el dominio de producción"
+    },
+    {
+      "id": "F14.3d",
+      "fase": "F14",
+      "titulo": "Migrar las variables por entorno, incluida la fuente de logs de producción",
+      "tecnologia": "Vercel",
+      "dod": "Cada entorno con sus propias credenciales, ninguna compartida"
+    },
+    {
+      "id": "F14.3e",
+      "fase": "F14",
+      "titulo": "Aplicar las migraciones en ai-sales-prod y comprobar que arranca vacío",
+      "tecnologia": "packages/db",
+      "dod": "Base de producción con esquema y sin tenants ni datos de negocio"
+    },
+    {
+      "id": "F14.3f",
+      "fase": "F14",
+      "titulo": "Comprobar el corte: E2E contra el nuevo staging, /status verde en los dos entornos y sandbox activo en staging",
+      "tecnologia": "Playwright",
+      "dod": "Suite de las fases entregadas verde en los dos entornos"
     },
     {
       "id": "F14.4",

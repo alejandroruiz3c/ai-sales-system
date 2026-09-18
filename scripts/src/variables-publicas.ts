@@ -15,6 +15,14 @@
  *
  * Corre dentro de `pnpm verify`, o sea también dentro del build de Vercel, que
  * es el único sitio donde las variables de verdad están presentes.
+ *
+ * Y hay una segunda mitad, `analizarBundle`, que mira el resultado en vez de la
+ * causa: rastrea el JavaScript ya construido buscando secretos. Comprobar las
+ * variables no basta, porque un secreto puede llegar al cliente por otros
+ * caminos —un literal en un componente, una respuesta de API serializada en el
+ * HTML, una dependencia que imprime su configuración—. Esa comprobación corre
+ * **después** de `next build` (`pnpm verify:bundle`), y por eso está enganchada
+ * en el `buildCommand` de Vercel detrás del build.
  */
 
 /** Prefijos que solo tienen los secretos. Si aparece uno, no hay discusión. */
@@ -148,6 +156,104 @@ export function analizar(entorno: Readonly<Record<string, string | undefined>>):
   }
 
   return hallazgos.sort((a, b) => a.variable.localeCompare(b.variable));
+}
+
+/**
+ * Lo que nunca puede aparecer en el JavaScript que se sirve al navegador.
+ *
+ * Se comprueba sobre el resultado construido, no sobre las variables, porque es
+ * el único sitio donde se ve la verdad: lo que el usuario descarga.
+ */
+const PATRONES_EN_BUNDLE: readonly { readonly nombre: string; readonly patron: RegExp }[] = [
+  {
+    nombre: 'token con prefijo de secreto',
+    patron: new RegExp(
+      `(?:${PREFIJOS_DE_SECRETO.map((p) => p.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')).join('|')})[A-Za-z0-9_-]{8,}`,
+      'g',
+    ),
+  },
+  {
+    nombre: 'host de ingesta de Better Stack',
+    // El host no es un secreto por sí mismo, pero no tiene ninguna razón para
+    // estar en el cliente: los logs se envían desde el servidor. Si aparece, es
+    // que alguien ha movido el logger a un componente de cliente, y el token va
+    // detrás.
+    patron: /\bs\d{6,}\.[a-z0-9-]+\.betterstackdata\.com/g,
+  },
+];
+
+export interface FicheroConstruido {
+  readonly ruta: string;
+  readonly contenido: string;
+}
+
+/**
+ * Busca secretos en el JavaScript ya construido.
+ *
+ * El DSN de Sentry **sí** tiene que estar ahí: es público por diseño y sin él el
+ * navegador no reporta errores. Lo que no puede estar es un token.
+ */
+export function analizarBundle(ficheros: readonly FicheroConstruido[]): HallazgoPublico[] {
+  const hallazgos: HallazgoPublico[] = [];
+
+  for (const fichero of ficheros) {
+    for (const { nombre, patron } of PATRONES_EN_BUNDLE) {
+      const coincidencias = [...fichero.contenido.matchAll(patron)];
+      if (coincidencias.length === 0) continue;
+      hallazgos.push({
+        variable: fichero.ruta,
+        motivo: `El JavaScript servido al navegador contiene un ${nombre} (${String(coincidencias.length)} aparición/es).`,
+        comoArreglarlo:
+          'Da el secreto por comprometido y rótalo: este fichero se sirve en público y el CDN ' +
+          'lo conserva. Después busca por dónde llegó — una variable NEXT_PUBLIC_, un literal en ' +
+          'un componente de cliente, o datos de servidor serializados en el HTML.',
+      });
+    }
+
+    // Un JWT en el cliente solo puede ser la clave anónima de Supabase.
+    for (const jwt of fichero.contenido.matchAll(
+      /eyJ[A-Za-z0-9_-]{10,}\.([A-Za-z0-9_-]{10,})\.[A-Za-z0-9_-]{10,}/g,
+    )) {
+      const cuerpo = jwt[1];
+      if (cuerpo === undefined) continue;
+      const rol = rolDeJwt(`x.${cuerpo}.y`);
+      if (rol === undefined || rol === 'anon') continue;
+      hallazgos.push({
+        variable: fichero.ruta,
+        motivo: `El JavaScript servido al navegador contiene un JWT con «role: ${rol}».`,
+        comoArreglarlo:
+          'Rota esa clave ya: en el navegador se salta todas las políticas RLS (ADR 0003). ' +
+          'Solo el rol «anon» puede llegar al cliente.',
+      });
+    }
+  }
+
+  return hallazgos;
+}
+
+export function formatearInformeDeBundle(
+  hallazgos: readonly HallazgoPublico[],
+  ficheros: number,
+  bytes: number,
+): string {
+  const tamano = `${String(Math.round(bytes / 1024))} KB`;
+  if (hallazgos.length === 0) {
+    return `✔ Bundle limpio: ${String(ficheros)} fichero(s) servidos al navegador (${tamano}), ningún secreto.\n`;
+  }
+  const lineas: string[] = [
+    `✖ Hay ${String(hallazgos.length)} secreto(s) en el JavaScript que se sirve al navegador.`,
+    '',
+    '  Esto no es un riesgo teórico: el fichero es público, lo sirve el CDN y lo',
+    '  conserva. Da el secreto por filtrado y rótalo antes de arreglar el código.',
+    '',
+  ];
+  for (const hallazgo of hallazgos) {
+    lineas.push(`  ${hallazgo.variable}`);
+    lineas.push(`      ${hallazgo.motivo}`);
+    lineas.push(`      → ${hallazgo.comoArreglarlo}`);
+    lineas.push('');
+  }
+  return lineas.join('\n');
 }
 
 export function formatearInforme(hallazgos: readonly HallazgoPublico[], revisadas: number): string {

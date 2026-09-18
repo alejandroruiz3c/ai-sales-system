@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm -w run verify && pnpm build",
+  "buildCommand": "pnpm -w run verify && pnpm build && pnpm -w run verify:bundle",
   "regions": ["fra1"]
 }

@@ -30,8 +30,17 @@ pnpm e2e:staging                           # E2E de fase contra staging
 pnpm e2e:staging --grep F0                 # solo los de F0
 ```
 
-`seed-github.mjs` es idempotente: no duplica un issue cuyo título ya existe, así
-que se puede volver a ejecutar cuando el plan crezca.
+`seed-github.mjs` es idempotente **por título**: no duplica un issue cuyo título
+ya existe, así que se puede volver a ejecutar cuando el plan crezca. La trampa,
+descubierta el 2026-09-18: si **cambias el título** de una tarea del plan, crea
+un issue nuevo en vez de actualizar el que había, y te quedas con dos. Pasó al
+reescribir F14.3 (#197 quedó huérfano y #209 es el bueno). Cuando renombres una
+tarea, cierra el issue viejo a mano apuntando al nuevo.
+
+`seed-project.mjs` crea el tablero, el campo `Fase` con las épicas F0-F14 y
+engancha cada issue a la suya, por lotes de 20 mutaciones GraphQL. La API de
+GitHub **no permite crear vistas**, así que la vista de tablero agrupada por
+`Fase` hay que añadirla una vez desde la web.
 
 ## La comprobación de sistema vacío (F0.19)
 

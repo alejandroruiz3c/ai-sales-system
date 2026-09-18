@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { analizar, esDsnDeSentry, rolDeJwt } from './variables-publicas.ts';
+import {
+  analizar,
+  analizarBundle,
+  esDsnDeSentry,
+  formatearInformeDeBundle,
+  rolDeJwt,
+} from './variables-publicas.ts';
 
 /** Ensambla un valor con pinta de secreto sin escribir el literal completo. */
 const falso = (prefijo: string, resto: string): string => `${prefijo}${resto}`;
@@ -123,5 +129,69 @@ describe('analizar', () => {
 
   it('ignora las variables vacías, que no publican nada', () => {
     expect(analizar({ NEXT_PUBLIC_SENTRY_DSN: '', NEXT_PUBLIC_OTRA: '   ' })).toEqual([]);
+  });
+});
+
+describe('analizarBundle', () => {
+  function rutas(ficheros: readonly { ruta: string; contenido: string }[]): readonly string[] {
+    return analizarBundle(ficheros).map((h) => h.variable);
+  }
+
+  it('caza el incidente real: el token de Sentry servido en el JavaScript público', () => {
+    // Lo que de verdad había en el bundle de staging el 2026-09-18, dentro de
+    // código minificado como el que sirve Next.js.
+    const contenido = `(self.__next_f=[]).push([1,'{"dsn":"${falso('sntryu', '_abcdefghij1234567890')}"}']);`;
+    const hallazgos = analizarBundle([{ ruta: 'chunks/main-abc.js', contenido }]);
+    expect(hallazgos).toHaveLength(1);
+    expect(hallazgos[0]?.motivo).toContain('token con prefijo de secreto');
+    expect(hallazgos[0]?.comoArreglarlo).toContain('rótalo');
+  });
+
+  it('deja pasar un DSN de Sentry, que tiene que estar en el cliente', () => {
+    expect(
+      rutas([
+        {
+          ruta: 'chunks/main-abc.js',
+          contenido:
+            'Sentry.init({dsn:"https://abc123def4567890@o1234.ingest.de.sentry.io/7654321"})',
+        },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('caza una service_role en el cliente y deja pasar la anon', () => {
+    const conRol = (rol: string): string => {
+      const cab = Buffer.from(JSON.stringify({ alg: 'HS256' })).toString('base64url');
+      const cuerpo = Buffer.from(JSON.stringify({ role: rol })).toString('base64url');
+      return `${cab}.${cuerpo}.firmafalsa123456789`;
+    };
+    expect(rutas([{ ruta: 'a.js', contenido: `k="${conRol('service_role')}"` }])).toEqual(['a.js']);
+    expect(rutas([{ ruta: 'b.js', contenido: `k="${conRol('anon')}"` }])).toEqual([]);
+  });
+
+  it('caza el host de ingesta de Better Stack, que no tiene por qué llegar al cliente', () => {
+    expect(
+      rutas([
+        { ruta: 'c.js', contenido: 'fetch("https://s1234567.eu-nbg-2.betterstackdata.com/")' },
+      ]),
+    ).toEqual(['c.js']);
+  });
+
+  it('no se inventa hallazgos en JavaScript normal', () => {
+    expect(
+      rutas([
+        {
+          ruta: 'd.js',
+          contenido: 'const a=1;function b(){return "sk"}//# sourceMappingURL=d.js.map',
+        },
+        { ruta: 'e.js', contenido: 'e.exports={version:"0.0.0+686998a",env:"staging"}' },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('el informe dice el tamaño revisado, para que se vea que ha mirado algo', () => {
+    expect(formatearInformeDeBundle([], 8, 802_010)).toContain('8 fichero(s)');
+    expect(formatearInformeDeBundle([], 8, 802_010)).toContain('783 KB');
+    expect(formatearInformeDeBundle([], 8, 802_010)).toContain('Bundle limpio');
   });
 });
