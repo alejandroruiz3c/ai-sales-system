@@ -88,6 +88,60 @@ async function checkSupabase(): Promise<ServiceCheck> {
   };
 }
 
+/**
+ * Veredicto de preguntarle a Inngest si nuestra clave de firma vale.
+ *
+ * Tres valores y no dos, porque «no lo sé» es una respuesta distinta de «no
+ * vale» y tratarlas igual fue un error: hacía que `/status` marcara Inngest en
+ * rojo cuando el problema era de la API de Inngest, no de nuestra clave.
+ */
+interface VeredictoDeClave {
+  readonly veredicto: 'vale' | 'no-vale' | 'no-se-sabe';
+  readonly motivo: string;
+  readonly latencyMs: number;
+}
+
+/**
+ * Cinco minutos, mucho más que el informe completo.
+ *
+ * La API de Inngest **limita por frecuencia**: bajo una ráfaga de peticiones a
+ * `/status` devuelve `429`, y eso hacía fallar el caso T0.2 una de cada doce
+ * veces. Una clave de firma no cambia de un segundo a otro, así que preguntarlo
+ * en cada comprobación no aporta nada y sí molesta al proveedor.
+ */
+const cacheDeLaClaveDeInngest = crearCacheBreve<VeredictoDeClave>(300_000);
+
+async function comprobarClaveEnInngest(): Promise<VeredictoDeClave> {
+  const { response, latencyMs, error } = await timedFetch(
+    'https://api.inngest.com/v1/events?limit=1',
+    { headers: { authorization: `Bearer ${env.inngestSigningKey ?? ''}` } },
+  );
+
+  if (!response) {
+    return {
+      veredicto: 'no-se-sabe',
+      motivo: `no responde (${error ?? 'sin detalle'})`,
+      latencyMs,
+    };
+  }
+  // Solo un 401 o un 403 dicen algo sobre nuestra clave. Un 429 dice que hemos
+  // preguntado mucho, y un 5xx dice que el problema es suyo.
+  if (response.status === 401 || response.status === 403) {
+    return { veredicto: 'no-vale', motivo: `HTTP ${String(response.status)}`, latencyMs };
+  }
+  if (response.status === 429) {
+    return { veredicto: 'no-se-sabe', motivo: 'ha limitado por frecuencia (HTTP 429)', latencyMs };
+  }
+  if (!response.ok) {
+    return {
+      veredicto: 'no-se-sabe',
+      motivo: `responde HTTP ${String(response.status)}`,
+      latencyMs,
+    };
+  }
+  return { veredicto: 'vale', motivo: 'HTTP 200', latencyMs };
+}
+
 async function checkInngest(): Promise<ServiceCheck> {
   const base = { id: 'inngest', name: 'Inngest' } as const;
   const missing: string[] = [];
@@ -124,24 +178,10 @@ async function checkInngest(): Promise<ServiceCheck> {
 
   // La segunda: que la clave de firma valga de verdad, preguntándole a Inngest.
   // Es la que detecta una clave de otro entorno, que es el fallo real que se da.
-  const remoto = await timedFetch('https://api.inngest.com/v1/events?limit=1', {
-    headers: { authorization: `Bearer ${env.inngestSigningKey ?? ''}` },
-  });
+  const remoto = await cacheDeLaClaveDeInngest.obtener(comprobarClaveEnInngest);
   const latencyMs = propio.latencyMs + remoto.latencyMs;
 
-  if (!remoto.response) {
-    // No poder hablar con api.inngest.com **no es un fallo nuestro**: el
-    // endpoint está montado y las claves están puestas. Marcarlo en rojo hacía
-    // fallar el caso T0.2 por un tiempo de espera ajeno, que es la peor clase
-    // de test inestable: el que te enseña a ignorarlo.
-    return {
-      ...base,
-      state: 'ok',
-      detail: `Claves presentes y /api/inngest montado (HTTP ${String(propio.response.status)}). No se ha podido reconfirmar la clave contra la API de Inngest ahora mismo: ${remoto.error ?? 'sin detalle'}`,
-      latencyMs,
-    };
-  }
-  if (remoto.response.status === 401 || remoto.response.status === 403) {
+  if (remoto.veredicto === 'no-vale') {
     return {
       ...base,
       state: 'error',
@@ -150,20 +190,17 @@ async function checkInngest(): Promise<ServiceCheck> {
       latencyMs,
     };
   }
-  if (!remoto.response.ok) {
-    return {
-      ...base,
-      state: 'error',
-      detail: `La API de Inngest responde HTTP ${String(remoto.response.status)}.`,
-      latencyMs,
-    };
-  }
-  return {
-    ...base,
-    state: 'ok',
-    detail: `Clave de firma válida y /api/inngest montado (responde HTTP ${String(propio.response.status)} a un GET sin firmar, que es lo correcto).`,
-    latencyMs,
-  };
+
+  const montado = `/api/inngest montado (responde HTTP ${String(propio.response.status)} a un GET sin firmar, que es lo correcto)`;
+
+  return remoto.veredicto === 'vale'
+    ? { ...base, state: 'ok', detail: `Clave de firma válida y ${montado}.`, latencyMs }
+    : {
+        ...base,
+        state: 'ok',
+        detail: `Claves presentes y ${montado}. La clave no se ha podido reconfirmar contra la API de Inngest: ${remoto.motivo}`,
+        latencyMs,
+      };
 }
 
 /**
