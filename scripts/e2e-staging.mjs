@@ -13,7 +13,8 @@
  *
  * La contraseña de `/lab` no se pide ni se escribe en ningún sitio: se lee del
  * entorno de Vercel, se pasa al proceso hijo por memoria y el fichero temporal
- * se borra antes de arrancar Playwright.
+ * se borra antes de arrancar Playwright. Si en Vercel está como tipo *Secret* y
+ * no se puede leer, lo dice y explica cómo pasarla a mano.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -26,22 +27,30 @@ const URL_POR_DEFECTO = 'https://staging.sales.turbineh.com';
 
 /**
  * El entorno *Production* de este proyecto de Vercel es el que sirve staging
- * (ver `infra/vercel/README.md`). Si eso cambia, cambia aquí.
+ * (ADR 0008). Si eso cambia, cambia aquí — la subtarea F14.3b lo hará.
+ *
+ * Se consultan dos entornos en este orden porque una variable de tipo *Secret*
+ * en Vercel **no se puede volver a leer**: `vercel env pull` devuelve el literal
+ * `[SENSITIVE]` en su lugar. Los tres entornos comparten el mismo valor, así que
+ * si Production está como Secret, Development sirve igual.
  */
-const ENTORNO_DE_STAGING = 'production';
+const ENTORNOS_A_CONSULTAR = ['production', 'development'];
+
+/** Lo que Vercel devuelve en lugar del valor de una variable de tipo Secret. */
+const MARCADOR_DE_SECRETO = '[SENSITIVE]';
 
 function log(mensaje) {
   console.log(`▸ ${mensaje}`);
 }
 
-/** Lee una variable del entorno de Vercel sin dejarla en disco ni imprimirla. */
-function secretoDeVercel(nombre) {
+/** Lee una variable de un entorno de Vercel sin dejarla en disco ni imprimirla. */
+function deUnEntorno(nombre, entorno) {
   const carpeta = mkdtempSync(join(tmpdir(), 'sales-os-e2e-'));
   const fichero = join(carpeta, '.env');
   try {
     const resultado = spawnSync(
       'vercel',
-      ['env', 'pull', fichero, '--environment', ENTORNO_DE_STAGING, '--yes'],
+      ['env', 'pull', fichero, '--environment', entorno, '--yes'],
       { stdio: 'ignore' },
     );
     if (resultado.status !== 0) return undefined;
@@ -50,15 +59,29 @@ function secretoDeVercel(nombre) {
       const separador = linea.indexOf('=');
       if (separador === -1) continue;
       if (linea.slice(0, separador).trim() !== nombre) continue;
-      return linea
+      const valor = linea
         .slice(separador + 1)
         .trim()
         .replace(/^"(.*)"$/s, '$1');
+      // Una variable de tipo Secret no se puede leer: Vercel devuelve el
+      // marcador. Intentarlo como contraseña daría un fallo de login
+      // desconcertante en vez de un aviso claro.
+      if (valor === MARCADOR_DE_SECRETO || valor === '') return undefined;
+      return valor;
     }
     return undefined;
   } finally {
     rmSync(carpeta, { recursive: true, force: true });
   }
+}
+
+/** Prueba los entornos por orden y devuelve el primer valor legible. */
+function secretoDeVercel(nombre) {
+  for (const entorno of ENTORNOS_A_CONSULTAR) {
+    const valor = deUnEntorno(nombre, entorno);
+    if (valor !== undefined) return { valor, entorno };
+  }
+  return undefined;
 }
 
 function principal() {
@@ -68,16 +91,21 @@ function principal() {
   const entorno = { ...process.env, E2E_BASE_URL: baseUrl };
 
   if (entorno['E2E_LAB_PASSWORD'] === undefined) {
-    log(`Leyendo LAB_ACCESS_PASSWORD del entorno ${ENTORNO_DE_STAGING} de Vercel`);
-    const password = secretoDeVercel('LAB_ACCESS_PASSWORD');
-    if (password === undefined) {
+    log('Buscando LAB_ACCESS_PASSWORD en los entornos de Vercel');
+    const encontrado = secretoDeVercel('LAB_ACCESS_PASSWORD');
+    if (encontrado === undefined) {
       console.warn(
-        '  No se ha podido leer. Los tests de /lab se omitirán.\n' +
-          '  Si los necesitas: vercel login, o exporta E2E_LAB_PASSWORD a mano.',
+        '  No se ha podido leer de ningún entorno, así que los tests de /lab van a fallar.\n' +
+          '  Suele ser porque la variable está como tipo Secret en Vercel, y esas no se\n' +
+          '  pueden volver a leer. Ejecuta el comando así, con el valor de KEYS.rtf:\n' +
+          '\n' +
+          '    E2E_LAB_PASSWORD=<la contraseña> pnpm e2e:staging\n',
       );
     } else {
-      entorno['E2E_LAB_PASSWORD'] = password;
-      log('Contraseña de /lab cargada en memoria (no se ha escrito en ningún sitio)');
+      entorno['E2E_LAB_PASSWORD'] = encontrado.valor;
+      log(
+        `Contraseña de /lab cargada en memoria desde el entorno «${encontrado.entorno}» (no se ha escrito en ningún sitio)`,
+      );
     }
   }
 
