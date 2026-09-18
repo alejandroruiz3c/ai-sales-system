@@ -2,9 +2,10 @@
  * F0.19 · `pnpm sistema-vacio`
  *
  * Recorre los ficheros del repositorio (los versionados y los nuevos que no
- * estén ignorados) y falla si encuentra un dato de negocio real. La lógica está
- * en `sistema-vacio.ts`, que es la que tiene tests; aquí solo está la entrada y
- * la salida.
+ * estén ignorados) y falla si encuentra un dato de negocio real. Además falla si
+ * un fichero de claves (`KEYS.*`, `.env`, un `.pem`) ha llegado a estar
+ * versionado. La lógica está en `sistema-vacio.ts`, que es la que tiene tests;
+ * aquí solo está la entrada y la salida.
  *
  * Uso:
  *   node scripts/src/sistema-vacio-cli.ts
@@ -17,7 +18,13 @@ import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import process from 'node:process';
 
-import { analizar, cargarLista, formatearInforme, type Fichero } from './sistema-vacio.ts';
+import {
+  analizar,
+  cargarLista,
+  comprobarFicherosDeClaves,
+  formatearInforme,
+  type Fichero,
+} from './sistema-vacio.ts';
 
 function raizDelRepositorio(): string {
   return execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
@@ -29,9 +36,24 @@ function raizDelRepositorio(): string {
  * `git add` tiene que fallar igual, o el check se salta solo.
  */
 function ficherosDelRepositorio(raiz: string, subruta: string | undefined): string[] {
-  const argumentos = ['ls-files', '-co', '--exclude-standard', '-z'];
-  if (subruta !== undefined) argumentos.push('--', subruta);
-  const salida = execFileSync('git', argumentos, { cwd: raiz, encoding: 'utf8' });
+  return listar(raiz, ['ls-files', '-co', '--exclude-standard', '-z'], subruta);
+}
+
+/**
+ * Solo los versionados (`-c`), para la comprobación de ficheros de claves.
+ *
+ * Aquí no vale incluir los no versionados: `KEYS.rtf` existe en la carpeta del
+ * proyecto y eso es correcto. Lo que se persigue es que esté en el índice de
+ * git, que es cuando deja de ser un fichero local y pasa a ser un secreto
+ * publicado.
+ */
+function ficherosVersionados(raiz: string, subruta: string | undefined): string[] {
+  return listar(raiz, ['ls-files', '-c', '-z'], subruta);
+}
+
+function listar(raiz: string, argumentos: string[], subruta: string | undefined): string[] {
+  const completos = subruta === undefined ? argumentos : [...argumentos, '--', subruta];
+  const salida = execFileSync('git', completos, { cwd: raiz, encoding: 'utf8' });
   return [...new Set(salida.split('\0').filter((ruta) => ruta.length > 0))].sort();
 }
 
@@ -64,7 +86,10 @@ function principal(): void {
     .map((ruta) => leer(raiz, ruta))
     .filter((fichero): fichero is Fichero => fichero !== undefined);
 
-  const hallazgos = analizar(ficheros, lista);
+  const hallazgos = [
+    ...comprobarFicherosDeClaves(ficherosVersionados(raiz, argumento('--ruta'))),
+    ...analizar(ficheros, lista),
+  ];
 
   if (process.argv.includes('--json')) {
     process.stdout.write(

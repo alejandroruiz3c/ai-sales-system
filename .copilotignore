@@ -1,0 +1,28 @@
+# Qué queda fuera del índice del Copiloto SALES OS (F2B.12).
+#
+# El Copiloto indexa la documentación del repositorio en cada despliegue para
+# poder responder sobre el sistema. Todo lo que se liste aquí no se indexa, no
+# se convierte en embedding y no puede aparecer en una respuesta.
+#
+# Formato: un glob por línea, mismas reglas que `.gitignore`.
+#
+# El indexador de F2B.12 está obligado a leer este fichero. Si lo ignora, la
+# tarea no cumple su DoD: un secreto en un índice vectorial es un secreto
+# filtrado que además no se puede borrar de las respuestas ya generadas.
+
+# Claves en local (regla permanente 4 de CLAUDE.md)
+KEYS
+KEYS.*
+claves.*
+
+# Variables de entorno reales. `.env.example` sí se indexa: no tiene valores y
+# documenta para qué sirve cada variable.
+.env
+.env.*
+!.env.example
+
+# Credenciales y certificados
+*.pem
+*.key
+*.p12
+*.pfx
