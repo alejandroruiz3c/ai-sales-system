@@ -18,9 +18,25 @@ Creado el 2026-09-17 en el equipo **TURBINEH** (`turbineh`).
 | Región de funciones | `fra1` (Fráncfort)                | Todo el tratamiento de datos se queda en la UE           |
 | Node                | 22.x                              | Igual que en CI                                          |
 
-`apps/web/vercel.json` fija framework, comandos y región. El `ignoreCommand` con
-`turbo-ignore` evita reconstruir el panel cuando un PR solo toca documentación o
-un paquete que el panel no usa.
+`apps/web/vercel.json` fija framework, comandos y región.
+
+**El build ejecuta `pnpm verify` antes de `next build`** (F0.7, ADR 0007):
+
+```json
+"buildCommand": "pnpm -w run verify && pnpm build"
+```
+
+Si `verify` falla —formato, lint con reglas de seguridad, typecheck, tests,
+sistema vacío o `pnpm audit`—, Vercel no construye y no despliega, y el PR
+muestra su check en rojo. Con GitHub Actions bloqueado a nivel de cuenta y sin
+protección de ramas en el plan gratuito, **este check es la única puerta de
+calidad real del repositorio**.
+
+Por eso se ha quitado el `ignoreCommand` con `turbo-ignore` que evitaba
+reconstruir el panel cuando un PR solo tocaba documentación: saltarse el build
+era saltarse `verify`, y `pnpm sistema-vacio` analiza también los `.md`. Se paga
+construyendo los PR de documentación; se gana no tener un hueco por el que entre
+un dato de negocio real sin revisión.
 
 ## Entornos y dominios
 
@@ -87,9 +103,9 @@ LANGFUSE_PUBLIC_KEY             cifrada
 LANGFUSE_SECRET_KEY             cifrada
 ```
 
-Faltan dos para que `/status` esté del todo en verde, y ninguna se puede deducir
-de lo que hay: **`INNGEST_EVENT_KEY`** y **`SENTRY_DSN`** (ver
-`docs/entregas/F0.md`).
+Alex añadió el 2026-09-17 las que faltaban: `INNGEST_EVENT_KEY`, `SENTRY_DSN`,
+`NEXT_PUBLIC_SENTRY_DSN`, `BETTER_STACK_SOURCE_TOKEN` y
+`BETTER_STACK_INGESTING_HOST`.
 
 El proyecto de producción de Supabase (`Ai-sales-prod`) existe pero **no se usa
 todavía**: el entorno _Production_ de Vercel sirve staging, así que apunta al

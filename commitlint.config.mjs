@@ -54,6 +54,7 @@ export default {
         'opinion',
         'copilot',
         // Transversales
+        'reglas', // CLAUDE.md, AGENTS.md, CONTRIBUTING.md: las normas del repo
         'plan',
         'adr',
         'entregas',
