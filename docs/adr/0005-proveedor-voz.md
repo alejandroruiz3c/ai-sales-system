@@ -1,7 +1,7 @@
 # ADR 0005 · Proveedor de la plataforma de voz
 
-- **Estado:** Propuesto
-- **Fecha:** 2026-09-16
+- **Estado:** Aceptado
+- **Fecha:** 2026-09-16 · **Aceptado:** 2026-09-18
 - **Decide:** Alejandro Ruiz
 - **Autor:** Claude Code
 - **Tarea del plan:** F0.12 · se implementa en F9.1
@@ -23,7 +23,7 @@ latencia en español y la fiabilidad de las llamadas a herramientas en mitad de
 una conversación. Un agente que tarda dos segundos en responder pierde la
 llamada; uno que no consigue leer el calendario no agenda.
 
-## Decisión propuesta
+## Decisión
 
 **Retell como proveedor principal, detrás de una interfaz `VoiceAdapter`, con
 Vapi implementado como segundo adaptador si la prueba de campo lo desaconseja.**
@@ -57,7 +57,7 @@ mismos tests de contrato, no reescribir el agente.
 **Twilio** en ambos casos para los números, la rotación y la identificación de
 llamante.
 
-## Criterios de la prueba de campo (obligatoria antes de aceptar este ADR)
+## Criterios de la prueba de campo (F9, obligatoria antes de la decisión final)
 
 La decisión no se cierra por documentación. Antes de pasar a "Aceptado" hay que
 ejecutar con los dos proveedores la misma batería, que es el kit de F9:
@@ -109,8 +109,32 @@ valida un abogado antes de activar el canal.
    la gestión del ciclo de llamada telefónica y las herramientas en llamada. Se
    incluye en la batería como tercer candidato si Alex quiere.
 
-## Pendiente de decisión de Alex
+## Decisión de Alex (2026-09-18)
 
-- Aprobar que la decisión final se tome tras la prueba de campo de F9, no ahora.
-- Fijar el objetivo de coste por minuto y por reunión agendada.
-- Confirmar quién valida la configuración legal por país (asesor legal).
+**Aceptado como decisión provisional**, en estos términos exactos:
+
+1. **Retell es el proveedor principal**, siempre **detrás de la interfaz
+   `VoiceAdapter`**. La interfaz no es un adorno arquitectónico: es lo que hace
+   que la decisión siga siendo reversible después de F9.
+2. **La decisión final se toma tras la prueba de campo de F9**, con llamadas
+   reales medidas, no con la documentación de los proveedores. Si Retell no
+   cumple, se implementa el adaptador de Vapi y se escribe el ADR que sustituya
+   a este.
+3. **Objetivos iniciales de coste, configurables desde el Estudio:**
+   - **≤ 0,20 €/minuto** de conversación.
+   - **≤ 30 € por reunión agendada.**
+
+   Son objetivos de partida, no límites del sistema: se guardan como
+   configuración por tenant (no como constantes en el código) y se ajustan con
+   los datos de F9. El planificador de capacidad y coste (F13) los usa como
+   umbral de alerta y de corte.
+
+4. **Validación legal externa antes de activar una sola llamada real.** Un
+   asesor legal externo tiene que confirmar, por escrito y por país: el aviso de
+   que se habla con una IA, el consentimiento y la grabación, y la
+   compatibilidad con la lista Robinson y con el resto de restricciones
+   aplicables. Hasta que exista ese documento, el agente de llamadas solo opera
+   contra números de prueba en la lista blanca del sandbox.
+
+El punto 4 es bloqueante y no se negocia por prisa comercial: una campaña de
+llamadas mal configurada no es un bug, es una sanción.
