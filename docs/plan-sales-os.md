@@ -1,7 +1,7 @@
 # SALES OS · Plan de acción, arquitectura y funcionamiento
 
 **Sistema de ventas agéntico multi-corporate · plataforma desarrollada por TurbineH**
-Documento de dirección técnica · v1.3 · 17 sept 2026
+Documento de dirección técnica · v1.4 · 18 sept 2026
 Autor: CTO (Claude) · Destinatario: Alejandro Ruiz, Director General del proyecto · Ejecutor: Claude Code local + equipos colaboradores en GitHub
 
 ---
@@ -254,9 +254,17 @@ Los agentes viven en `packages/agents` sin depender del runtime: la misma lógic
 
 ## 4. Buenas prácticas de ingeniería en GitHub
 
-**Flujo de trabajo.** Trunk-based: `main` siempre desplegable, ramas cortas `feat/`, `fix/`, `chore/`, PR obligatorio con al menos una revisión, *squash merge*. Commits con Conventional Commits, validados por commitlint. Versionado de paquetes con Changesets.
+**Repositorio.** El proyecto vive en el repositorio privado de la cuenta personal `alejandroruiz3c/ai-sales-system`, en plan gratuito. Ese plan no permite proteger ramas ni crear equipos, pero sí añadir colaboradores ilimitados, abrir PRs, usar GitHub Projects y los minutos gratuitos de Actions. Las garantías que normalmente daría GitHub se consiguen con las tres capas de la sección siguiente. Si en el futuro se crea una organización con plan de pago, basta con transferir el repo y activar la protección nativa, sin cambiar el flujo de trabajo.
 
-**Protección.** Rama `main` protegida: CI verde obligatorio (lint, typecheck, tests, evals de prompts, migraciones en seco), revisión de CODEOWNERS por área, sin *push* directo. Dependabot, secret scanning y CodeQL activos. Ningún secreto en el repo: `.env.example` documentado y variables en Vercel, GitHub Environments y Vault.
+**Flujo de trabajo.** Trunk-based: `main` siempre desplegable, ramas cortas `feat/`, `fix/`, `chore/`, PR obligatorio por norma del proyecto (recogida en `CONTRIBUTING.md` y `CLAUDE.md`), *squash merge*. Commits con Conventional Commits, validados por commitlint. Versionado de paquetes con Changesets.
+
+**Protección sin plan de pago.** Se sustituye la protección nativa de ramas por tres capas:
+
+1. **Hooks locales obligatorios**, instalados automáticamente con `pnpm install`. Un hook *pre-push* rechaza cualquier *push* directo a `main` y ejecuta `pnpm verify`. Cualquier colaborador que clone el repo los tiene activos.
+2. **`pnpm verify` dentro del build de Vercel.** Lint, typecheck, tests, evals de prompts y comprobación de sistema vacío se ejecutan antes de construir. Si algo falla, Vercel no despliega, y el PR muestra el check de Vercel en rojo. Así la calidad se garantiza aunque GitHub Actions no esté disponible.
+3. **GitHub Actions como capa adicional**, dentro de los minutos gratuitos, más un *workflow* guardián que, si detecta un *push* directo a `main`, abre un issue de alerta automáticamente.
+
+CODEOWNERS usa usuarios individuales en lugar de equipos, y sirve para asignar revisores automáticamente. La revisión es obligatoria por norma, no por bloqueo técnico: mientras Alex sea el único revisor, él aprueba y fusiona sus propios PRs. Dependabot y el secret scanning disponibles en el plan gratuito quedan activos; CodeQL no está disponible en repos privados gratuitos y se sustituye por reglas de seguridad de ESLint y `pnpm audit` en `pnpm verify`. Ningún secreto en el repo: `.env.example` documentado y variables en Vercel, GitHub Environments y Vault.
 
 **Entornos.** `dev` (local con Supabase local), `preview` (una por PR en Vercel con base de datos de rama), `staging` y `production`. Workers con imagen Docker etiquetada por versión y despliegue automático a staging, manual con aprobación a producción.
 
@@ -279,12 +287,12 @@ Niveles: **Fase** (resultado de negocio) → **Épica** (capacidad) → **Tarea 
 | ID | Tarea atómica | Tecnología | DoD |
 |---|---|---|---|
 | F0.1 | Auditar el Agentic Sales System actual y listar módulos reutilizables (safety gates, Pipedrive, campañas, facturación) | Python existente | Documento `docs/adr/0001-reuse-ass.md` con decisión por módulo: portar, envolver o descartar |
-| F0.2 | Crear repo `turbineh/sales-os` con monorepo pnpm + Turborepo | pnpm, Turborepo | `pnpm build` verde en vacío |
+| F0.2 | Crear repo `alejandroruiz3c/ai-sales-system` con monorepo pnpm + Turborepo | pnpm, Turborepo | `pnpm build` verde en vacío |
 | F0.3 | Configurar TypeScript estricto, ESLint, Prettier compartidos | packages/config | Lint y typecheck pasan |
 | F0.4 | Añadir commitlint, Husky, lint-staged, Changesets | Node tooling | Commit no convencional rechazado |
 | F0.5 | Crear `CLAUDE.md`, `CONTRIBUTING.md`, `CODEOWNERS`, plantillas de PR e issues | Markdown | Plantillas visibles en GitHub |
 | F0.6 | Workflow CI: install, lint, typecheck, test con caché | GitHub Actions | PR de prueba con checks verdes |
-| F0.7 | Protección de `main`, Dependabot, secret scanning, CodeQL | GitHub | Push directo a main bloqueado |
+| F0.7 | Protección sin plan de pago: hook pre-push, `pnpm verify` en el build de Vercel, workflow guardián, Dependabot, reglas de seguridad de ESLint y `pnpm audit` | Husky, Vercel, GitHub Actions | Push directo a main rechazado en local y alertado si ocurre |
 | F0.8 | Crear proyecto Vercel conectado al repo con previews por PR | Vercel | URL de preview por PR |
 | F0.9 | Crear proyectos Supabase staging y producción en región UE | Supabase | Conexión desde local y Vercel |
 | F0.10 | Crear cuenta Inngest con entornos y conectar a Vercel | Inngest | Función "hello" ejecutada en preview |
@@ -689,8 +697,9 @@ Los datos de prueba (CSV, textos, y deck, web y argumentario de los dos corporat
 |---|---|---|
 | T0.1 | Abres la URL de staging | Carga la página "SALES OS v0" con número de versión |
 | T0.2 | Abres `/status` | Supabase, Inngest, Sentry y Langfuse aparecen en verde |
-| T0.3 | En GitHub, abres cualquier PR de prueba | Aparecen los checks de lint, typecheck y test, y una URL de preview |
-| T0.4 | Intentas editar un archivo directamente en `main` desde la web de GitHub | GitHub obliga a crear rama y PR |
+| T0.3 | En GitHub, abres el PR de prueba | Aparece el check de Vercel (que incluye lint, typecheck y tests) con su URL de preview y, si Actions está disponible, también el check de CI |
+| T0.4 | En tu Mac, haces un cambio en `main` e intentas `git push` | El push se rechaza con un mensaje que explica cómo crear rama y PR. Si alguien lo fuerza, aparece un issue de alerta en GitHub |
+| T0.4b | Abres un PR con un test roto a propósito | El check de Vercel falla y no se despliega la preview |
 | T0.5 | Lees `docs/adr/0001-reuse-ass.md` | Tabla clara de qué se reutiliza del sistema actual y por qué |
 | T0.6 | Pulsas "Lanzar error de prueba" en `/status` | El error aparece en Sentry en menos de un minuto |
 
@@ -1040,7 +1049,7 @@ Actúa como ingeniero principal del proyecto SALES OS. Ejecuta la
    control/ejecución, proveedor de voz, proveedor de firma) en estado
    "Propuesto".
 8. Haz un commit por tarea con Conventional Commits y sube el repo a
-   github.com/turbineh/ai-sales-system.
+   github.com/alejandroruiz3c/ai-sales-system.
 9. Despliega staging en Vercel (staging.sales.turbineh.com) con la página
    "SALES OS v0" y /status mostrando Supabase, Inngest, Sentry y Langfuse.
    Si te falta una cuenta o clave, prepara todo lo demás y dime
