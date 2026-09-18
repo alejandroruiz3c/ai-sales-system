@@ -10,7 +10,7 @@ Cuando algo no esté en este fichero, la respuesta está en el plan.
 
 ---
 
-## 0. Las tres reglas que no se rompen nunca
+## 0. Las cuatro reglas que no se rompen nunca
 
 ### REGLA PERMANENTE 1 · Parada al final de cada fase
 
@@ -85,6 +85,42 @@ uno de riesgo: los datos comerciales de un corporate (sus precios, su ICP, sus
 objeciones) son de lo más sensible que nos va a confiar, y lo que no está en el
 repositorio no se puede filtrar desde el repositorio.
 
+### REGLA PERMANENTE 4 · Nada entra en `main` sin PR, y `KEYS.*` no se mira en voz alta
+
+Son dos cosas y las dos vienen de lo mismo: este repositorio está en una cuenta
+personal de GitHub con plan gratuito, sin protección de ramas ni CodeQL
+([ADR 0007](docs/adr/0007-github-personal-gratuito.md)), y el fichero de claves
+de Alex vive en la carpeta del proyecto.
+
+**Nunca un `push` directo a `main`. Siempre rama y PR.** Ni un arreglo de una
+línea, ni un cambio de documentación, ni "es que Actions está caído". El check de
+Vercel sobre el PR ejecuta `pnpm verify` antes de construir, y es **lo único** que
+garantiza que `main` está desplegable: un commit que no pasa por un PR no ha
+pasado por ese check. El hook _pre-push_ lo rechaza en local y el workflow
+guardián abre un issue si aun así ocurre. Si te encuentras en `main` con commits
+propios, los mueves a una rama; no los empujas.
+
+**`KEYS.rtf` se lee, no se copia.** Alex mantiene `KEYS.rtf` en la carpeta del
+proyecto (decisión suya, 2026-09-18). Se puede leer para configurar variables, y
+nada más:
+
+1. **Ningún valor de `KEYS.*` se muestra, se copia, se registra ni se escribe** en
+   el chat, en un fichero, en un commit, en un log ni en un mensaje de error. Ni
+   completo, ni truncado, ni "enmascarado": un enmascarado mal hecho filtra igual.
+2. **Los valores solo se pasan directamente** a la herramienta que los necesita
+   (`vercel env add` y compañía), por entrada estándar o por variable de entorno
+   del proceso hijo. Nunca por un fichero intermedio que quede en disco.
+3. **`KEYS.*` está excluido de todo:** de git (`.gitignore`), de los despliegues
+   (`.vercelignore`) y del índice del Copiloto (`.copilotignore`). `pnpm
+sistema-vacio` falla si alguno llega a estar versionado, y eso corre en
+   `pnpm verify`.
+4. **Si necesitas comprobar qué hay en `KEYS.*`**, di qué nombre de clave buscas y
+   si está o no. Nunca su contenido, ni su longitud, ni su prefijo.
+
+Si una clave que ha pasado por un sitio equivocado —un log, un mensaje, un
+fichero temporal— dilo inmediatamente y pide que se rote. Una clave rotada cuesta
+cinco minutos; una clave filtrada y callada cuesta el tenant.
+
 ---
 
 ## 1. Reglas de ingeniería
@@ -154,11 +190,15 @@ No se mezclan fases.
 
 **Una rama por tarea.** `feat/`, `fix/`, `chore/` + el ID de la tarea del plan:
 `feat/f5.7-puntuacion-encaje`. Ramas cortas, trunk-based, `main` siempre
-desplegable.
+desplegable. **Nunca se trabaja sobre `main` ni se le hace `push`** (regla
+permanente 4).
 
 **Un PR por tarea.** Con descripción, qué se ha probado y riesgos. Squash merge.
-Al menos una revisión. `main` protegida: sin CI verde y sin revisión de
-CODEOWNERS no se fusiona.
+Al menos una revisión. Nada se fusiona con el check de Vercel en rojo: ese check
+ejecuta `pnpm verify` (formato, lint con reglas de seguridad, typecheck, tests,
+sistema vacío y `pnpm audit`) antes de construir. La revisión de CODEOWNERS se
+pide automáticamente, pero en el plan gratuito **no bloquea**: es obligatoria por
+norma, no por impedimento técnico (ADR 0007).
 
 **Conventional Commits**, validados por commitlint, con scope del paquete o área
 (ver `commitlint.config.mjs`). Un commit por tarea atómica.

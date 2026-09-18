@@ -1,7 +1,7 @@
 # ADR 0004 · Plano de control en Vercel, plano de ejecución en Hetzner
 
-- **Estado:** Propuesto
-- **Fecha:** 2026-09-16
+- **Estado:** Aceptado
+- **Fecha:** 2026-09-16 · **Aceptado:** 2026-09-18
 - **Decide:** Alejandro Ruiz
 - **Autor:** Claude Code
 - **Tarea del plan:** F0.12
@@ -89,8 +89,21 @@ es donde el despliegue es automático y la observabilidad, gratis.
    el más bajo del grupo; la RAM es el recurso que limita cuántos perfiles de
    navegador caben (§2.7 del plan).
 
-## Pendiente de decisión de Alex
+## Decisión de Alex (2026-09-18)
 
-- Confirmar Hetzner como plano de ejecución (hay experiencia previa).
-- Confirmar el proveedor de proxies ISP con IP estática, que es un gasto nuevo y
-  condiciona cuántas cuentas de LinkedIn se pueden operar.
+**Aceptado.** Hetzner como plano de ejecución, con dos precisiones:
+
+1. **Las IP de datacenter quedan descartadas para LinkedIn.** No es una
+   preferencia: LinkedIn las detecta y el resultado es la cuenta restringida, que
+   es el riesgo 1 del plan (§7). El tráfico de LinkedIn sale **solo** por proxies
+   ISP con IP estática y residencial/ISP, una por cuenta operada.
+2. **El proveedor de proxies se decide al inicio de F8, después de una prueba
+   real**, no ahora y no sobre el papel. La prueba tiene que medir, con una
+   cuenta de prueba y durante varios días: estabilidad de la IP (que no rote),
+   geolocalización coherente con la cuenta, latencia, y comportamiento ante la
+   verificación de LinkedIn. Se elige con esos datos y se escribe en el ADR que
+   sustituya a este.
+
+Hasta esa prueba, **no se operan cuentas de LinkedIn reales**, ni las personales
+del equipo. El worker de navegador se desarrolla contra cuentas de prueba y con
+el interceptor de sandbox activo.

@@ -8,6 +8,7 @@ import {
   analizarFichero,
   cargarLista,
   comprobarDatosDePrueba,
+  comprobarFicherosDeClaves,
   formatearInforme,
   globARegex,
   neutralizarExcepciones,
@@ -206,6 +207,7 @@ describe('informe', () => {
       lista,
     );
     const informe = formatearInforme(hallazgos, 1);
+    expect(informe).toContain('Hay datos de negocio real');
     expect(informe).toContain('packages/db/src/index.ts:1');
     expect(informe).toContain('YESWORKS');
     expect(informe).toContain('entidad-emisora-de-facturas');
@@ -214,5 +216,91 @@ describe('informe', () => {
 
   it('cuando no hay nada, lo dice y no alarma', () => {
     expect(formatearInforme([], 42)).toContain('El sistema nace vacío');
+  });
+});
+
+describe('ficheros de claves versionados', () => {
+  function claves(rutas: readonly string[]): readonly string[] {
+    return comprobarFicherosDeClaves(rutas).map((hallazgo) => hallazgo.ruta);
+  }
+
+  it('falla si KEYS.rtf llega a estar versionado', () => {
+    expect(claves(['KEYS.rtf'])).toEqual(['KEYS.rtf']);
+  });
+
+  it('falla con cualquier KEYS.*, en la raíz o en una subcarpeta', () => {
+    expect(claves(['KEYS', 'KEYS.txt', 'KEYS.rtf', 'docs/KEYS.md', 'infra/vercel/KEYS'])).toEqual([
+      'KEYS',
+      'KEYS.txt',
+      'KEYS.rtf',
+      'docs/KEYS.md',
+      'infra/vercel/KEYS',
+    ]);
+  });
+
+  it('falla con claves.*, .env reales, certificados y llaves privadas', () => {
+    expect(
+      claves([
+        'claves.txt',
+        '.env',
+        '.env.local',
+        'apps/web/.env.production',
+        'infra/tls/servidor.pem',
+        'infra/tls/servidor.key',
+        'infra/tls/cliente.p12',
+      ]),
+    ).toHaveLength(7);
+  });
+
+  it('deja pasar .env.example, que no tiene valores y documenta las variables', () => {
+    expect(claves(['.env.example', 'apps/web/.env.example'])).toEqual([]);
+  });
+
+  it('no confunde un fichero que solo se parece en el nombre', () => {
+    expect(
+      claves([
+        'packages/core/src/keys.ts',
+        'docs/runbooks/rotar-claves.md',
+        'packages/db/src/monkeys.ts',
+        'scripts/src/sistema-vacio.ts',
+      ]),
+    ).toEqual([]);
+  });
+
+  it('el motivo explica cómo sacarlo del índice y que hay que rotar las claves', () => {
+    const [hallazgo] = comprobarFicherosDeClaves(['KEYS.rtf']);
+    expect(hallazgo?.regla).toBe('fichero-de-claves-versionado');
+    expect(hallazgo?.motivo).toContain('git rm --cached KEYS.rtf');
+    expect(hallazgo?.motivo).toContain('rótalas');
+  });
+
+  it('no falla cuando el repositorio está limpio', () => {
+    expect(claves(['package.json', 'docs/plan-sales-os.md', '.env.example'])).toEqual([]);
+  });
+});
+
+describe('el informe distingue qué ha fallado', () => {
+  it('con un fichero de claves habla de claves, no de datos de negocio', () => {
+    const informe = formatearInforme(comprobarFicherosDeClaves(['KEYS.rtf']), 1);
+    expect(informe).toContain('fichero de claves versionado');
+    expect(informe).not.toContain('Hay datos de negocio real');
+    // La salida de excepciones solo aplica a términos vetados: aquí no hay
+    // excepción legítima posible.
+    expect(informe).not.toContain('terminos-vetados.json');
+  });
+
+  it('con los dos problemas a la vez, explica los dos', () => {
+    const informe = formatearInforme(
+      [
+        ...comprobarFicherosDeClaves(['.env.local']),
+        ...analizar(
+          [{ ruta: 'packages/db/src/index.ts', contenido: 'const e = "YESWORKS";' }],
+          lista,
+        ),
+      ],
+      2,
+    );
+    expect(informe).toContain('fichero de claves versionado');
+    expect(informe).toContain('Hay datos de negocio real');
   });
 });

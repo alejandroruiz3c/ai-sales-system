@@ -8,12 +8,12 @@ interface StatusResponse {
   allGreen: boolean;
 }
 
-const SERVICIOS = ['supabase', 'inngest', 'sentry', 'langfuse'] as const;
+const SERVICIOS = ['supabase', 'inngest', 'sentry', 'langfuse', 'better-stack'] as const;
 
 /**
  * Casos T0.2 y T0.6 del kit de F0.
  *
- * T0.2 pide los cuatro servicios en verde. El test comprueba que los cuatro
+ * T0.2 pide los servicios en verde. El test comprueba que los cuatro
  * **aparecen y dicen su estado**, no que estén en verde: en verde solo pueden
  * estar cuando Alex haya dado de alta las cuentas y puesto las claves. Un test
  * que exigiera verde fallaría por una tarea pendiente de una persona, que no es
@@ -21,7 +21,9 @@ const SERVICIOS = ['supabase', 'inngest', 'sentry', 'langfuse'] as const;
  * ninguno puede estar en `error`.
  */
 test.describe('F0 · estado de los servicios', () => {
-  test('T0.2 · muestra Supabase, Inngest, Sentry y Langfuse con su estado', async ({ page }) => {
+  test('T0.2 · muestra Supabase, Inngest, Sentry, Langfuse y Better Stack con su estado', async ({
+    page,
+  }) => {
     await page.goto('/status');
 
     for (const id of SERVICIOS) {
@@ -33,9 +35,7 @@ test.describe('F0 · estado de los servicios', () => {
     }
   });
 
-  test('T0.2 · /api/status devuelve los cuatro servicios y el modo sandbox', async ({
-    request,
-  }) => {
+  test('T0.2 · /api/status devuelve todos los servicios y el modo sandbox', async ({ request }) => {
     const response = await request.get('/api/status');
     expect(response.status()).toBe(200);
 

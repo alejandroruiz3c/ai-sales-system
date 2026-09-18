@@ -1,7 +1,7 @@
 # ADR 0003 · Multi-tenant con Row Level Security
 
-- **Estado:** Propuesto
-- **Fecha:** 2026-09-16
+- **Estado:** Aceptado
+- **Fecha:** 2026-09-16 · **Aceptado:** 2026-09-18
 - **Decide:** Alejandro Ruiz
 - **Autor:** Claude Code
 - **Tarea del plan:** F0.12
@@ -78,6 +78,23 @@ código de aplicación.**
 3. **Filtrado en el código de aplicación.** Es lo que hacía el sistema antiguo. Un solo olvido y el fallo es silencioso: no da error, devuelve datos de otro. Rechazada.
 4. **Filtrado en una capa de servicio obligatoria (repositorio único).** Mejor que filtrar suelto, pero sigue siendo código y sigue admitiendo el atajo. Se usará **además** de RLS, no en su lugar.
 
-## Pendiente de decisión de Alex
+## Decisión de Alex (2026-09-18)
 
-- Confirmar que un corporate con requisito de base de datos dedicada se tratará como excepción con sobrecoste, y no como modelo general.
+**Aceptado.** RLS es el modelo general de aislamiento, y no hay una segunda
+forma de hacerlo: toda tabla lleva `tenant_id`, toda tabla lleva política, y una
+tabla sin las dos cosas no pasa revisión.
+
+**La base de datos dedicada es una opción premium, bajo petición, con
+sobrecoste.** No es el plan por defecto ni una promesa comercial que se pueda
+hacer sin hablarlo. Cuando un corporate la pida:
+
+- se trata como una excepción con su propio presupuesto, no como una variante
+  del producto;
+- el código **no se bifurca**: el acceso sigue pasando por `packages/db` y por
+  las mismas políticas, y lo que cambia es la cadena de conexión del tenant;
+- se escribe un ADR nuevo con las consecuencias de operación (migraciones,
+  copias de seguridad, coste de tener N bases en vez de una).
+
+El motivo de que sea excepción y no norma: una base por corporate multiplica el
+coste de cada migración por el número de clientes, y ese coste lo paga el equipo
+en cada despliegue, para siempre.

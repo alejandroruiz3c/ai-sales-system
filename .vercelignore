@@ -1,0 +1,58 @@
+# Qué NO se sube nunca a Vercel.
+#
+# Cuenta en dos sitios, y el segundo es el que sorprende:
+#
+#   1. En un `vercel deploy` desde local, que empaqueta la carpeta tal y como
+#      está, incluidos los ficheros que git ignora. De ahí que `KEYS.*` esté
+#      aquí: es un fichero de claves que vive en la carpeta del proyecto, fuera
+#      de git (regla permanente 4 de CLAUDE.md).
+#   2. **También en los despliegues por Git**: Vercel clona el repositorio y
+#      después aplica este fichero sobre el clon. Lo dice en el log del build
+#      («Found .vercelignore … Removed N ignored files»).
+#
+# Por lo segundo, esta lista se queda corta a propósito. Todo lo que se excluya
+# aquí desaparece del build, y el build ejecuta `pnpm verify`:
+#
+#   · `.git` NO se excluye: `pnpm sistema-vacio` usa `git ls-files`.
+#   · `apps/web/e2e` NO se excluye: `pnpm typecheck` compila `-p e2e`.
+#
+# Si añades algo aquí, comprueba antes que `pnpm verify` no lo necesita.
+
+# Claves en local. Jamás salen de la máquina de Alex.
+KEYS
+KEYS.*
+claves.*
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Artefactos que Vercel reconstruye
+node_modules
+.pnpm-store
+.next
+.turbo
+dist
+build
+out
+*.tsbuildinfo
+
+# Informes de pruebas (los tests sí se ejecutan; sus informes no se suben)
+coverage
+playwright-report
+test-results
+blob-report
+
+# Local
+.vercel
+.supabase
+.vscode
+.idea
+.DS_Store
+*.log
+
+# Perfiles de navegador del worker (van a Hetzner, no a Vercel)
+data/chrome-profiles

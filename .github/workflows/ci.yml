@@ -23,7 +23,7 @@ env:
 
 jobs:
   quality:
-    name: Lint · Sistema vacío · Typecheck · Test · Build
+    name: Verify · Build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -49,22 +49,12 @@ jobs:
           restore-keys: |
             turbo-${{ runner.os }}-
 
-      - name: Formato
-        run: pnpm format:check
-
-      - name: Lint
-        run: pnpm lint
-
-      # F0.19 · El sistema nace vacío. Si esto falla, hay un dato de negocio
-      # real en el repositorio y no se fusiona hasta que salga.
-      - name: Sistema vacío
-        run: pnpm sistema-vacio
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Tests
-        run: pnpm test
+      # Exactamente lo mismo que ejecuta el hook pre-push y lo que ejecuta el
+      # build de Vercel antes de construir (ADR 0007). Una sola definición de
+      # "está en verde": formato, lint con reglas de seguridad, typecheck,
+      # tests, sistema vacío (F0.19) y auditoría de dependencias.
+      - name: Verify
+        run: pnpm verify
 
       - name: Build
         run: pnpm build

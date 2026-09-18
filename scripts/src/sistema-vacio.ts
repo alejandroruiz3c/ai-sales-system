@@ -7,7 +7,7 @@
  * comprobación; `sistema-vacio-cli.ts` la ejecuta sobre los ficheros del
  * repositorio y CI la exige en cada PR.
  *
- * Dos comprobaciones, porque son dos agujeros distintos:
+ * Tres comprobaciones, porque son tres agujeros distintos:
  *
  * 1. **Términos vetados.** Nombres, productos y precios reales concretos que
  *    ya estuvieron en el repositorio o que salen del sistema antiguo. Es una
@@ -16,6 +16,10 @@
  *    evals que habla de precios, ICP u ofertas tiene que declarar por escrito
  *    que su corporate es inventado. Esto sí detecta lo nuevo, porque el camino
  *    por el que un dato real entraría es "lo pongo como fixture, que es un test".
+ * 3. **Ficheros de claves versionados.** `KEYS.*`, `.env` y compañía no pueden
+ *    estar en git. No es un dato de negocio, pero es el mismo agujero: algo que
+ *    no debería salir de la máquina de Alex y que, si entra en el historial, ya
+ *    no se puede sacar.
  *
  * La lista de términos es dato, no código: vive en `scripts/terminos-vetados.json`.
  */
@@ -212,6 +216,66 @@ export function comprobarDatosDePrueba(
   return [];
 }
 
+/**
+ * Ficheros que no pueden estar versionados nunca, pase lo que pase.
+ *
+ * `KEYS.rtf` vive en la carpeta del proyecto por decisión de Alex (2026-09-18,
+ * regla permanente 4 de `CLAUDE.md`): es cómodo tenerlo a mano y `.gitignore` lo
+ * excluye. Pero `.gitignore` solo protege mientras nadie haga `git add -f`, y un
+ * fichero de claves versionado no se arregla borrándolo: queda en el historial
+ * para siempre y hay que rotar todas las claves.
+ *
+ * De ahí que esto sea una comprobación de CI y no una nota en un README.
+ */
+export const PATRONES_DE_CLAVES: readonly string[] = [
+  'KEYS',
+  'KEYS.*',
+  '**/KEYS',
+  '**/KEYS.*',
+  'claves',
+  'claves.*',
+  '**/claves.*',
+  '.env',
+  '.env.*',
+  '**/.env',
+  '**/.env.*',
+  '**/*.pem',
+  '**/*.key',
+  '**/*.p12',
+  '**/*.pfx',
+];
+
+/** `.env.example` sí se versiona: documenta las variables y no lleva valores. */
+export const EXCEPCIONES_DE_CLAVES: readonly string[] = ['.env.example', '**/.env.example'];
+
+/**
+ * Falla si un fichero de claves ha llegado a estar versionado.
+ *
+ * Recibe **solo las rutas versionadas** (`git ls-files`), no las del disco: que
+ * `KEYS.rtf` exista en la carpeta es correcto; lo que no puede es estar en git.
+ */
+export const CLAVES_VERSIONADAS = 'fichero-de-claves-versionado';
+
+export function comprobarFicherosDeClaves(rutasVersionadas: readonly string[]): Hallazgo[] {
+  const hallazgos: Hallazgo[] = [];
+  for (const ruta of rutasVersionadas) {
+    if (rutaExcluida(ruta, EXCEPCIONES_DE_CLAVES)) continue;
+    if (!rutaExcluida(ruta, PATRONES_DE_CLAVES)) continue;
+    hallazgos.push({
+      ruta,
+      linea: 1,
+      regla: CLAVES_VERSIONADAS,
+      motivo:
+        'Es un fichero de claves y está versionado en git. Sácalo del índice con ' +
+        `«git rm --cached ${ruta}», comprueba que .gitignore lo excluye y, si ya se ha ` +
+        'subido en algún commit, considera comprometidas todas las claves que contenga y ' +
+        'rótalas: borrarlo en un commit nuevo no lo saca del historial.',
+      extracto: ruta,
+    });
+  }
+  return hallazgos;
+}
+
 /** Analiza un fichero completo. Devuelve los hallazgos en orden de aparición. */
 export function analizarFichero(fichero: Fichero, lista: ListaVetada): Hallazgo[] {
   if (rutaExcluida(fichero.ruta, lista.rutasExcluidas)) return [];
@@ -250,14 +314,36 @@ export function formatearInforme(
     porFichero.set(hallazgo.ruta, previos);
   }
 
+  const hayClaves = hallazgos.some((hallazgo) => hallazgo.regla === CLAVES_VERSIONADAS);
+  const hayNegocio = hallazgos.some((hallazgo) => hallazgo.regla !== CLAVES_VERSIONADAS);
+
+  // El encabezado dice qué ha fallado de verdad. Un fichero de claves y un
+  // precio real son dos problemas distintos y se arreglan de forma distinta:
+  // decir "hay datos de negocio" cuando lo que hay es un .env manda a quien lee
+  // el log a buscar lo que no es.
   const lineas: string[] = [
-    `✖ Hay datos de negocio real en el repositorio: ${String(hallazgos.length)} hallazgo(s) en ${String(porFichero.size)} fichero(s).`,
-    '',
-    '  SALES OS nace vacío (plan §0, regla permanente 3 de CLAUDE.md). Todo el',
-    '  conocimiento comercial entra por el onboarding de cada corporate y vive en',
-    '  la base de datos de su tenant, nunca en el código ni en las plantillas.',
+    `✖ La comprobación de sistema vacío ha fallado: ${String(hallazgos.length)} hallazgo(s) en ${String(porFichero.size)} fichero(s).`,
     '',
   ];
+
+  if (hayClaves) {
+    lineas.push(
+      '  Hay un fichero de claves versionado. Sácalo del índice de git y da por',
+      '  comprometidas sus claves si ya se subió: el historial no se limpia con un',
+      '  commit de borrado (regla permanente 4 de CLAUDE.md).',
+      '',
+    );
+  }
+
+  if (hayNegocio) {
+    lineas.push(
+      '  Hay datos de negocio real en el repositorio. SALES OS nace vacío (plan §0,',
+      '  regla permanente 3 de CLAUDE.md): todo el conocimiento comercial entra por el',
+      '  onboarding de cada corporate y vive en la base de datos de su tenant, nunca en',
+      '  el código ni en las plantillas.',
+      '',
+    );
+  }
 
   for (const [ruta, suyos] of porFichero) {
     lineas.push(`  ${ruta}`);
@@ -270,10 +356,12 @@ export function formatearInforme(
     lineas.push('');
   }
 
-  lineas.push(
-    '  Si crees que un hallazgo es legítimo, no lo silencies en el código: añade la',
-    '  excepción con su motivo en scripts/terminos-vetados.json, que se revisa en el PR.',
-    '',
-  );
+  if (hayNegocio) {
+    lineas.push(
+      '  Si crees que un hallazgo es legítimo, no lo silencies en el código: añade la',
+      '  excepción con su motivo en scripts/terminos-vetados.json, que se revisa en el PR.',
+      '',
+    );
+  }
   return lineas.join('\n');
 }

@@ -1,7 +1,7 @@
 # ADR 0006 · Proveedor de firma electrónica
 
-- **Estado:** Propuesto
-- **Fecha:** 2026-09-16
+- **Estado:** Aceptado
+- **Fecha:** 2026-09-16 · **Aceptado:** 2026-09-18
 - **Decide:** Alejandro Ruiz
 - **Autor:** Claude Code
 - **Tarea del plan:** F0.12 · se implementa en F10.4
@@ -19,7 +19,7 @@ Lo que importa aquí no es la firma en sí: es qué pasa dentro de tres años si
 que demostrar que un documento se firmó. Y, en el día a día, que el coste por
 firma no crezca en proporción al número de cierres.
 
-## Decisión propuesta
+## Decisión
 
 **Docuseal autoalojado como proveedor por defecto, detrás de una interfaz
 `ESignAdapter`, con Signaturit como adaptador alternativo activable por tenant.**
@@ -53,7 +53,7 @@ prestador cualificado.
 La elección es **por tenant**, no global: el valor por defecto es Docuseal y un
 tenant puede configurarse con Signaturit si su caso lo requiere.
 
-## Lo que hay que verificar antes de aceptar este ADR (F10.4)
+## Lo que hay que verificar en la implementación (F10.4)
 
 | Punto                                         | Por qué importa                                                                           | Cómo se comprueba                                                                               |
 | --------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -90,8 +90,26 @@ tenant puede configurarse con Signaturit si su caso lo requiere.
 3. **"Firma" por aceptación en email o por casilla en el checkout de Stripe.** Barato y sin pista de auditoría seria. Para un NDA no es suficiente: precisamente el documento que se firma es el que puede acabar discutiéndose.
 4. **Firma con certificado propio sin proveedor.** Implementar PAdES y sellado de tiempo a mano no es lo que construye SALES OS.
 
-## Pendiente de decisión de Alex
+## Decisión de Alex (2026-09-18)
 
-- Nivel de firma exigible para el NDA, confirmado por el asesor legal (simple, avanzada o cualificada).
-- Si se autoaloja Docuseal en el mismo servidor Hetzner de los workers o en uno propio.
-- Confirmar que la alternativa Signaturit se activa por tenant y solo cuando se pida.
+**Aceptado** con las tres respuestas que faltaban:
+
+1. **Docuseal autoalojado, en un servidor propio y separado de los workers de
+   navegador.** No comparte máquina con ellos. El motivo es de riesgo, no de
+   recursos: los workers son la parte del sistema más expuesta —navegadores
+   automatizados, sesiones de terceros, perfiles persistentes— y el servicio que
+   custodia documentos firmados no puede compartir superficie de ataque con
+   ellos. Además, reiniciar un worker por un problema de LinkedIn no puede
+   tumbar la firma de un contrato.
+2. **Firma electrónica simple para el NDA**, que es el nivel que corresponde al
+   riesgo del documento, **pendiente de confirmación del asesor legal**. Si el
+   asesor exige firma avanzada, se revisa con un ADR nuevo: cambia el proveedor,
+   no la arquitectura, porque la interfaz `ESignAdapter` ya lo aísla.
+3. **Signaturit solo por tenant y bajo petición.** No se activa por defecto ni
+   se ofrece en el catálogo: es un adaptador alternativo para el corporate que lo
+   exija, con su propio coste.
+
+Lo que se conserva de todos modos, porque es lo que importa dentro de tres años:
+el sello de tiempo, la traza de auditoría y la copia del documento firmado se
+guardan **en nuestro almacenamiento**, no solo en el proveedor. Si el proveedor
+desaparece, la prueba sigue estando.

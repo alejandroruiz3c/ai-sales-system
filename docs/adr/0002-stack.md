@@ -1,7 +1,7 @@
 # ADR 0002 · Stack tecnológico
 
-- **Estado:** Propuesto
-- **Fecha:** 2026-09-16
+- **Estado:** Aceptado
+- **Fecha:** 2026-09-16 · **Aceptado:** 2026-09-18
 - **Decide:** Alejandro Ruiz
 - **Autor:** Claude Code
 - **Tarea del plan:** F0.12
@@ -62,7 +62,27 @@ Un solo lenguaje, un solo repo, el menor número de proveedores posible.
 4. **Prisma en vez de Drizzle.** Prisma esconde el SQL y eso choca con razonar sobre políticas RLS, que es la parte que no se puede permitir aproximar.
 5. **Todo en Vercel, sin Hetzner.** Técnicamente inviable para LinkedIn. Ver ADR 0004 y riesgo 7 del plan.
 
-## Pendiente de decisión de Alex
+## Decisión de Alex (2026-09-18)
 
-- Confirmar Vercel y Supabase como proveedores con compromiso de región UE.
-- Confirmar que se acepta Inngest en la ruta crítica.
+**Aceptado.** Con tres precisiones que pasan a ser vinculantes:
+
+1. **Región UE, concretada.** Vercel en `fra1` (Fráncfort) y Supabase en
+   Fráncfort, los dos proyectos. Ninguna función, base de datos ni cola sale de
+   la UE. Cualquier proveedor nuevo que no pueda garantizar región UE necesita
+   un ADR propio antes de entrar.
+2. **Inngest se acepta en la ruta crítica**, porque sin durabilidad no hay
+   sistema: una secuencia de outreach que se pierde a medias es peor que una que
+   no arranca.
+3. **Y por eso lleva mitigación obligatoria**, que es la parte que convierte la
+   aceptación en algo defendible:
+   - **Todos los eventos se persisten en la tabla `events`** antes de enviarse a
+     Inngest. La tabla es la fuente de verdad, no la cola: si Inngest pierde un
+     evento, el evento sigue existiendo.
+   - **Hay procedimiento de reproceso escrito** en
+     [`docs/runbooks/reproceso-de-eventos.md`](../runbooks/reproceso-de-eventos.md),
+     con cómo detectar el hueco, cómo reinyectar y cómo evitar duplicados.
+   - Las dos cosas se implementan en F1 (modelo de datos y bus de eventos) y son
+     condición para cerrar la fase, no un extra.
+
+Si en el futuro Inngest deja de encajar, con la tabla `events` como fuente de
+verdad el cambio de orquestador es un trabajo acotado, no una reescritura.

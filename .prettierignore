@@ -11,3 +11,8 @@ docs/plan-sales-os.md
 # Lo genera Next.js en cada build y dice "should not be edited": si prettier lo
 # reformatea, el siguiente build lo vuelve a cambiar y el repo queda sucio.
 apps/web/next-env.d.ts
+
+# vercel.json de la raíz: no está en el repositorio, lo genera Vercel durante el
+# build al detectar Turborepo («Detected Turbo. Adjusting default settings»), y
+# no viene formateado. El que sí se revisa es apps/web/vercel.json.
+/vercel.json
