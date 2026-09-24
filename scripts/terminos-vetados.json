@@ -1,13 +1,11 @@
 {
   "descripcion": "F0.19 · Términos vetados en SALES OS. El sistema nace vacío: ningún corporate, producto, precio, ICP, argumentario ni modelo de negocio real entra en el código, las plantillas, los seeds, los fixtures, los tests ni la documentación. Esta lista detecta la reincidencia de datos concretos que ya estuvieron aquí o que vienen del sistema antiguo; la comprobación de datosDePrueba cubre lo nuevo. Se ejecuta con `pnpm sistema-vacio` y es obligatoria en CI.",
-
   "rutasExcluidas": [
     "pnpm-lock.yaml",
     "scripts/terminos-vetados.json",
     "scripts/src/sistema-vacio.test.ts",
     ".husky/_/**"
   ],
-
   "extensionesExcluidas": [
     ".png",
     ".jpg",
@@ -31,7 +29,6 @@
     ".mp4",
     ".rtf"
   ],
-
   "excepciones": [
     {
       "id": "dominio-de-la-plataforma",
@@ -54,7 +51,6 @@
       "motivo": "El propio enunciado del principio (plan §0, CLAUDE.md, CONTRIBUTING) tiene que poder nombrar lo que prohíbe."
     }
   ],
-
   "reglas": [
     {
       "id": "entidad-emisora-de-facturas",
@@ -107,7 +103,6 @@
       "motivo": "Mismo motivo: la plataforma no se vende a sí misma dentro del sistema."
     }
   ],
-
   "datosDePrueba": {
     "carpetas": [
       "**/fixtures/**",
@@ -117,7 +112,9 @@
       "**/evals/**",
       "**/datos-de-prueba/**",
       "packages/db/**/seed*",
-      "packages/prompts/**/ejemplos/**"
+      "packages/prompts/**/ejemplos/**",
+      "packages/db/pruebas/**",
+      "**/pruebas/**"
     ],
     "senales": [
       "\\bICP\\b",

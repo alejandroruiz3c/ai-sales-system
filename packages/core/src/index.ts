@@ -3,9 +3,9 @@
  *
  * Tipos, contratos de eventos Zod, máquina de estados, errores y reglas transversales
  *
- * Paquete reservado en F0. Se implementa en F1–F6. Lo único que ya vive aquí es
- * el log estructurado (F0.11), porque lo necesitan el panel y los workers y
- * ninguno de los dos puede tener su propia copia.
+ * En F1 vive aquí lo que el panel y los workers necesitan por igual y ninguno
+ * de los dos puede tener en copia propia: el log estructurado (F0.11) y los
+ * contratos de eventos del bus (F1.10, plan §2.5).
  */
 
 export {
@@ -18,6 +18,21 @@ export {
   type LogFields,
   type LogLevel,
 } from './log.ts';
+
+export {
+  claveDeConcurrencia,
+  desdeNombreInngest,
+  esquemaEvento,
+  NOMBRES_DE_EVENTO,
+  nombreInngest,
+  ORIGENES_DE_EVENTO,
+  PREFIJO_INNGEST,
+  validarEvento,
+  type Evento,
+  type NombreDeEvento,
+  type OrigenDeEvento,
+  type ResultadoDeValidacionDeEvento,
+} from './eventos.ts';
 
 export interface PackageManifest {
   /** Nombre del paquete en el workspace. */
