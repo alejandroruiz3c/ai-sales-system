@@ -2,7 +2,7 @@
   "name": "sales-os",
   "version": "0.0.0",
   "private": true,
-  "description": "Plataforma de ventas agéntica multi-corporate. Nace vacía: ningún dato de negocio en el código",
+  "description": "Plataforma de ventas ag\u00e9ntica multi-corporate. Nace vac\u00eda: ning\u00fan dato de negocio en el c\u00f3digo",
   "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=22"
@@ -22,6 +22,8 @@
     "e2e:staging": "node scripts/e2e-staging.mjs",
     "sistema-vacio": "node scripts/src/sistema-vacio-cli.ts",
     "variables-publicas": "node scripts/src/variables-publicas-cli.ts",
+    "db:migrar": "pnpm --filter @sales-os/db db:migrar",
+    "eventos:reproceso": "pnpm --filter @sales-os/db eventos:reproceso",
     "verify:bundle": "node scripts/src/variables-publicas-cli.ts --bundle apps/web/.next/static",
     "changeset": "changeset",
     "version-packages": "changeset version",

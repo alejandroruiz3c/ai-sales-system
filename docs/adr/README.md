@@ -18,6 +18,7 @@ Pasa a `Aceptado` cuando Alex lo aprueba.
 | [0006](0006-proveedor-firma.md)                    | Proveedor de firma electrónica                                  | Aceptado (2026-09-18)                      |
 | [0007](0007-github-personal-gratuito.md)           | GitHub personal gratuito: protección de `main` sin plan de pago | Aceptado (2026-09-18)                      |
 | [0008](0008-topologia-de-entornos-vercel-hobby.md) | Topología de entornos con Vercel Hobby                          | Aceptado (2026-09-18)                      |
+| [0009](0009-tablas-de-plataforma-sin-tenant-id.md) | Tablas de plataforma sin `tenant_id`                            | **Propuesto** (pendiente de Alex)          |
 
 ## Plantilla
 

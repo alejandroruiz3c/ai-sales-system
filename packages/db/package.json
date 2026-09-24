@@ -2,19 +2,28 @@
   "name": "@sales-os/db",
   "version": "0.0.0",
   "private": true,
-  "description": "Esquema Drizzle, migraciones versionadas, políticas RLS y seeds",
+  "description": "Esquema Drizzle, migraciones versionadas, pol\u00edticas RLS y seeds",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "db:migrar": "node src/cli/migrar.ts",
+    "eventos:reproceso": "node src/cli/reproceso.ts"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@sales-os/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@sales-os/core": "workspace:*",
+    "drizzle-orm": "0.45.3",
+    "postgres": "3.4.9",
+    "zod": "catalog:"
   }
 }
