@@ -50,6 +50,22 @@ arranca. Ninguna de las dos imprime la cadena de conexión, ni completa ni
 recortada: lleva la contraseña de la base (regla permanente 4). Imprimen el
 host, que es lo que hace falta para saber contra qué entorno estás.
 
+## Por qué el andamiaje de pruebas imita también los defectos de Supabase
+
+`pruebas/shim-supabase.sql` no reproduce solo lo que Supabase trae de bueno.
+Reproduce también sus `alter default privileges`, que conceden **todos** los
+privilegios sobre cada tabla nueva de `public` a `anon`, `authenticated` y
+`service_role`.
+
+Eso importa porque sin ellos había un test que pasaba por el motivo equivocado.
+«El rol anónimo no tiene privilegios sobre ninguna tabla» era cierto en PGlite
+—que no concede nada— mientras en staging `anon` tenía `TRUNCATE` sobre la tabla
+`events`, y `truncate` **no pasa por RLS**. Lo arregla la migración 0008; lo
+detecta el test solo desde que el andamiaje concede lo mismo que Supabase.
+
+La lección, para la próxima vez que se añada un doble de un servicio: un doble
+que solo imita lo que el servicio hace bien convierte los tests en una opinión.
+
 ## Las pruebas corren contra Postgres de verdad
 
 `pruebas/` levanta **PGlite**, que es Postgres compilado a WebAssembly: mismas

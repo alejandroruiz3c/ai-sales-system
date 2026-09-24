@@ -351,6 +351,28 @@ describe('reset del corporate de prueba', () => {
     );
   });
 
+  it('el sistema también puede purgar un demo, porque el reset de /lab lo necesita', async () => {
+    const marta = await db.crearUsuario('marta4@ejemplo.test', 'Marta Cuatro');
+    const demo = await db.crearTenant(marta, 'Corporate Demo Tres', 'demo-tres');
+    await db.sembrarTodasLasTablas(demo);
+
+    const borrado = await db.comoSistema<{ ok: boolean }>(
+      'select app.purgar_tenant_demo($1) as ok',
+      [demo],
+    );
+    expect(borrado[0]?.ok).toBe(true);
+  });
+
+  it('y ni el sistema borra un corporate que no es de prueba', async () => {
+    const marta = await db.crearUsuario('marta5@ejemplo.test', 'Marta Cinco');
+    const real = await db.crearTenant(marta, 'Corporate Real', 'real-no-demo');
+    await db.crudo('update public.tenants set es_demo = false where id = $1', [real]);
+
+    await expect(db.comoSistema('select app.purgar_tenant_demo($1)', [real])).rejects.toThrow(
+      /corporates de prueba/,
+    );
+  });
+
   it('la marca de purga por sí sola no deja borrar un evento', async () => {
     // Cualquiera puede poner la marca de sesión. Lo que no puede es tener
     // permiso de `delete` sobre `events`, que es lo que de verdad protege.

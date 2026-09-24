@@ -36,6 +36,26 @@ $$;
 
 grant usage on schema public to anon, authenticated, service_role;
 
+-- **Esto es lo que más importa de este fichero.**
+--
+-- Supabase trae configurado `alter default privileges ... grant all on tables
+-- to anon, authenticated, service_role` en `public`. Es decir: cada tabla que
+-- creamos nace con **todos** los privilegios concedidos a los tres roles,
+-- incluido el anónimo, sin que ninguna migración lo pida.
+--
+-- Reproducirlo aquí no es fidelidad decorativa. Sin esto, la comprobación «el
+-- rol anónimo no tiene privilegios sobre ninguna tabla» pasaba en las pruebas
+-- por el motivo equivocado —porque PGlite no concede nada— mientras en staging
+-- `anon` tenía `TRUNCATE` sobre la tabla `events`. Y `truncate` no pasa por
+-- RLS. Con estas dos líneas, ese test falla sin la migración 0008, que es lo
+-- que tenía que haber hecho desde el principio.
+alter default privileges in schema public
+  grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant execute on functions to anon, authenticated, service_role;
+
 create schema if not exists auth;
 grant usage on schema auth to anon, authenticated, service_role;
 
@@ -46,15 +66,25 @@ create table if not exists auth.users (
   created_at         timestamptz not null default now()
 );
 
--- La misma implementación que Supabase: el sujeto del JWT de la petición. Sin
--- claims devuelve null, y una política que compara contra null no deja pasar
--- nada. Fallar cerrado es el comportamiento correcto aquí.
+-- El sujeto del JWT de la petición. Sin claims devuelve null, y una política que
+-- compara contra null no deja pasar nada: fallar cerrado es el comportamiento
+-- correcto aquí.
+--
+-- El `nullif(…, '')` va **antes** del cast a `jsonb`, y no es un detalle de
+-- estilo: así lo hace Supabase, y el camino de sistema (`service_role`) deja la
+-- variable en cadena vacía. Casteando primero, `''::jsonb` lanza «invalid input
+-- syntax for type json» y cualquier función que consulte la pertenencia revienta
+-- en vez de responder «no hay sesión». Lo descubrió un test que pasaba en
+-- staging y fallaba aquí, que es la dirección buena en la que descubrirlo.
 create or replace function auth.uid()
 returns uuid
 language sql
 stable
 as $$
-  select nullif(current_setting('request.jwt.claims', true)::jsonb ->> 'sub', '')::uuid
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.sub', true), ''),
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'
+  )::uuid
 $$;
 
 create or replace function auth.role()
@@ -62,7 +92,10 @@ returns text
 language sql
 stable
 as $$
-  select nullif(current_setting('request.jwt.claims', true)::jsonb ->> 'role', '')::text
+  select coalesce(
+    nullif(current_setting('request.jwt.claim.role', true), ''),
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role'
+  )::text
 $$;
 
 create or replace function auth.jwt()

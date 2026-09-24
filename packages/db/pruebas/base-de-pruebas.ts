@@ -32,6 +32,8 @@ export interface BaseDePruebas {
   ): Promise<readonly T[]>;
   /** SQL con el rol `anon`: sin sesión. */
   comoAnonimo<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<readonly T[]>;
+  /** SQL con el rol `service_role`, que salta RLS. El camino de sistema. */
+  comoSistema<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<readonly T[]>;
   /** Crea un usuario en `auth.users` y devuelve su id. */
   crearUsuario(email: string, nombre?: string): Promise<string>;
   /** Crea un tenant con un propietario y devuelve su id. */
@@ -112,6 +114,8 @@ export async function levantarBaseDePruebas(): Promise<BaseDePruebas> {
       ),
 
     comoAnonimo: (sql, params = []) => conRol('anon', null, sql, params),
+
+    comoSistema: (sql, params = []) => conRol('service_role', null, sql, params),
 
     async crearUsuario(email, nombre) {
       const filas = await crudo<{ id: string }>(
