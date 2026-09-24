@@ -86,3 +86,53 @@ Un solo lenguaje, un solo repo, el menor número de proveedores posible.
 
 Si en el futuro Inngest deja de encajar, con la tabla `events` como fuente de
 verdad el cambio de orquestador es un trabajo acotado, no una reescritura.
+
+---
+
+## Aviso 2026-09-24 · la región UE de los logs sigue abierta, y vence antes de F5
+
+Este ADR dice que **ninguna función, base de datos ni cola sale de la UE**, y hoy
+hay una pieza que sí: **Better Stack sirve la única región disponible para esta
+cuenta, `us_west`** (Oregón). Está documentado en el informe de entrega de F0,
+apartado 7.1, con la respuesta literal de su API.
+
+No se reescribe la decisión —los ADR no se reescriben a posteriori—, se le pone
+**plazo y condición de cierre**:
+
+**La decisión de dónde viven los logs tiene que estar RESUELTA ANTES DE EMPEZAR
+F5.** No antes de F14.5, como decía el informe de F0: antes de F5.
+
+El motivo del adelanto es que **F5 es la primera fase que procesa datos
+personales de terceros**. Hasta F4 el sistema trata configuración, credenciales
+del propio tenant y datos técnicos. En F5 entran nombre, cargo, email, teléfono
+y perfil de LinkedIn de personas que no son clientes nuestros ni han firmado
+nada con nosotros, y esos datos acaban en trazas de ejecución. Sacarlos de la UE
+sin base legal ni evaluación de transferencia internacional no es una deuda
+técnica: es un tratamiento que no deberíamos haber hecho, y que no se arregla
+cambiando de proveedor después, porque los logs ya salieron.
+
+Las tres salidas posibles siguen siendo las del informe de F0, sin orden de
+preferencia impuesto:
+
+| Salida                         | Qué hay que comprobar antes de elegirla                                                                   |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| **Better Stack con región UE** | Que su soporte confirme por escrito que `germany` se habilita para esta cuenta, y en qué plan             |
+| **Otro proveedor SaaS con UE** | Región UE contratable y verificable. El logger ya está detrás de una interfaz: el cambio es de un fichero |
+| **Autoalojado en Hetzner**     | Ya hay servidores UE por el ADR 0004. Sin licencia y sin proveedor nuevo, a cambio de operarlo nosotros   |
+
+Alex escribió al soporte de Better Stack el 2026-09-24 preguntando por la región
+UE. Mientras no haya respuesta y decisión, el estado es este:
+
+- Los logs siguen yendo a `ai-sales-staging` en `us-west-2a`, y **solo llevan
+  datos técnicos**: el logger de `packages/core/src/log.ts` redacta emails,
+  teléfonos, documentos y perfiles de LinkedIn antes de emitir.
+- **No se crea la fuente de producción en EE. UU.**, porque fijaría justo lo que
+  este ADR prohíbe.
+- Cuando se decida, se escribe un **ADR nuevo** que sustituya la fila de
+  observabilidad de la tabla de decisión. Si la salida elegida es un proveedor
+  distinto de los tres nombrados, ese ADR es obligatorio antes de conectarlo,
+  por la precisión 1 de la decisión de Alex.
+
+Seguimiento: [issue #220](https://github.com/alejandroruiz3c/ai-sales-system/issues/220), etiquetada `bloqueado` y
+`seguridad`, y anotada como condición de entrada de F5 en el plan (§F5) y en
+`scripts/backlog.json`.
