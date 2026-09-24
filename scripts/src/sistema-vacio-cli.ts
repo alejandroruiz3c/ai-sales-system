@@ -22,6 +22,7 @@ import {
   analizar,
   cargarLista,
   comprobarFicherosDeClaves,
+  comprobarReferenciasAClaves,
   formatearInforme,
   type Fichero,
 } from './sistema-vacio.ts';
@@ -87,6 +88,24 @@ function leer(raiz: string, ruta: string): Fichero | undefined {
   }
 }
 
+/**
+ * Los ajustes de Claude Code de esta máquina, si existen.
+ *
+ * No están versionados —git los ignora— y aun así hay que mirarlos: la lista de
+ * permisos preaprobados puede contener un comando que lea el fichero de claves,
+ * y un permiso preaprobado es peor que un script, porque el comando se ejecuta
+ * sin preguntar. El 2026-09-24, el día del fallo, ahí estaba exactamente el
+ * comando que lo provocó.
+ *
+ * Si no existen, no pasa nada: en el build de Vercel no hay ninguno.
+ */
+function ajustesDeClaude(raiz: string): Fichero[] {
+  const candidatos = ['.claude/settings.local.json', '.claude/settings.json'];
+  return candidatos
+    .map((ruta) => leer(raiz, ruta))
+    .filter((fichero): fichero is Fichero => fichero !== undefined);
+}
+
 function argumento(nombre: string): string | undefined {
   const indice = process.argv.indexOf(nombre);
   if (indice === -1) return undefined;
@@ -106,6 +125,7 @@ function principal(): void {
 
   const hallazgos = [
     ...comprobarFicherosDeClaves(ficherosVersionados(raiz, argumento('--ruta'))),
+    ...comprobarReferenciasAClaves([...ficheros, ...ajustesDeClaude(raiz)]),
     ...analizar(ficheros, lista),
   ];
 

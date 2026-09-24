@@ -41,9 +41,10 @@ async function principal(): Promise<void> {
       [
         'Falta DATABASE_DIRECT_URL (o DATABASE_URL) en el entorno.',
         '',
-        'En local: ponla en .env.local. El valor está en KEYS.rtf, bloque SUPABASE,',
-        'como "Direct connection string" del proyecto que corresponda.',
-        'En Vercel: vercel env add DATABASE_DIRECT_URL',
+        'En local sale de «vercel env pull apps/web/.env.local», que la trae del',
+        'entorno de desarrollo del proyecto. En Vercel: vercel env add DATABASE_DIRECT_URL.',
+        'Si tampoco está allí, pídesela a Alex: es la cadena del pooler en modo sesión',
+        'del proyecto de Supabase que corresponda.',
       ].join('\n'),
     );
     process.exitCode = 1;

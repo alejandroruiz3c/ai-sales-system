@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -9,6 +10,7 @@ import {
   cargarLista,
   comprobarDatosDePrueba,
   comprobarFicherosDeClaves,
+  comprobarReferenciasAClaves,
   formatearInforme,
   globARegex,
   neutralizarExcepciones,
@@ -302,5 +304,116 @@ describe('el informe distingue qué ha fallado', () => {
     );
     expect(informe).toContain('fichero de claves versionado');
     expect(informe).toContain('Hay datos de negocio real');
+  });
+});
+
+describe('scripts que referencian el fichero de claves (regla permanente 4)', () => {
+  /**
+   * Estos tests existen por un fallo concreto: el 2026-09-24, intentando listar
+   * **solo los nombres** de las claves, un filtro que parecía seguro imprimió
+   * cuatro valores enteros en el chat. La regla anterior permitía leer el
+   * fichero y confiaba en acertar al decidir qué enseñar; la nueva prohíbe
+   * leerlo, y esta comprobación es lo que la hace mecánica.
+   */
+  const referencias = (ruta: string, contenido: string): readonly string[] =>
+    comprobarReferenciasAClaves([{ ruta, contenido }]).map((h) => h.extracto);
+
+  it('falla si un script lo lee', () => {
+    expect(referencias('scripts/leer.sh', 'cat KEYS.rtf | grep TOKEN')).toEqual(['KEYS.rtf']);
+  });
+
+  it('falla también cuando el script solo quiere enseñar los nombres', () => {
+    // Es literalmente lo que se intentó el día del fallo.
+    expect(
+      referencias('scripts/nombres.sh', 'textutil -convert txt -stdout KEYS.rtf | cut -d: -f1'),
+    ).toEqual(['KEYS.rtf']);
+  });
+
+  it('falla en cualquier lenguaje de script y en cualquier extensión del fichero', () => {
+    expect(referencias('scripts/x.mjs', "readFileSync('KEYS.rtf')")).toEqual(['KEYS.rtf']);
+    expect(referencias('packages/db/src/x.ts', "leer('KEYS.txt')")).toEqual(['KEYS.txt']);
+    expect(referencias('infra/x.yml', 'ruta: KEYS')).toEqual(['KEYS']);
+  });
+
+  it('falla en un permiso preaprobado, que es el caso peor', () => {
+    // Un permiso preaprobado convierte el comando prohibido en uno que se
+    // ejecuta sin preguntar. El día del fallo estaba justo este.
+    expect(
+      referencias(
+        '.claude/settings.local.json',
+        '{"permissions":{"allow":["Bash(textutil -convert txt -stdout KEYS.rtf)"]}}',
+      ),
+    ).toEqual(['KEYS.rtf']);
+  });
+
+  it('falla si lo nombra en un `package.json`', () => {
+    expect(referencias('package.json', '{"scripts":{"claves":"cat KEYS.rtf"}}')).toEqual([
+      'KEYS.rtf',
+    ]);
+  });
+
+  it('falla si lo nombra un hook', () => {
+    expect(referencias('.husky/pre-commit', 'grep TOKEN KEYS.rtf')).toEqual(['KEYS.rtf']);
+  });
+
+  it('no dispara con la documentación, que tiene que poder enunciar la regla', () => {
+    expect(referencias('CLAUDE.md', 'Prohibido leer KEYS.rtf')).toEqual([]);
+    expect(referencias('docs/entregas/F1.md', 'se imprimieron valores de KEYS.rtf')).toEqual([]);
+  });
+
+  it('no dispara con identificadores que contienen esas cinco letras', () => {
+    // La comprobación busca el fichero, no cualquier cosa que lleve «KEYS».
+    for (const contenido of [
+      'const SUPABASE_KEYS = 1;',
+      'const API_KEYS_URL = "x";',
+      'Object.keys(config)',
+      'type KEYSET = string;',
+    ]) {
+      expect(referencias('scripts/x.ts', contenido), contenido).toEqual([]);
+    }
+  });
+
+  it('no dispara en los ficheros de esta propia comprobación', () => {
+    // Necesitan escribir el patrón para poder buscarlo. Es el mismo trato que
+    // ya tiene `scripts/terminos-vetados.json`.
+    expect(referencias('scripts/src/sistema-vacio.ts', "'KEYS.*'")).toEqual([]);
+    expect(referencias('scripts/src/sistema-vacio.test.ts', 'cat KEYS.rtf')).toEqual([]);
+    expect(referencias('scripts/src/sistema-vacio-cli.ts', 'KEYS.rtf')).toEqual([]);
+  });
+
+  it('el informe explica este fallo y no el de datos de negocio', () => {
+    const informe = formatearInforme(
+      comprobarReferenciasAClaves([{ ruta: 'scripts/x.sh', contenido: 'cat KEYS.rtf' }]),
+      1,
+    );
+    expect(informe).toContain('nombra el fichero de claves');
+    expect(informe).toContain('solo los\n  nombres');
+    expect(informe).not.toContain('datos de negocio real');
+  });
+
+  it('el repositorio entero está limpio ahora mismo', () => {
+    // La red de seguridad de esta red de seguridad: si alguien añade una
+    // referencia y ajusta la lista de exclusiones para taparla, este test la
+    // vuelve a encontrar desde la raíz.
+    const raiz = join(import.meta.dirname, '..', '..');
+    const rutas = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], {
+      cwd: raiz,
+      encoding: 'utf8',
+      maxBuffer: 20 * 1024 * 1024,
+    })
+      .split('\0')
+      .filter((r) => r.length > 0 && !r.includes('node_modules/'));
+
+    const ficheros = rutas.flatMap((ruta) => {
+      try {
+        return [{ ruta, contenido: readFileSync(join(raiz, ruta), 'utf8') }];
+      } catch {
+        return [];
+      }
+    });
+
+    expect(
+      comprobarReferenciasAClaves(ficheros).map((h) => `${h.ruta}:${String(h.linea)}`),
+    ).toEqual([]);
   });
 });

@@ -44,7 +44,7 @@ if gh api -X PATCH "repos/$REPO" \
 else
   echo "  NO disponible en este plan. Lo cubre en su lugar:"
   echo "    · la regla de ESLint que veta literales con pinta de secreto"
-  echo "    · pnpm sistema-vacio, que falla si un KEYS.* o un .env llega a estar versionado"
+  echo "    · pnpm sistema-vacio, que falla si un fichero de claves o un .env llega a estar versionado"
   echo "    · ambos dentro de pnpm verify, que corre en el hook pre-push y en el build de Vercel"
 fi
 

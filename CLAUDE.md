@@ -100,26 +100,50 @@ pasado por ese check. El hook _pre-push_ lo rechaza en local y el workflow
 guardián abre un issue si aun así ocurre. Si te encuentras en `main` con commits
 propios, los mueves a una rama; no los empujas.
 
-**`KEYS.rtf` se lee, no se copia.** Alex mantiene `KEYS.rtf` en la carpeta del
-proyecto (decisión suya, 2026-09-18). Se puede leer para configurar variables, y
-nada más:
+**`KEYS.rtf` no se abre.** Alex mantiene `KEYS.rtf` en la carpeta del proyecto y
+**se queda ahí** (decisión suya, 2026-09-18, reafirmada el 2026-09-24). La regla
+que sigue no es de cuidado al leerlo: es de no leerlo.
 
-1. **Ningún valor de `KEYS.*` se muestra, se copia, se registra ni se escribe** en
-   el chat, en un fichero, en un commit, en un log ni en un mensaje de error. Ni
-   completo, ni truncado, ni "enmascarado": un enmascarado mal hecho filtra igual.
-2. **Los valores solo se pasan directamente** a la herramienta que los necesita
-   (`vercel env add` y compañía), por entrada estándar o por variable de entorno
-   del proceso hijo. Nunca por un fichero intermedio que quede en disco.
-3. **`KEYS.*` está excluido de todo:** de git (`.gitignore`), de los despliegues
-   (`.vercelignore`) y del índice del Copiloto (`.copilotignore`). `pnpm
-sistema-vacio` falla si alguno llega a estar versionado, y eso corre en
-   `pnpm verify`.
-4. **Si necesitas comprobar qué hay en `KEYS.*`**, di qué nombre de clave buscas y
-   si está o no. Nunca su contenido, ni su longitud, ni su prefijo.
+La versión anterior de esta regla decía «se lee, no se copia» y pedía prudencia
+al mostrar su contenido. Esa versión falló el 2026-09-24: intentando listar
+**solo los nombres** de las claves, un filtro que parecía seguro imprimió cuatro
+valores enteros en el chat. El fallo no fue de atención, fue de diseño de la
+regla: cualquier procedimiento que lea el fichero y decida qué enseñar puede
+equivocarse al decidir. La forma nueva quita la decisión.
 
-Si una clave que ha pasado por un sitio equivocado —un log, un mensaje, un
-fichero temporal— dilo inmediatamente y pide que se rote. Una clave rotada cuesta
-cinco minutos; una clave filtrada y callada cuesta el tenant.
+1. **Prohibido ejecutar cualquier comando o script que lea, filtre, transforme o
+   liste el contenido de `KEYS.*`.** Sin excepciones y sin importar el
+   propósito: ni `cat`, ni `head`, ni `tail`, ni `grep`, ni `sed`, ni `awk`, ni
+   `textutil`, ni `strings`, ni un script propio, ni una tubería de varios de
+   ellos. **Tampoco para mostrar «solo los nombres», ni un prefijo, ni una
+   longitud, ni un valor «enmascarado»:** un enmascarado mal hecho filtra igual,
+   y el del 2026-09-24 parecía bien hecho.
+2. **El único uso permitido es leer un valor concreto para pasarlo directamente
+   a un comando de configuración** (`vercel env add` y compañía), por entrada
+   estándar o por variable de entorno del proceso hijo, en la misma operación y
+   sin que el valor pase por la salida, por un fichero intermedio ni por una
+   variable que se imprima después. Si la operación necesita dos pasos, el valor
+   no se guarda entre ellos: se vuelve a pedir.
+3. **Si necesitas saber qué claves existen, pregúntaselo a Alex.** No lo
+   averigües leyendo el fichero. La respuesta a «¿está configurada X?» la da
+   Alex o la da el proveedor (`vercel env ls` enseña nombres sin valores), nunca
+   `KEYS.*`.
+4. **Ningún valor de `KEYS.*` se muestra, se copia, se registra ni se escribe**
+   en el chat, en un fichero, en un commit, en un log ni en un mensaje de error.
+5. **Ningún script del repositorio referencia `KEYS.*`.** Lo comprueba
+   `pnpm sistema-vacio`, que falla si aparece la referencia en un script, en un
+   `package.json`, en un hook o en la lista de permisos preaprobados de
+   `.claude/`. Un permiso preaprobado es peor que un script: convierte el
+   comando prohibido en uno que se ejecuta sin preguntar, y eso es exactamente
+   lo que había el día del fallo.
+6. **`KEYS.*` está excluido de todo:** de git (`.gitignore`), de los despliegues
+   (`.vercelignore`) y del índice del Copiloto (`.copilotignore`).
+   `pnpm sistema-vacio` falla si alguno llega a estar versionado.
+
+Si una clave pasa por un sitio equivocado —un log, un mensaje, un fichero
+temporal— **dilo inmediatamente, una vez, con qué clave es y qué la expone**.
+Decidir si se rota es de Alex: se dice el hecho y se sigue trabajando, sin
+insistir y sin tratarlo como bloqueante salvo que él lo diga.
 
 ---
 

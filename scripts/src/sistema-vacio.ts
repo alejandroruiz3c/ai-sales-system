@@ -276,6 +276,96 @@ export function comprobarFicherosDeClaves(rutasVersionadas: readonly string[]): 
   return hallazgos;
 }
 
+/**
+ * Ningún script del repositorio referencia `KEYS.*` (regla permanente 4).
+ *
+ * Esta comprobación existe por un fallo concreto, y conviene contarlo porque la
+ * comprobación no se entiende sin él. El 2026-09-24, intentando listar **solo
+ * los nombres** de las claves de `KEYS.rtf`, un filtro de texto que parecía
+ * seguro imprimió cuatro valores enteros. El fallo no fue de atención: fue que
+ * la regla anterior permitía leer el fichero y confiaba en acertar al decidir
+ * qué enseñar. Cualquier procedimiento que decida eso puede equivocarse.
+ *
+ * Así que la regla nueva no es «ten cuidado al leerlo», es «no lo leas», y esto
+ * la hace mecánica: si un script lo nombra, `pnpm verify` se cae.
+ *
+ * Tres detalles del alcance, cada uno con su motivo:
+ *
+ * 1. **Solo mira código, no documentación.** `CLAUDE.md` tiene que poder
+ *    enunciar la regla, y este informe de entrega tiene que poder contar el
+ *    fallo. Lo que no puede existir es un `.sh`, un `.mjs`, un `package.json` o
+ *    un hook que lo nombre, porque eso es un camino ejecutable hacia el
+ *    fichero.
+ * 2. **Mira también los permisos preaprobados de `.claude/`**, aunque no estén
+ *    versionados. Un permiso preaprobado es peor que un script: convierte el
+ *    comando prohibido en uno que se ejecuta sin preguntar. El día del fallo,
+ *    `Bash(textutil -convert txt -stdout KEYS.rtf)` estaba en esa lista.
+ * 3. **Se excluyen los ficheros de esta propia comprobación**, que necesitan
+ *    escribir el patrón para poder buscarlo. Es el mismo trato que ya tiene
+ *    `scripts/terminos-vetados.json`.
+ */
+export const SCRIPT_LEE_CLAVES = 'script-que-referencia-el-fichero-de-claves';
+
+/** Qué se considera código a efectos de esta comprobación. */
+export const RUTAS_DE_CODIGO: readonly string[] = [
+  '**/*.sh',
+  '**/*.bash',
+  '**/*.zsh',
+  '**/*.mjs',
+  '**/*.cjs',
+  '**/*.js',
+  '**/*.ts',
+  '**/*.tsx',
+  '**/*.json',
+  '**/*.yml',
+  '**/*.yaml',
+  '.husky/**',
+];
+
+/** Los ficheros que tienen que poder nombrar el patrón para poder buscarlo. */
+export const EXCEPCIONES_DE_REFERENCIA: readonly string[] = [
+  'scripts/src/sistema-vacio.ts',
+  'scripts/src/sistema-vacio.test.ts',
+  'scripts/src/sistema-vacio-cli.ts',
+  'scripts/terminos-vetados.json',
+];
+
+/**
+ * `KEYS` como nombre de fichero, no como parte de otra palabra.
+ *
+ * El límite por delante y por detrás evita que `SUPABASE_KEYS` o `API_KEYS_URL`
+ * disparen la comprobación: lo que se busca es el fichero, no cualquier
+ * identificador que contenga esas cinco letras.
+ */
+const REFERENCIA_A_CLAVES = /(?<![A-Za-z0-9_-])KEYS(\.[A-Za-z0-9*]+)?(?![A-Za-z0-9_])/g;
+
+export function comprobarReferenciasAClaves(ficheros: readonly Fichero[]): Hallazgo[] {
+  const hallazgos: Hallazgo[] = [];
+
+  for (const fichero of ficheros) {
+    if (!rutaExcluida(fichero.ruta, RUTAS_DE_CODIGO)) continue;
+    if (rutaExcluida(fichero.ruta, EXCEPCIONES_DE_REFERENCIA)) continue;
+
+    for (const coincidencia of fichero.contenido.matchAll(REFERENCIA_A_CLAVES)) {
+      hallazgos.push({
+        ruta: fichero.ruta,
+        linea: lineaDe(fichero.contenido, coincidencia.index),
+        regla: SCRIPT_LEE_CLAVES,
+        motivo:
+          'Un script del repositorio nombra el fichero de claves. Ningún comando ni script ' +
+          'puede leer, filtrar, transformar ni listar el contenido de KEYS.* (regla permanente 4 ' +
+          'de CLAUDE.md), tampoco para mostrar «solo los nombres»: el 2026-09-24 un filtro que ' +
+          'parecía seguro imprimió cuatro valores enteros. Si hace falta saber qué claves ' +
+          'existen, se le pregunta a Alex. Si el script solo lo menciona en un mensaje, ' +
+          'reescribe el mensaje sin nombrar el fichero.',
+        extracto: coincidencia[0],
+      });
+    }
+  }
+
+  return hallazgos;
+}
+
 /** Analiza un fichero completo. Devuelve los hallazgos en orden de aparición. */
 export function analizarFichero(fichero: Fichero, lista: ListaVetada): Hallazgo[] {
   if (rutaExcluida(fichero.ruta, lista.rutasExcluidas)) return [];
@@ -315,7 +405,10 @@ export function formatearInforme(
   }
 
   const hayClaves = hallazgos.some((hallazgo) => hallazgo.regla === CLAVES_VERSIONADAS);
-  const hayNegocio = hallazgos.some((hallazgo) => hallazgo.regla !== CLAVES_VERSIONADAS);
+  const hayReferencias = hallazgos.some((hallazgo) => hallazgo.regla === SCRIPT_LEE_CLAVES);
+  const hayNegocio = hallazgos.some(
+    (hallazgo) => hallazgo.regla !== CLAVES_VERSIONADAS && hallazgo.regla !== SCRIPT_LEE_CLAVES,
+  );
 
   // El encabezado dice qué ha fallado de verdad. Un fichero de claves y un
   // precio real son dos problemas distintos y se arreglan de forma distinta:
@@ -331,6 +424,17 @@ export function formatearInforme(
       '  Hay un fichero de claves versionado. Sácalo del índice de git y da por',
       '  comprometidas sus claves si ya se subió: el historial no se limpia con un',
       '  commit de borrado (regla permanente 4 de CLAUDE.md).',
+      '',
+    );
+  }
+
+  if (hayReferencias) {
+    lineas.push(
+      '  Hay un script que nombra el fichero de claves. Ningún comando ni script puede',
+      '  leerlo, filtrarlo, transformarlo ni listarlo, tampoco para mostrar «solo los',
+      '  nombres» (regla permanente 4 de CLAUDE.md). Si solo lo menciona en un mensaje,',
+      '  reescribe el mensaje sin nombrarlo; si hace falta saber qué claves existen, se',
+      '  le pregunta a Alex.',
       '',
     );
   }
