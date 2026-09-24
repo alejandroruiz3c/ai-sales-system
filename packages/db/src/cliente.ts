@@ -47,16 +47,38 @@ export interface ConfigBaseDeDatos {
 
 type ClienteDrizzle = ReturnType<typeof drizzle<typeof esquema>>;
 
+/**
+ * Lo que recibe el código que consulta, dentro de una transacción con el rol ya
+ * fijado.
+ *
+ * Hay dos formas de consultar y las dos son de primera clase, a propósito:
+ *
+ *   · `orm` es Drizzle, para lo que se lee mejor con el constructor de
+ *     consultas y se beneficia de los tipos de las tablas;
+ *   · `consultar` es SQL parametrizado, para llamar a las funciones de `app` y
+ *     para las consultas donde el SQL **es** la explicación. Un `join` con dos
+ *     condiciones de pertenencia se entiende en SQL y se disfraza en cualquier
+ *     otra notación, y en este sistema entender esas condiciones es el trabajo.
+ *
+ * Lo que no hay es una tercera forma que se salte el rol de la transacción.
+ */
+export interface Contexto {
+  readonly orm: ClienteDrizzle;
+  consultar<T>(sql: string, params?: readonly unknown[]): Promise<readonly T[]>;
+  /** La primera fila, o `undefined`. Para las consultas que devuelven una. */
+  unaFila<T>(sql: string, params?: readonly unknown[]): Promise<T | undefined>;
+}
+
 export interface BaseDeDatos {
   /** Consulta con las políticas RLS aplicadas, en nombre de un usuario. */
-  conRLS<T>(usuarioId: string, fn: (db: ClienteDrizzle) => Promise<T>): Promise<T>;
+  conRLS<T>(usuarioId: string, fn: (ctx: Contexto) => Promise<T>): Promise<T>;
   /**
    * Consulta con `service_role`, que salta RLS. El motivo se registra y se
    * revisa en el PR: si no se puede explicar en una frase, no hace falta.
    */
-  comoSistema<T>(motivo: string, fn: (db: ClienteDrizzle) => Promise<T>): Promise<T>;
+  comoSistema<T>(motivo: string, fn: (ctx: Contexto) => Promise<T>): Promise<T>;
   /** Consulta sin sesión. No ve una sola fila; sirve para comprobaciones de vida. */
-  conRolAnonimo<T>(fn: (db: ClienteDrizzle) => Promise<T>): Promise<T>;
+  conRolAnonimo<T>(fn: (ctx: Contexto) => Promise<T>): Promise<T>;
   cerrar(): Promise<void>;
 }
 
@@ -77,14 +99,50 @@ export function crearBaseDeDatos(config: ConfigBaseDeDatos): BaseDeDatos {
   async function enTransaccion<T>(
     rol: 'authenticated' | 'service_role' | 'anon',
     claims: string | null,
-    fn: (db: ClienteDrizzle) => Promise<T>,
+    fn: (ctx: Contexto) => Promise<T>,
   ): Promise<T> {
-    return sql.begin(async (tx) => {
+    const resultado = await sql.begin(async (tx) => {
       await tx`select set_config('role', ${rol}, true)`;
       await tx`select set_config('request.jwt.claims', ${claims ?? ''}, true)`;
-      const db = drizzle(tx as unknown as postgres.Sql, { schema: esquema });
-      return fn(db);
-    }) as Promise<T>;
+
+      /**
+       * Drizzle sobre la transacción, construido solo si alguien lo pide.
+       *
+       * Dos cosas que no son evidentes y costaron un rato:
+       *
+       * 1. **El objeto de transacción de postgres.js no trae `options`**, y el
+       *    controlador de Drizzle lee `client.options.parsers` al construirse.
+       *    Sin el puente, cualquier transacción fallaba con «Cannot read
+       *    properties of undefined (reading 'parsers')», que no menciona ni
+       *    Drizzle ni la transacción.
+       * 2. **Se construye perezosamente.** Construirlo en cada transacción
+       *    hacía que el fallo de arriba tumbara también a quien solo quería
+       *    `consultar`, que es la mayoría del panel.
+       */
+      let ormCacheado: ClienteDrizzle | undefined;
+
+      const contexto: Contexto = {
+        get orm() {
+          const prototipo: object | null = Object.getPrototypeOf(tx) as object | null;
+          const puente = Object.assign(Object.create(prototipo) as object, tx, {
+            options: sql.options,
+          });
+          ormCacheado ??= drizzle(puente as unknown as postgres.Sql, { schema: esquema });
+          return ormCacheado;
+        },
+        async consultar<F>(texto: string, params: readonly unknown[] = []) {
+          const filas = await tx.unsafe(texto, params as never[]);
+          return filas as unknown as readonly F[];
+        },
+        async unaFila<F>(texto: string, params: readonly unknown[] = []) {
+          const filas = await tx.unsafe(texto, params as never[]);
+          return (filas as unknown as readonly F[])[0];
+        },
+      };
+
+      return fn(contexto);
+    });
+    return resultado as T;
   }
 
   return {

@@ -44,8 +44,16 @@ const SERVICE_ROLE = {
   // RLS es el modelo de aislamiento entre tenants (ADR 0003). La service_role se
   // salta las políticas: una consulta con ella y un `WHERE` olvidado es una fuga
   // entre corporates.
-  selector:
+  //
+  // Las dos formas de acceso, y la segunda no es opcional: el `tsconfig` tiene
+  // `noPropertyAccessFromIndexSignature`, así que TypeScript **obliga** a
+  // escribir `process.env['…']`. Con solo el selector del punto, esta regla no
+  // podía dispararse nunca en este repositorio. Una regla de seguridad que no
+  // puede fallar no está protegiendo nada.
+  selector: [
     'MemberExpression[object.object.name="process"][object.property.name="env"][property.name="SUPABASE_SERVICE_ROLE_KEY"]',
+    'MemberExpression[object.object.name="process"][object.property.name="env"][property.value="SUPABASE_SERVICE_ROLE_KEY"]',
+  ].join(', '),
   message:
     'La service_role se salta RLS (ADR 0003). Solo packages/db puede usarla, y con un comentario que explique por qué no vale la clave anónima.',
 };
@@ -145,6 +153,18 @@ export default tseslint.config(
     files: ['scripts/src/variables-publicas.ts', 'scripts/src/variables-publicas.test.ts'],
     rules: {
       'no-restricted-syntax': ['error', HTML_EXTERNO, SHELL_INTERPOLADO, SERVICE_ROLE],
+    },
+  },
+
+  // La API de administración de Supabase Auth necesita la `service_role` y no
+  // se puede llamar desde `packages/db`, que es la frontera con Postgres y no
+  // con el servicio de auth. La excepción es de un fichero, no de una carpeta,
+  // y ese fichero solo expone dos operaciones de alta de usuarios: no consulta
+  // ni una tabla de `public`.
+  {
+    files: ['apps/web/src/lib/supabase/admin.ts'],
+    rules: {
+      'no-restricted-syntax': ['error', SECRETO_EN_CODIGO, HTML_EXTERNO, SHELL_INTERPOLADO],
     },
   },
 

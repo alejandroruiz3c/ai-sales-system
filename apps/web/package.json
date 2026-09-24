@@ -14,13 +14,19 @@
     "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@hookform/resolvers": "5.9.1",
     "@sales-os/core": "workspace:*",
+    "@sales-os/db": "workspace:*",
     "@sales-os/integrations": "workspace:*",
     "@sentry/nextjs": "10.74.0",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.1",
     "inngest": "4.20.0",
     "next": "16.3.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-hook-form": "7.88.0",
+    "recharts": "3.10.1",
     "zod": "catalog:"
   },
   "devDependencies": {

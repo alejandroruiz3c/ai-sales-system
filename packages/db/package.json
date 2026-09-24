@@ -5,7 +5,8 @@
   "description": "Esquema Drizzle, migraciones versionadas, pol\u00edticas RLS y seeds",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./migraciones": "./src/migraciones.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

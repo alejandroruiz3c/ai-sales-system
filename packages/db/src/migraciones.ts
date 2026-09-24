@@ -29,12 +29,22 @@ export interface EjecutorSql {
   consultar<T>(sql: string): Promise<readonly T[]>;
 }
 
-export const CARPETA_MIGRACIONES = join(import.meta.dirname, '..', 'migraciones');
+/**
+ * Dónde están los ficheros SQL.
+ *
+ * Es una función y no una constante para que `import.meta.dirname` se resuelva
+ * al usarla y no al importar el módulo. Como constante, cualquier importación
+ * desde un entorno sin sistema de ficheros fallaba en el propio `import`, con
+ * un error que no mencionaba ni migraciones ni disco.
+ */
+export function carpetaDeMigraciones(): string {
+  return join(import.meta.dirname, '..', 'migraciones');
+}
 
 const NOMBRE_VALIDO = /^\d{4}_[a-z0-9_]+\.sql$/;
 
 /** Las migraciones en el orden en que se aplican, que es el de su número. */
-export function cargarMigraciones(carpeta = CARPETA_MIGRACIONES): readonly Migracion[] {
+export function cargarMigraciones(carpeta = carpetaDeMigraciones()): readonly Migracion[] {
   const ficheros = readdirSync(carpeta)
     .filter((f) => f.endsWith('.sql'))
     .sort();
