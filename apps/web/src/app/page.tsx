@@ -24,15 +24,16 @@ export default function HomePage() {
       <h1 className="mt-3 text-5xl font-semibold tracking-tight">SALES OS v0</h1>
 
       <p className="mt-4 max-w-xl text-lg text-[var(--color-muted)]">
-        Sistema de ventas agéntico multi-corporate. Esto es el entregable de la fase F0: el
-        repositorio, la integración continua y este entorno vivo.
+        Sistema de ventas agéntico multi-corporate. Esto es el entregable de la fase F1: el núcleo
+        multi-tenant, con corporates aislados, sus archivos, su configuración, sus aprobaciones y su
+        presupuesto.
       </p>
 
       <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-line)] sm:grid-cols-4">
         {[
           { label: 'Versión', value: version, testId: 'version' },
           { label: 'Entorno', value: environment, testId: 'environment' },
-          { label: 'Fase', value: 'F0', testId: 'phase' },
+          { label: 'Fase', value: 'F1', testId: 'phase' },
           { label: 'Rama', value: env.commitRef ?? 'local', testId: 'branch' },
         ].map((item) => (
           <div key={item.label} className="bg-[var(--color-ink-soft)] px-4 py-3">
@@ -48,8 +49,14 @@ export default function HomePage() {
 
       <nav className="mt-10 flex flex-wrap gap-3">
         <Link
-          href="/status"
+          href="/panel"
           className="rounded-md bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+        >
+          Entrar en el panel
+        </Link>
+        <Link
+          href="/status"
+          className="rounded-md border border-[var(--color-line)] px-4 py-2 text-sm font-medium text-[var(--color-muted)] transition hover:border-[var(--color-accent)] hover:text-white"
         >
           Estado de los servicios
         </Link>
@@ -65,12 +72,18 @@ export default function HomePage() {
         <h2 className="text-sm font-semibold text-white">Qué hay y qué no</h2>
         <ul className="mt-3 space-y-2">
           <li>
-            <span className="text-white">Hay:</span> monorepo, CI, modo sandbox con lista blanca,
-            página de estado y el esqueleto de la sala de pruebas.
+            <span className="text-white">Hay:</span> corporates aislados por RLS, login e
+            invitaciones, archivos con versiones, configuración versionada, cola de aprobaciones,
+            presupuesto con corte, y el registro de eventos como fuente de verdad.
           </li>
           <li>
-            <span className="text-white">No hay todavía:</span> tenants, login, agentes ni flujo de
-            ventas. Eso empieza en F1, y solo cuando Alex dé el GO F0.
+            <span className="text-white">No hay, y es a propósito:</span> ni un corporate, ni un
+            precio, ni un ICP, ni un argumentario. Todo el conocimiento comercial entra por el
+            onboarding de cada corporate (F3) y vive solo en su tenant.
+          </li>
+          <li>
+            <span className="text-white">Llega después:</span> el router de modelos (F2), el Estudio
+            de configuración y el Copiloto (F2B), y los agentes del flujo de ventas (F5–F13).
           </li>
         </ul>
       </section>

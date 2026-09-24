@@ -28,6 +28,21 @@ export const env = {
 
   supabaseUrl: read('NEXT_PUBLIC_SUPABASE_URL'),
   supabaseAnonKey: read('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  supabaseProjectRef: read('SUPABASE_PROJECT_REF'),
+  /**
+   * Conexión del panel a Postgres. Es la del pooler en **modo transacción**.
+   *
+   * `SUPABASE_SERVICE_ROLE_KEY` no está en esta lista a propósito: la lee
+   * `supabase/admin.ts`, que es su única excepción declarada en ESLint. Si
+   * estuviera aquí, el acceso sería calculado y la regla no lo vería.
+   */
+  databaseUrl: read('DATABASE_URL'),
+  /**
+   * Presupuesto mensual con el que nace un corporate nuevo, en euros. Si no
+   * está configurado, nace a cero, y un corporate a cero no ejecuta llamadas
+   * LLM (F1.13). Fallar cerrado en el gasto es lo correcto.
+   */
+  presupuestoPorDefecto: read('LLM_DEFAULT_MONTHLY_BUDGET_EUR'),
 
   inngestEventKey: read('INNGEST_EVENT_KEY'),
   inngestSigningKey: read('INNGEST_SIGNING_KEY'),

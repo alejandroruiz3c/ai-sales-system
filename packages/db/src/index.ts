@@ -18,14 +18,20 @@
 
 export { crearBaseDeDatos, type BaseDeDatos, type ConfigBaseDeDatos } from './cliente.ts';
 
-export {
-  aplicarMigraciones,
-  cargarMigraciones,
-  CARPETA_MIGRACIONES,
-  type EjecutorSql,
-  type Migracion,
-  type ResultadoMigracion,
-} from './migraciones.ts';
+/**
+ * Las migraciones **no se exportan desde aquí**, sino desde
+ * `@sales-os/db/migraciones`.
+ *
+ * El motivo es concreto y costó un rato encontrarlo: `migraciones.ts` lee la
+ * carpeta de ficheros SQL del disco, así que al importarlo desde el panel el
+ * empaquetador lo incluía en el bundle y `import.meta.dirname` quedaba sin
+ * valor. El síntoma era un 500 en la página de entrada con «The "path"
+ * argument must be of type string», que no menciona ni migraciones ni disco.
+ *
+ * Separarlo en dos entradas convierte eso en imposible: el panel importa
+ * `@sales-os/db` y no hay forma de que arrastre código que necesita un sistema
+ * de ficheros.
+ */
 
 export {
   configDeAgentePorDefecto,
