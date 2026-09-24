@@ -97,7 +97,7 @@ function principal() {
       console.warn(
         '  No se ha podido leer de ningún entorno, así que los tests de /lab van a fallar.\n' +
           '  Suele ser porque la variable está como tipo Secret en Vercel, y esas no se\n' +
-          '  pueden volver a leer. Ejecuta el comando así, con el valor de KEYS.rtf:\n' +
+          '  pueden volver a leer. Pídele a Alex la contraseña y ejecútalo así:\n' +
           '\n' +
           '    E2E_LAB_PASSWORD=<la contraseña> pnpm e2e:staging\n',
       );
