@@ -11,11 +11,17 @@ aceptarlo fue esta: **la cola no es la fuente de verdad, la tabla `events` lo
 es**. Todo evento se persiste en Postgres antes de enviarse a Inngest, así que un
 evento perdido por la cola sigue existiendo y se puede reinyectar.
 
-> **Estado:** procedimiento escrito en F0. La tabla `events` y la herramienta de
-> reinyección se implementan en **F1** (modelo de datos y bus de eventos); hasta
-> entonces los comandos de abajo son la especificación de lo que F1 tiene que
-> entregar, no algo que ya se pueda ejecutar. Cerrar F1 sin esto incumple el
-> ADR 0002.
+> **Estado:** implementado en F1. La tabla `events` existe, es append-only por
+> trigger, y `pnpm eventos:reproceso` funciona. Los comandos de abajo se pueden
+> ejecutar.
+>
+> Lo que **no** está probado todavía es un reproceso de verdad, porque en F1
+> ningún agente consume eventos: no hay ninguna función a la que reinyectar.
+> El primer reproceso con consumidor real llega con F5, y con él la comprobación
+> de que la guarda de idempotencia del paso 3 existe en cada función. Hasta
+> entonces la herramienta está verificada en lo que se puede verificar: acota
+> los huecos, se niega sin `--tenant`, no publica nada sin `--confirmar` y
+> apunta cada reinyección.
 
 ---
 
@@ -25,14 +31,19 @@ Siempre con `tenant_id`. Un reproceso sin tenant es un reproceso en los datos de
 otro corporate.
 
 ```sql
--- Eventos publicados que no tienen ejecución registrada, últimas 24 h
-select e.id, e.nombre, e.version, e.creado_en, e.tenant_id
-from events e
-left join event_runs r on r.event_id = e.id
-where e.tenant_id = :tenant_id
-  and e.creado_en > now() - interval '24 hours'
-  and r.id is null
-order by e.creado_en;
+-- Eventos publicados que no tienen ejecución registrada, últimas 24 h.
+-- La consulta está en la base como función, para no reescribirla cada vez:
+select * from app.eventos_sin_ejecucion(:tenant_id, now() - interval '24 hours', now());
+```
+
+Y sin escribir SQL, desde el panel: `/panel/eventos` marca con la etiqueta «sin
+ejecución» los eventos publicados que ninguna función ha atendido. Es la misma
+consulta con otra cara, y sirve para el primer vistazo.
+
+Y con la herramienta, que hace esa misma consulta y no publica nada:
+
+```bash
+pnpm eventos:reproceso --tenant <uuid>
 ```
 
 Tres respuestas posibles:
@@ -61,26 +72,44 @@ que existe esa guarda. Si no existe, el arreglo es añadirla, no reprocesar.
 
 ## 4. Reinyectar
 
+No hay bandera `--dry-run`: **en seco es el comportamiento por defecto**, y
+publicar es lo que hay que pedir. Es al revés que en la especificación que
+escribió F0, y a propósito: una herramienta que publica salvo que le digas que
+no, publica el día que alguien copia el comando a medias.
+
 ```bash
-# Siempre en seco primero: dice qué haría y no publica nada
-pnpm eventos:reproceso --tenant <tenant_id> --desde "2026-09-18T08:00:00Z" --dry-run
+# En seco: dice qué haría y no publica nada
+pnpm eventos:reproceso --tenant <tenant_id> --desde "2026-09-18T08:00:00Z"
 
 # Un evento concreto, que es lo preferible
-pnpm eventos:reproceso --tenant <tenant_id> --evento <event_id>
+pnpm eventos:reproceso --tenant <tenant_id> --evento <event_id> \
+  --motivo "incidencia de Inngest del 18/09" --confirmar
 
 # Una ventana, cuando el hueco es amplio
-pnpm eventos:reproceso --tenant <tenant_id> --desde "..." --hasta "..."
+pnpm eventos:reproceso --tenant <tenant_id> --desde "..." --hasta "..." \
+  --motivo "..." --confirmar
+
+# Y el rango entero, no solo los huecos, cuando hace falta
+pnpm eventos:reproceso --tenant <tenant_id> --desde "..." --todos --motivo "..." --confirmar
 ```
 
-Reglas de la herramienta, que F1 tiene que cumplir:
+Reglas de la herramienta, y dónde se cumple cada una:
 
-- **Nunca sin `--tenant`.** Sin tenant, aborta.
-- **`--dry-run` por defecto** en producción: publicar exige `--confirmar`.
-- **Reutiliza el `event_id` original**, para que la idempotencia del paso 3
-  funcione de verdad.
-- **Deja rastro**: cada reinyección se apunta con quién, cuándo y por qué.
-- **En staging y previews, el interceptor de sandbox sigue activo.** Un
-  reproceso no es motivo para desactivarlo.
+| Regla                                                                | Dónde                                                                                   |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Nunca sin `--tenant`.** Sin tenant, aborta                         | Lo primero que comprueba `principal()`, y el mensaje explica por qué                    |
+| **En seco por defecto**: publicar exige `--confirmar`                | Sin la bandera, lista lo que haría y recuerda los pasos 2 y 3 antes de dejarte publicar |
+| **Solo los huecos por defecto**: `--todos` reinyecta el rango entero | Reinyectar todo un rango cuando faltaban tres eventos es repetir trabajo ya hecho       |
+| **Reutiliza el `event_id` original**                                 | Va como `id` del evento de Inngest, que es su clave de deduplicación                    |
+| **Deja rastro**: quién, cuándo y por qué                             | Una fila en `event_reinyecciones`, que es append-only como `events`                     |
+| **El interceptor de sandbox sigue activo**                           | La herramienta no lo toca y no puede: se activa por `SALES_OS_ENV` y falla cerrado      |
+
+Una nota sobre por qué la herramienta vive en `packages/db` y publica en Inngest
+con `fetch` en vez de con su SDK: `packages/db` es la frontera con Postgres y no
+debe conocer el orquestador. Si mañana el orquestador cambia, lo que cambia es
+ese fichero, y la tabla `events` —que es la fuente de verdad— no se entera. Que
+ese cambio sea un trabajo acotado y no una reescritura es justamente lo que el
+ADR 0002 compró aceptando Inngest en la ruta crítica.
 
 ## 5. Si no era la cola
 

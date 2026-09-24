@@ -17,7 +17,13 @@ test.describe('F0 · página de inicio', () => {
     await expect(version).not.toHaveText(/undefined|null/);
 
     await expect(page.getByTestId('environment')).not.toHaveText('');
-    await expect(page.getByTestId('phase')).toHaveText('F0');
+
+    // La fase **no** se compara con «F0»: la portada dice cuál es la última fase
+    // entregada, así que fijarla aquí rompía este caso en cada entrega y el
+    // arreglo era editar el test de una fase ya validada, que es justo lo que
+    // no conviene hacer. Lo que T0.1 tiene que comprobar es que la portada
+    // declara una fase, no cuál.
+    await expect(page.getByTestId('phase')).toHaveText(/^F\d+B?$/);
   });
 
   test('lleva a la página de estado y a la sala de pruebas', async ({ page }) => {

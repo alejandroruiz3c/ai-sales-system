@@ -88,12 +88,29 @@ export async function cambiarA(pagina: Page, nombre: string): Promise<void> {
   if (valor === '') throw new Error(`«${nombre}» no aparece en el selector de corporate`);
   if ((await selector.inputValue()) === valor) return;
 
+  // Se espera la respuesta del envío antes de recargar. Sin esto, contra una red
+  // real el `goto` de abajo cancelaba la navegación que el propio formulario
+  // tenía en vuelo, y el error era un `net::ERR_ABORTED` que no dice nada del
+  // cambio de corporate. En local no pasaba porque la vuelta es instantánea.
+  const envio = pagina
+    .waitForResponse(
+      (respuesta) =>
+        respuesta.request().method() === 'POST' && new URL(respuesta.url()).pathname === '/panel',
+      { timeout: 30_000 },
+    )
+    .catch(() => undefined);
+
   await selector.selectOption(valor);
+  await envio;
 
   for (let intento = 0; intento < 20; intento += 1) {
+    try {
+      await pagina.goto('/panel', { waitUntil: 'domcontentloaded' });
+    } catch {
+      // Otra navegación en vuelo. Se reintenta.
+    }
+    if ((await selector.inputValue().catch(() => '')) === valor) return;
     await pagina.waitForTimeout(500);
-    await pagina.goto('/panel');
-    if ((await selector.inputValue()) === valor) return;
   }
   throw new Error(`El cambio a «${nombre}» no ha llegado al servidor`);
 }
