@@ -34,16 +34,32 @@ const RAIZ = join(import.meta.dirname, '..', '..');
 /** `$1::jsonb` sin un `::text` delante. */
 const FORMA_CORTA = /\$\d+::jsonb/g;
 
+/**
+ * Los ficheros versionados **y los nuevos que no estén ignorados** (`-co
+ * --exclude-standard`), igual que `pnpm sistema-vacio`.
+ *
+ * Lo segundo no es un detalle: con solo los versionados, este test pasaba en
+ * local mientras el fichero problemático seguía sin añadir, y fallaba en el
+ * build de Vercel, donde ya estaba en el commit. Una comprobación que solo mira
+ * lo que ya está versionado llega tarde por definición.
+ */
 function ficherosDeCodigo(): readonly string[] {
-  const salida = execFileSync('git', ['ls-files', '*.ts', '*.tsx'], {
+  const salida = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], {
     cwd: RAIZ,
     encoding: 'utf8',
-    maxBuffer: 10 * 1024 * 1024,
+    maxBuffer: 20 * 1024 * 1024,
   });
   return salida
-    .split('\n')
-    .filter((linea) => linea !== '')
-    .filter((linea) => !linea.startsWith('scripts/src/parametros-jsonb'));
+    .split('\0')
+    .filter((linea) => linea.endsWith('.ts') || linea.endsWith('.tsx'))
+    .filter((linea) => !linea.startsWith('scripts/src/parametros-jsonb'))
+    .filter((linea) => !linea.includes('node_modules/'));
+}
+
+/** Una línea que es prosa, no SQL: un comentario. */
+function esComentario(linea: string): boolean {
+  const limpia = linea.trimStart();
+  return limpia.startsWith('//') || limpia.startsWith('*') || limpia.startsWith('/*');
 }
 
 describe('parámetros jsonb', () => {
@@ -60,6 +76,11 @@ describe('parámetros jsonb', () => {
 
       const lineas = contenido.split('\n');
       lineas.forEach((linea, indice) => {
+        // Los comentarios se saltan: la explicación de esta regla tiene que
+        // poder nombrar la forma que prohíbe, y una línea de SQL comentada no
+        // se ejecuta, así que ignorarla no debilita nada.
+        if (esComentario(linea)) return;
+
         for (const coincidencia of linea.matchAll(FORMA_CORTA)) {
           const antes = linea.slice(0, coincidencia.index);
           // `$1::text::jsonb` contiene `$1::text`, no `$1::jsonb`, así que la
@@ -89,6 +110,27 @@ describe('parámetros jsonb', () => {
     );
     // `$1::text::jsonb` no contiene la subcadena `$1::jsonb`.
     expect(/\$\d+::jsonb/.test('values ($1::text::jsonb)')).toBe(false);
+  });
+
+  it('no confunde un comentario que nombra la forma mala con un uso', () => {
+    // La explicación de esta regla tiene que poder nombrar lo que prohíbe, y
+    // una línea de SQL comentada no se ejecuta: ignorar comentarios no debilita
+    // la comprobación.
+    for (const linea of [
+      ' * Con `$3::jsonb` a secas, postgres.js vuelve a codificar la cadena.',
+      '// ojo: $1::jsonb no vale',
+      '/* $1::jsonb tampoco */',
+    ]) {
+      expect(esComentario(linea), linea).toBe(true);
+    }
+    expect(esComentario('  values ($1::jsonb)')).toBe(false);
+  });
+
+  it('mira también los ficheros nuevos sin versionar', () => {
+    // Con solo los versionados, este test pasaba en el portátil y fallaba en el
+    // build, donde el fichero ya estaba en el commit. Una comprobación que solo
+    // mira lo versionado llega tarde por definición.
+    expect(ficherosDeCodigo().length).toBeGreaterThan(50);
   });
 
   it('corre desde la raíz del repositorio', () => {
