@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
+    "@sales-os/agent-prueba": "workspace:*",
     "@sales-os/core": "workspace:*",
     "@sales-os/db": "workspace:*",
     "@sales-os/integrations": "workspace:*",

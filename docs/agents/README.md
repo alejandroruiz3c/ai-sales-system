@@ -13,18 +13,19 @@ Cada ficha contiene:
 5. **Métricas** — qué mide su calidad y cuál es el umbral para subir de nivel de autonomía.
 6. **Problemas frecuentes** — con la regla de diagnóstico que usa el Copiloto.
 
-| Agente               | Fase | Ficha     |
-| -------------------- | ---- | --------- |
-| Onboarding           | F3   | Pendiente |
-| Prospección BRAIN    | F5   | Pendiente |
-| Coordinador          | F6   | Pendiente |
-| Emailing             | F7   | Pendiente |
-| Pantalla LinkedIn    | F8   | Pendiente |
-| Llamadas             | F9   | Pendiente |
-| Cierre → Facturación | F10  | Pendiente |
-| Upsales + CS         | F11  | Pendiente |
-| Generador de Opinión | F12  | Pendiente |
-| Copiloto SALES OS    | F2B  | Pendiente |
+| Agente               | Fase | Ficha                  |
+| -------------------- | ---- | ---------------------- |
+| Prueba (ficticio)    | F1   | [prueba.md](prueba.md) |
+| Onboarding           | F3   | Pendiente              |
+| Prospección BRAIN    | F5   | Pendiente              |
+| Coordinador          | F6   | Pendiente              |
+| Emailing             | F7   | Pendiente              |
+| Pantalla LinkedIn    | F8   | Pendiente              |
+| Llamadas             | F9   | Pendiente              |
+| Cierre → Facturación | F10  | Pendiente              |
+| Upsales + CS         | F11  | Pendiente              |
+| Generador de Opinión | F12  | Pendiente              |
+| Copiloto SALES OS    | F2B  | Pendiente              |
 
 El catálogo de gates de seguridad del sistema antiguo (ADR 0001) es la semilla
 de la sección "problemas frecuentes" de las fichas de prospección y emailing.

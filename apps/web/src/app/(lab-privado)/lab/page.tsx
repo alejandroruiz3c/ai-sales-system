@@ -1,8 +1,12 @@
 import { EventViewer } from '@/components/event-viewer.tsx';
 import { HelloButton } from '@/components/hello-button.tsx';
 import { SandboxTester } from '@/components/sandbox-tester.tsx';
+import { ProbadorDeAgente } from '@/componentes/probador-de-agente.tsx';
+import { ResetDePruebas } from '@/componentes/reset-de-pruebas.tsx';
+import { Tarjeta } from '@/componentes/ui/index.tsx';
 import { env } from '@/lib/env.ts';
 import { listEvents } from '@/lib/events.ts';
+import { corporatesDePrueba } from '@/lib/lab-pruebas.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,30 +29,57 @@ const HERRAMIENTAS_PENDIENTES = [
   },
   { nombre: 'Reloj acelerado', detalle: 'Comprimir las esperas de las secuencias', fase: 'F6' },
   {
-    nombre: 'Reset del tenant de pruebas',
-    detalle: 'Dejar el tenant demo en su estado inicial',
-    fase: 'F1',
-  },
-  {
     nombre: 'Batería de seguridad',
     detalle: 'Fuga entre tenants e inyección de instrucciones',
     fase: 'F13',
   },
 ];
 
-export default function LabPage() {
+export default async function LabPage() {
   const events = listEvents(50);
+  // Si la base todavía no está configurada, la sala sigue sirviendo para lo de
+  // F0. Enseñar una lista vacía es mejor que un 500 en la única pantalla desde
+  // la que se diagnostica el entorno.
+  const corporates = await corporatesDePrueba().catch(() => []);
 
   return (
     <main className="py-8">
       <h1 className="text-3xl font-semibold tracking-tight">Sala de pruebas</h1>
       <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted)]">
-        Crece fase a fase. En F0 tiene el visor de eventos, el probador del interceptor de sandbox y
-        la prueba de humo de Inngest. Entorno{' '}
-        <span className="font-mono text-white">{env.salesOsEnv}</span>.
+        Crece fase a fase. En F1 tiene el agente ficticio de prueba, el reset del entorno de
+        pruebas, el visor de eventos, el probador del interceptor de sandbox y la prueba de humo de
+        Inngest. Entorno <span className="font-mono text-white">{env.salesOsEnv}</span>.
       </p>
 
       <section className="mt-10">
+        <h2 className="text-lg font-medium">Agente de prueba</h2>
+        <p className="mt-1 max-w-3xl text-sm text-[var(--color-muted)]">
+          Un agente ficticio que genera una acción inofensiva. Sirve para comprobar la cola de
+          aprobaciones, el corte de presupuesto y el nivel de autonomía sin tocar a ningún prospecto
+          ni gastar en modelos: la llamada de prueba hace lo mismo que hará el router de F2 antes de
+          llamar —pedirle permiso al presupuesto y apuntar el gasto— y cuesta 0,05 € fijos, para que
+          el caso T1.8 sea aritmética exacta.
+        </p>
+        <div className="mt-4">
+          <Tarjeta>
+            <ProbadorDeAgente corporates={corporates} />
+          </Tarjeta>
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="text-lg font-medium">Reset del entorno de pruebas</h2>
+        <p className="mt-1 max-w-3xl text-sm text-[var(--color-muted)]">
+          Deja el sistema como recién instalado para poder repetir el kit entero desde T1.0.
+        </p>
+        <div className="mt-4">
+          <Tarjeta>
+            <ResetDePruebas />
+          </Tarjeta>
+        </div>
+      </section>
+
+      <section className="mt-12">
         <h2 className="text-lg font-medium">Interceptor de modo sandbox</h2>
         <p className="mt-1 text-sm text-[var(--color-muted)]">
           Comprueba una decisión sin enviar nada. Un destinatario que no esté en la lista blanca

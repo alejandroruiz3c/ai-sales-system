@@ -25,7 +25,7 @@ async function guardar(
   const filas = await db.comoUsuario<{ version: number }>(
     ana,
     `insert into public.agent_configs (tenant_id, agente, config, nivel_autonomia, nota, revertida_de)
-     values ($1, 'prueba', $2::jsonb, $3, $4, $5) returning version`,
+     values ($1, 'prueba', $2::text::jsonb, $3, $4, $5) returning version`,
     [tenant, JSON.stringify(config), nivel, nota ?? null, revertidaDe ?? null],
   );
   const version = filas[0]?.version;
