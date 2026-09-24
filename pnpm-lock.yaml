@@ -77,6 +77,9 @@ importers:
       '@hookform/resolvers':
         specifier: 5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.88.0(react@19.3.0))(zod@4.6.5)
+      '@sales-os/agent-prueba':
+        specifier: workspace:*
+        version: link:../../packages/agents/prueba
       '@sales-os/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -281,6 +284,28 @@ importers:
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@24.10.1)(vite@8.3.0(@types/node@24.10.1)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
 
   packages/agents/prospecting:
+    devDependencies:
+      '@sales-os/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@24.10.1)(vite@8.3.0(@types/node@24.10.1)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/agents/prueba:
+    dependencies:
+      '@sales-os/core':
+        specifier: workspace:*
+        version: link:../../core
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.5
     devDependencies:
       '@sales-os/config':
         specifier: workspace:*
@@ -2346,9 +2371,6 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@22.20.3':
-    resolution: {integrity: sha512-DZmzkmwHzXrLPAXPyKNDzlIwMMUZCVacoD25ywdy5YTKGbOx/2ld+Q38Im2zJ0vBuZP5Prd3VZutKZyXwkOS8A==}
-
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
 
@@ -4229,9 +4251,6 @@ packages:
   ulid@2.4.0:
     resolution: {integrity: sha512-fIRiVTJNcSRmXKPZtGzFQv9WRrZ3M9eoptl/teFJvjOzmpU+/K/JH6HZ8deBfb5vMEpicJcLn7JmvdknlMq7Zg==}
     hasBin: true
-
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
@@ -6339,7 +6358,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.20.3
+      '@types/node': 24.10.1
 
   '@types/d3-array@3.2.2': {}
 
@@ -6379,13 +6398,9 @@ snapshots:
 
   '@types/memcached@2.2.10':
     dependencies:
-      '@types/node': 22.20.3
+      '@types/node': 24.10.1
 
   '@types/ms@2.1.0': {}
-
-  '@types/node@22.20.3':
-    dependencies:
-      undici-types: 6.21.0
 
   '@types/node@24.10.1':
     dependencies:
@@ -6397,7 +6412,7 @@ snapshots:
 
   '@types/pg@8.15.6':
     dependencies:
-      '@types/node': 22.20.3
+      '@types/node': 24.10.1
       pg-protocol: 1.16.0
       pg-types: 2.2.0
 
@@ -7698,7 +7713,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.2
-      '@types/node': 22.20.3
+      '@types/node': 24.10.1
       long: 5.3.2
 
   proxy-from-env@1.1.0: {}
@@ -8043,8 +8058,6 @@ snapshots:
   typescript@6.0.3: {}
 
   ulid@2.4.0: {}
-
-  undici-types@6.21.0: {}
 
   undici-types@7.16.0: {}
 

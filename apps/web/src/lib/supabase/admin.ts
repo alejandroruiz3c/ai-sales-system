@@ -72,6 +72,25 @@ export async function crearUsuarioConfirmado(
   return { id: data.user.id, email: data.user.email ?? email };
 }
 
+/**
+ * Borra un usuario de auth.
+ *
+ * Solo lo llama el reset de la sala de pruebas, y solo para usuarios cuyo
+ * correo encaja con el patrón de prueba. El borrado en cascada se lleva su
+ * perfil y sus pertenencias.
+ */
+export async function borrarUsuario(id: string): Promise<void> {
+  const { error } = await clienteAdmin().auth.admin.deleteUser(id);
+  if (error !== null) throw new Error(error.message);
+}
+
+/** Todos los usuarios, para que el reset pueda filtrar por correo. */
+export async function listarUsuarios(): Promise<readonly UsuarioCreado[]> {
+  const { data, error } = await clienteAdmin().auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (error !== null) throw new Error(error.message);
+  return data.users.map((u) => ({ id: u.id, email: u.email ?? '' }));
+}
+
 /** Busca un usuario por correo. Devuelve `undefined` si no existe. */
 export async function buscarUsuarioPorEmail(email: string): Promise<UsuarioCreado | undefined> {
   const { data, error } = await clienteAdmin().auth.admin.listUsers({ page: 1, perPage: 200 });

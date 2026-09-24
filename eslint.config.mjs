@@ -161,8 +161,14 @@ export default tseslint.config(
   // con el servicio de auth. La excepción es de un fichero, no de una carpeta,
   // y ese fichero solo expone dos operaciones de alta de usuarios: no consulta
   // ni una tabla de `public`.
+  //
+  // `lib/almacen.ts` la necesita por el mismo motivo: Supabase Storage es un
+  // servicio aparte de Postgres, y la subida y la firma de descarga tienen que
+  // pasar por el servidor para que el objeto y su fila de versión se creen
+  // juntos. Comprobar la pertenencia sigue siendo trabajo de RLS: la ruta del
+  // panel lo hace con `conRLS` **antes** de llamar aquí.
   {
-    files: ['apps/web/src/lib/supabase/admin.ts'],
+    files: ['apps/web/src/lib/supabase/admin.ts', 'apps/web/src/lib/almacen.ts'],
     rules: {
       'no-restricted-syntax': ['error', SECRETO_EN_CODIGO, HTML_EXTERNO, SHELL_INTERPOLADO],
     },

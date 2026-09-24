@@ -1,0 +1,24 @@
+{
+  "name": "@sales-os/agent-prueba",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agente ficticio de prueba: el que usan los casos T1.7, T1.8 y T1.9 del kit, y el probador del panel",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@sales-os/core": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@sales-os/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
