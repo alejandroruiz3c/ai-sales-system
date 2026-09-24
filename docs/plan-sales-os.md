@@ -1,7 +1,7 @@
 # SALES OS · Plan de acción, arquitectura y funcionamiento
 
 **Sistema de ventas agéntico multi-corporate · plataforma desarrollada por TurbineH**
-Documento de dirección técnica · v1.5 · 18 sept 2026
+Documento de dirección técnica · v1.6 · 24 sept 2026
 Autor: CTO (Claude) · Destinatario: Alejandro Ruiz, Director General del proyecto · Ejecutor: Claude Code local + equipos colaboradores en GitHub
 
 ---
@@ -457,6 +457,20 @@ Cada agente o paso del flujo solo se considera terminado cuando cumple estas cin
 ### F5 · Prospección BRAIN
 
 **Resultado:** prospectos de cualquier fuente cualificados, completos, con decisores maximizados y registrados en Pipedrive con todo su contexto.
+
+> 🔴 **Condición de entrada de F5 · dónde viven los logs.** F5 es la primera fase
+> que procesa **datos personales de terceros**: nombre, cargo, email, teléfono y
+> perfil de LinkedIn de personas que no son clientes nuestros. Hasta F4 el
+> sistema trata configuración, credenciales del propio tenant y datos técnicos.
+> Hoy los logs van a Better Stack en `us-west-2` porque es la **única región que
+> la cuenta tiene disponible**, y eso choca con el [ADR 0002](adr/0002-stack.md)
+> («ninguna función, base de datos ni cola sale de la UE»).
+>
+> **No se empieza F5 sin la decisión tomada y aplicada**: Better Stack con
+> región UE, otro proveedor SaaS con región UE, o autoalojado en Hetzner
+> (ADR 0004). La salida elegida se recoge en un ADR nuevo. Adelantar F5 con los
+> logs fuera de la UE no es deuda técnica reparable después: los logs ya
+> salieron.
 
 | ID | Tarea atómica | Tecnología | DoD |
 |---|---|---|---|
@@ -1101,5 +1115,7 @@ Al terminar, dame el contenido de docs/entregas/F0.md.
 **8. Límites y precios de proveedores.** Las cifras de límites de la sección 2.7 son puntos de partida conservadores, no valores oficiales; cambian con frecuencia. La tarea F13.1 los verifica antes de activar cualquier canal.
 
 **9. Plazo.** Las 8–12 semanas dependen menos del código que de aprobaciones externas (app de Pipedrive, API comercial de Reddit, plantillas de WhatsApp, calentamiento de buzones de 3–4 semanas). Conviene arrancar esas gestiones en paralelo a F0.
+
+**11. Región de los logs, y por qué tiene fecha.** Better Stack solo ofrece región `us_west` a esta cuenta, así que hoy los logs de staging salen de la UE. Mientras el sistema esté vacío el impacto es bajo —solo llevan datos técnicos y el logger redacta datos personales antes de emitir—, pero **F5 es la primera fase que trata datos personales de terceros**, y a partir de ahí los logs llevan trazas de conversaciones con prospectos. Por eso la decisión (Better Stack UE, otro proveedor UE o autoalojado en Hetzner) es **condición de entrada de F5**, no de F14.5. Ver el aviso del ADR 0002 del 2026-09-24.
 
 **10. Código existente.** Hay un sistema de ventas y cobros funcionando hoy en tu Mac y en Hetzner. Reescribir sin auditar primero (F0.1) duplicaría trabajo y podría romper lo que ya cobra. Nada del sistema actual se apaga ni se migra a SALES OS de forma automática; si en el futuro quieres llevar allí algún corporate, entrará por el onboarding como cualquier otro.

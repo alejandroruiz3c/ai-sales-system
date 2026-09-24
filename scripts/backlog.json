@@ -670,6 +670,13 @@
       "dod": "Contacto suprimido nunca recibe outreach"
     },
     {
+      "id": "F5.0",
+      "fase": "F5",
+      "titulo": "Resolver dónde viven los logs: Better Stack UE, otro proveedor UE o autoalojado en Hetzner (condición de entrada de F5)",
+      "tecnologia": "Better Stack / proveedor UE / Hetzner, ADR",
+      "dod": "Decisión tomada y aplicada, con ADR nuevo que sustituya la fila de observabilidad del ADR 0002, y los logs de staging y producción emitiendo a una región de la UE. Bloqueante: F5 es la primera fase que trata datos personales de terceros y no arranca sin esto"
+    },
+    {
       "id": "F5.1",
       "fase": "F5",
       "titulo": "Endpoint universal de ingesta (API con clave por tenant, formulario web embebible, CSV)",
