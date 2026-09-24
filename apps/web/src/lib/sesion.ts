@@ -22,19 +22,10 @@ import 'server-only';
 import { cookies } from 'next/headers';
 
 import { baseDeDatos } from './base-de-datos.ts';
+import type { Rol, TenantDelUsuario } from './roles.ts';
 import { usuarioActual, type UsuarioActual } from './supabase/servidor.ts';
 
 export const COOKIE_TENANT = 'sales_os_tenant';
-
-export type Rol = 'propietario' | 'administrador' | 'editor' | 'lector';
-
-export interface TenantDelUsuario {
-  readonly id: string;
-  readonly nombre: string;
-  readonly slug: string;
-  readonly rol: Rol;
-  readonly esDemo: boolean;
-}
 
 export interface Sesion {
   readonly usuario: UsuarioActual;
@@ -107,34 +98,14 @@ export async function sesionActual(): Promise<Sesion | undefined> {
   };
 }
 
-/** Jerarquía de roles, de más a menos. El índice es el nivel. */
-const ORDEN: readonly Rol[] = ['propietario', 'administrador', 'editor', 'lector'];
-
-export function alMenos(rol: Rol, minimo: Rol): boolean {
-  return ORDEN.indexOf(rol) <= ORDEN.indexOf(minimo);
-}
-
-export function puedeEditar(rol: Rol): boolean {
-  return alMenos(rol, 'editor');
-}
-
-export function puedeAdministrar(rol: Rol): boolean {
-  return alMenos(rol, 'administrador');
-}
-
-/** Los cuatro roles, de más a menos, para pintar listas y selectores. */
-export const ROLES_DEL_PANEL: readonly Rol[] = ['propietario', 'administrador', 'editor', 'lector'];
-
-export const ETIQUETA_DE_ROL: Readonly<Record<Rol, string>> = {
-  propietario: 'Propietario',
-  administrador: 'Administrador',
-  editor: 'Editor',
-  lector: 'Lector',
-};
-
-export const DESCRIPCION_DE_ROL: Readonly<Record<Rol, string>> = {
-  propietario: 'Todo, incluido borrar el corporate y cambiar de propietario',
-  administrador: 'Personas, credenciales, presupuesto y toda la configuración',
-  editor: 'Configuración, archivos y aprobaciones. No toca personas ni credenciales',
-  lector: 'Lo ve todo y no cambia nada. Puede proponer cambios',
-};
+export {
+  alMenos,
+  DESCRIPCION_DE_ROL,
+  ETIQUETA_DE_ROL,
+  puedeAdministrar,
+  puedeEditar,
+  ROLES_DEL_PANEL,
+  ROLES_INVITABLES,
+  type Rol,
+  type TenantDelUsuario,
+} from './roles.ts';

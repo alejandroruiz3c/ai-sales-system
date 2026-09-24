@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 
 import { cambiarDeTenant } from '@/acciones/sesion.ts';
-import type { TenantDelUsuario } from '@/lib/sesion.ts';
+import type { TenantDelUsuario } from '@/lib/roles.ts';
 
 /**
  * Cambiar de corporate (caso T1.1).

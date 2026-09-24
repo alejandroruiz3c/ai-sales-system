@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 
 import { invitarPersona, type ResultadoDeInvitacion } from '@/acciones/corporates.ts';
-import { DESCRIPCION_DE_ROL, ETIQUETA_DE_ROL, type Rol } from '@/lib/sesion.ts';
+import { DESCRIPCION_DE_ROL, ETIQUETA_DE_ROL, type Rol } from '@/lib/roles.ts';
 
 import { Aviso, Boton, Campo, Entrada, Seleccion } from './ui/index.tsx';
 

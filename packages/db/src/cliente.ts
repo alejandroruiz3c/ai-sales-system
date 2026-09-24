@@ -105,8 +105,31 @@ export function crearBaseDeDatos(config: ConfigBaseDeDatos): BaseDeDatos {
       await tx`select set_config('role', ${rol}, true)`;
       await tx`select set_config('request.jwt.claims', ${claims ?? ''}, true)`;
 
+      /**
+       * Drizzle sobre la transacción, construido solo si alguien lo pide.
+       *
+       * Dos cosas que no son evidentes y costaron un rato:
+       *
+       * 1. **El objeto de transacción de postgres.js no trae `options`**, y el
+       *    controlador de Drizzle lee `client.options.parsers` al construirse.
+       *    Sin el puente, cualquier transacción fallaba con «Cannot read
+       *    properties of undefined (reading 'parsers')», que no menciona ni
+       *    Drizzle ni la transacción.
+       * 2. **Se construye perezosamente.** Construirlo en cada transacción
+       *    hacía que el fallo de arriba tumbara también a quien solo quería
+       *    `consultar`, que es la mayoría del panel.
+       */
+      let ormCacheado: ClienteDrizzle | undefined;
+
       const contexto: Contexto = {
-        orm: drizzle(tx as unknown as postgres.Sql, { schema: esquema }),
+        get orm() {
+          const prototipo: object | null = Object.getPrototypeOf(tx) as object | null;
+          const puente = Object.assign(Object.create(prototipo) as object, tx, {
+            options: sql.options,
+          });
+          ormCacheado ??= drizzle(puente as unknown as postgres.Sql, { schema: esquema });
+          return ormCacheado;
+        },
         async consultar<F>(texto: string, params: readonly unknown[] = []) {
           const filas = await tx.unsafe(texto, params as never[]);
           return filas as unknown as readonly F[];
