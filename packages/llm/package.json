@@ -16,5 +16,10 @@
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.128.0",
+    "@sales-os/core": "workspace:*",
+    "zod": "catalog:"
   }
 }
