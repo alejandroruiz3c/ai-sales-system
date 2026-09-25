@@ -14,7 +14,9 @@ En cada PR, `pnpm verify` comprueba sin red que el resultado guardado en
 2. corresponde a la plantilla, los casos, el evaluador y el modelo actuales
    (huella);
 3. llega al umbral de `evals/umbrales.json`;
-4. no baja respecto a la versión anterior sin aceptación expresa.
+4. no baja respecto a la versión anterior sin aceptación expresa. La versión
+   anterior es **la que hay en `origin/main`**, no la última ejecución local: si
+   fuera la local, dos ejecuciones seguidas blanquearían una bajada.
 
 ## Los cuatro mensajes y qué hacer
 

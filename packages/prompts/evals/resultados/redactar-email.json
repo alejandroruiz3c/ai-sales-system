@@ -1,14 +1,14 @@
 {
   "plantilla": "redactar-email",
-  "version": "1.27a51694",
-  "huella": "4d2734d9047b80edb3c512d3f6175e79e96c13782e222658be6cff60e8835dcd",
+  "version": "1.176f786b",
+  "huella": "9e56ac2026bcd9bfdee14cb6f51af8a7bd32e60a9d64d29bb5935daf9b80cb58",
   "modelo": "claude-sonnet-5",
-  "fecha": "2026-09-25T09:39:37.449Z",
+  "fecha": "2026-09-25T09:53:16.880Z",
   "casos": 6,
   "aprobados": 6,
   "puntuacion": 1,
   "umbral": 0.8,
-  "costeEur": 0.045506,
+  "costeEur": 0.046208,
   "anterior": null,
   "aceptacionDeBajada": null,
   "detalle": [

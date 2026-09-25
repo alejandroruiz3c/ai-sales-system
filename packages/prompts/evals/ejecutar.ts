@@ -158,9 +158,7 @@ function evaluar(id: IdDePlantilla, aceptoBajada: string | undefined): boolean {
   const codigoDelEvaluador = readFileSync(aqui('./evaluar.ts'), 'utf8');
   const huella = huellaDeEvals(plantilla, CASOS[id], codigoDelEvaluador);
   const fichero = aqui(`./resultados/${id}.json`);
-  const previo = existsSync(fichero)
-    ? (JSON.parse(readFileSync(fichero, 'utf8')) as ResultadoSellado)
-    : undefined;
+  const previo = selloEnMain(id);
   const umbrales = (
     JSON.parse(readFileSync(aqui('./umbrales.json'), 'utf8')) as {
       umbrales: Record<string, number>;
@@ -180,8 +178,11 @@ function evaluar(id: IdDePlantilla, aceptoBajada: string | undefined): boolean {
     puntuacion: aprobados / detalle.length,
     umbral: umbral ?? 0,
     costeEur: Math.round(coste * 1e6) / 1e6,
-    // La comparación es con la última versión **distinta**: volver a ejecutar
-    // lo mismo no cuenta como versión anterior.
+    // La comparación es con el resultado que hay en `main`, no con el último
+    // fichero local: si fuera con el local, dos ejecuciones seguidas
+    // «blanquearían» una bajada (la primera baja, la segunda compara con la
+    // primera). Y con la última versión **distinta**: volver a evaluar lo mismo
+    // que hay en main conserva su referencia anterior.
     anterior:
       previo === undefined
         ? null
@@ -203,6 +204,24 @@ function evaluar(id: IdDePlantilla, aceptoBajada: string | undefined): boolean {
   const errores = comprobarSello(plantilla, sello, umbral, huella);
   for (const e of errores) console.error(`  ✖ ${e}`);
   return errores.length === 0;
+}
+
+/**
+ * El sello de una plantilla tal como está en `origin/main`.
+ *
+ * Es la referencia contra la que se mide una bajada. Si la plantilla es nueva
+ * y aún no está en main, no hay referencia y no hay bajada posible.
+ */
+function selloEnMain(id: IdDePlantilla): ResultadoSellado | undefined {
+  const r = spawnSync('git', ['show', `origin/main:packages/prompts/evals/resultados/${id}.json`], {
+    encoding: 'utf8',
+  });
+  if (r.status !== 0) return undefined;
+  try {
+    return JSON.parse(r.stdout) as ResultadoSellado;
+  } catch {
+    return undefined;
+  }
 }
 
 function autor(): string {

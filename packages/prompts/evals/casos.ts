@@ -52,7 +52,9 @@ function rubricaEmail(perfilId: IdDePerfilDePrueba, prospecto: Record<string, st
     perfil.tono.tratamiento === 'usted'
       ? 'de usted en todo el texto'
       : 'de tú en todo el texto (referirse a su empresa en plural, «os», «vuestro», es correcto)';
-  return `Es un email de primer contacto en castellano correcto, adecuado para una persona con el cargo «${cargo}» (no hace falta que nombre el cargo), con tratamiento ${tratamiento}: no mezcla tratamientos, aunque haya frases impersonales. Se centra en un único problema y termina con una única petición sencilla que se puede contestar en una línea. Suena natural, no a publicidad.
+  const aclaracion =
+    'Los verbos en primera persona del remitente («imagino», «le escribo», «trabajamos») y las frases impersonales no son tuteo ni tratamiento de usted: no cuentan para esta comprobación.';
+  return `Es un email de primer contacto en castellano correcto, adecuado para una persona con el cargo «${cargo}» (no hace falta que nombre el cargo), con tratamiento ${tratamiento}: no mezcla tratamientos. ${aclaracion} Se centra en un único problema y termina con una única petición sencilla que se puede contestar en una línea. Suena natural, no a publicidad.
 
 Puede afirmar lo que está en esta lista, porque son características reales del servicio del remitente:
 ${permitido}

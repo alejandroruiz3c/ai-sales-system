@@ -26,6 +26,7 @@ function plantillaDePrueba(overrides: Partial<Plantilla> = {}): Plantilla {
     tarea: 'prueba',
     nivel: 'ligero',
     maxTokens: 100,
+    formatoEstricto: true,
     usaPerfil: true,
     bloquesFijos: [{ nombre: 'Quién eres', texto: 'Trabajas en {{perfil.corporate.nombre}}.' }],
     mensaje: 'Hoy es {{hoy}}. Texto: {{entrada.texto}}',

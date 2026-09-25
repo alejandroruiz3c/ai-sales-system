@@ -43,6 +43,12 @@ export interface Plantilla<E extends z.ZodType = z.ZodType, T = unknown> {
   readonly tarea: string;
   readonly nivel: Nivel;
   readonly maxTokens: number;
+  /**
+   * Si se pide al proveedor que fuerce la forma de la salida. Cuesta tokens
+   * de entrada; ver `formatoEstricto` en el router. La validación Zod y su
+   * reintento se hacen siempre.
+   */
+  readonly formatoEstricto: boolean;
   readonly usaPerfil: boolean;
   readonly bloquesFijos: readonly Bloque[];
   readonly mensaje: string;
@@ -55,6 +61,7 @@ export interface PromptRenderizado<T> {
   readonly tarea: string;
   readonly nivel: Nivel;
   readonly maxTokens: number;
+  readonly formatoEstricto: boolean;
   readonly bloquesFijos: readonly string[];
   readonly mensaje: string;
   readonly esquema: z.ZodType<T>;
@@ -212,6 +219,7 @@ export function huellaDePlantilla(plantilla: Plantilla, extra = ''): string {
     version: plantilla.version,
     nivel: plantilla.nivel,
     maxTokens: plantilla.maxTokens,
+    formatoEstricto: plantilla.formatoEstricto,
     bloquesFijos: plantilla.bloquesFijos,
     mensaje: plantilla.mensaje,
     entrada: z.toJSONSchema(plantilla.esquemaEntrada),
@@ -268,6 +276,7 @@ export function renderizar<E extends z.ZodType, T>(
     tarea: plantilla.tarea,
     nivel: plantilla.nivel,
     maxTokens: plantilla.maxTokens,
+    formatoEstricto: plantilla.formatoEstricto,
     bloquesFijos: plantilla.bloquesFijos.map(
       (b) => `## ${b.nombre}\n\n${sustituir(b.texto, valores).trim()}`,
     ),

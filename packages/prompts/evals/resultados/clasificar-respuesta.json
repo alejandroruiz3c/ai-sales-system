@@ -1,15 +1,18 @@
 {
   "plantilla": "clasificar-respuesta",
-  "version": "1.f345dd94",
-  "huella": "5ecf9f88cc1a1be12149b386f330b15ebb26f5005842aa945b546d5ac7c7d861",
+  "version": "1.f604153e",
+  "huella": "d10427e4288b7fa50ac561642d3b36969af306d3723adc4eada0a35caeada307",
   "modelo": "claude-haiku-4-5-20251001",
-  "fecha": "2026-09-25T09:39:20.539Z",
+  "fecha": "2026-09-25T09:50:47.664Z",
   "casos": 20,
   "aprobados": 20,
   "puntuacion": 1,
   "umbral": 0.9,
-  "costeEur": 0.030868,
-  "anterior": null,
+  "costeEur": 0.016154,
+  "anterior": {
+    "puntuacion": 1,
+    "huella": "1d040a9aca5084ad2d8b25c85d44cc775657d57b622a8924ec4720b5a764655e"
+  },
   "aceptacionDeBajada": null,
   "detalle": [
     {

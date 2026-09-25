@@ -349,3 +349,16 @@ describe('router · modo lote (F2.3)', () => {
     expect(proveedor.recibidas).toHaveLength(0);
   });
 });
+
+describe('router · formato estricto opcional', () => {
+  it('por defecto pasa el esquema al proveedor; con formatoEstricto: false, no, pero sigue validando', async () => {
+    const { router, proveedor } = montar({ responder: (_p, n) => (n === 2 ? 'mal' : BIEN) });
+    await router.generar(clasificar());
+    expect(proveedor.recibidas[0]?.esquema).toBeDefined();
+
+    const r = await router.generar({ ...clasificar(), formatoEstricto: false });
+    expect(proveedor.recibidas[1]?.esquema).toBeUndefined();
+    // La validación Zod y el reintento no dependen del formato estricto.
+    expect(r).toMatchObject({ estado: 'valida', intentos: 2 });
+  });
+});

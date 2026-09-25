@@ -43,6 +43,7 @@ export const redactarEmail: Plantilla<typeof entradaRedactarEmail, EmailRedactad
   tarea: 'redactar-email',
   nivel: 'medio',
   maxTokens: 900,
+  formatoEstricto: true,
   usaPerfil: true,
   bloquesFijos: [
     {
@@ -94,7 +95,7 @@ Reglas de redacción:
 - La primera frase habla de la persona o de su empresa, no de nosotros. Si hay contexto del prospecto, úsalo con naturalidad; si no, parte de su cargo y su sector.
 - Un único problema, un único argumento y una única petición al final: una pregunta sencilla que se pueda contestar con una línea (por ejemplo, si tiene sentido hablar quince minutos).
 - Nada de fórmulas vacías («espero que estés bien», «me pongo en contacto contigo para»), ni signos de exclamación, ni mayúsculas para enfatizar, ni emojis.
-- El asunto tiene menos de 60 caracteres, en minúsculas salvo nombres propios, sin clickbait y sin el nombre del corporate.
+- El asunto tiene menos de 60 caracteres, en minúsculas salvo nombres propios, sin clickbait y sin el nombre del corporate. Nombra el mismo problema del que habla el cuerpo, no otro.
 - Firma con tu nombre y tu cargo, sin datos de contacto: los añade el sistema.
 - Escribe en castellano de España, con ortografía y puntuación correctas.`,
     },
