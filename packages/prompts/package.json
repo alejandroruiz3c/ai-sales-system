@@ -5,16 +5,23 @@
   "description": "Plantillas de prompt versionadas por agente y sus evals de promptfoo",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "fixtures:csv": "node scripts/generar-csv.ts",
+    "evals": "node --env-file-if-exists=../../apps/web/.env.local evals/ejecutar.ts"
   },
   "devDependencies": {
     "@sales-os/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@sales-os/llm": "workspace:*",
+    "zod": "catalog:"
   }
 }

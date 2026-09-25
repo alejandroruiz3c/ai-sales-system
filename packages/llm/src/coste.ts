@@ -37,6 +37,16 @@ export function sumarUso(a: Uso, b: Uso): Uso {
 /** Descuento de la Batch API sobre todo el uso. */
 export const FACTOR_LOTE = 0.5;
 
+/**
+ * Tipo de cambio por defecto, en euros por dólar.
+ *
+ * El euro cotizó entre 1,02 y 1,18 dólares en 2025; 0,93 € por dólar equivale
+ * a 1,075 $/€, del lado caro del rango: si se equivoca, apunta un poco **más**
+ * gasto del real, y el presupuesto corta antes, no después. En el panel se
+ * ajusta con `LLM_TIPO_CAMBIO_USD_EUR` sin tocar código.
+ */
+export const TIPO_CAMBIO_USD_EUR_POR_DEFECTO = 0.93;
+
 export interface OpcionesDeCoste {
   /** Euros por dólar. */
   readonly tipoCambioUsdEur: number;

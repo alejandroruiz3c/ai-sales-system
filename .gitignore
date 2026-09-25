@@ -52,3 +52,6 @@ apps/web/playwright-report/
 KEYS
 KEYS.*
 claves.*
+
+# Ficheros de trabajo de las evals (configuración generada y salida cruda de promptfoo)
+packages/prompts/evals/.tmp/

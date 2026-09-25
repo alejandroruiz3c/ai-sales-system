@@ -1,0 +1,7 @@
+{
+  "descripcion": "Puntuación mínima de evals por plantilla (proporción de casos aprobados). Bajar un umbral es un cambio que se defiende en el PR.",
+  "umbrales": {
+    "clasificar-respuesta": 0.9,
+    "redactar-email": 0.8
+  }
+}

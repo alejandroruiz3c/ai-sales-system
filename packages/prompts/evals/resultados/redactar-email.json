@@ -1,0 +1,46 @@
+{
+  "plantilla": "redactar-email",
+  "version": "1.27a51694",
+  "huella": "4d2734d9047b80edb3c512d3f6175e79e96c13782e222658be6cff60e8835dcd",
+  "modelo": "claude-sonnet-5",
+  "fecha": "2026-09-25T09:39:37.449Z",
+  "casos": 6,
+  "aprobados": 6,
+  "puntuacion": 1,
+  "umbral": 0.8,
+  "costeEur": 0.045506,
+  "anterior": null,
+  "aceptacionDeBajada": null,
+  "detalle": [
+    {
+      "caso": "e1",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "e2",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "e3",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "e4",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "e5",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "e6",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    }
+  ]
+}
