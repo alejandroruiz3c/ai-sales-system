@@ -296,7 +296,7 @@ Niveles: **Fase** (resultado de negocio) → **Épica** (capacidad) → **Tarea 
 | F0.6 | Workflow CI: install, lint, typecheck, test con caché | GitHub Actions | PR de prueba con checks verdes |
 | F0.7 | Protección sin plan de pago: hook pre-push, `pnpm verify` en el build de Vercel, workflow guardián, Dependabot, reglas de seguridad de ESLint y `pnpm audit` | Husky, Vercel, GitHub Actions | Push directo a main rechazado en local y alertado si ocurre |
 | F0.8 | Crear proyecto Vercel conectado al repo con previews por PR | Vercel | URL de preview por PR |
-| F0.9 | Crear proyectos Supabase staging y producción en región UE | Supabase | Conexión desde local y Vercel |
+| F0.9 | Crear proyectos Supabase staging y producción en región UE (staging: Irlanda, `eu-west-1`; ADR 0010) | Supabase | Conexión desde local y Vercel |
 | F0.10 | Crear cuenta Inngest con entornos y conectar a Vercel | Inngest | Función "hello" ejecutada en preview |
 | F0.11 | Configurar Sentry, Better Stack y Langfuse (UE) | SaaS observabilidad | Error y traza de prueba visibles |
 | F0.12 | Escribir ADRs iniciales: stack, multi-tenant, plano de control/ejecución, proveedor de voz, proveedor de firma | Markdown | 5 ADRs aprobados por Alex |

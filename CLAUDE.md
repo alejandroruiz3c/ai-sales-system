@@ -168,6 +168,15 @@ antiguo (ver [ADR 0001](docs/adr/0001-reuse-ass.md)), recuerda que ese sistema
 **no tenía tenants**: una regla portada sin `tenant_id` es un agujero de
 aislamiento, y revisarlo es obligatorio en el PR.
 
+**Una tabla sin `tenant_id` exige su propio ADR.** Las únicas excepciones
+aceptadas son las de la lista cerrada del
+[ADR 0009](docs/adr/0009-tablas-de-plataforma-sin-tenant-id.md) (`perfiles` y
+`tenants`), escrita también en `TABLAS_SIN_TENANT_ID` de
+`packages/db/src/esquema/index.ts`, que es lo que lee el test. Cualquier tabla
+nueva sin `tenant_id` necesita un ADR nuevo, aceptado por Alex, **antes** de
+añadirla a esa lista: editar el array sin ADR no pasa revisión, aunque el test
+quede en verde.
+
 **Secretos solo en Vault.** Credenciales de tenant en Supabase Vault, cifradas.
 Claves de plataforma en Vercel o GitHub Environments. En el repo solo
 `.env.example` **sin valores**. Un secreto nunca se devuelve al frontend, nunca
