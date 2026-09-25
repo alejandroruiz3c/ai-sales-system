@@ -15,3 +15,18 @@ export function slugDesdeNombre(nombre: string): string {
     .slice(0, 50)
     .replace(/-+$/, '');
 }
+
+/** Largo máximo de un slug: el `check` de `public.tenants` admite 49 caracteres. */
+export const LARGO_MAXIMO_DE_SLUG = 49;
+
+/**
+ * Un slug con un sufijo que lo hace único (para los corporates que crea
+ * `/lab`). Recorta la base **antes** de añadir el sufijo: si no, un nombre
+ * largo produce un slug que la base rechaza.
+ */
+export function slugConSufijo(nombre: string, sufijo: string): string {
+  const base = slugDesdeNombre(nombre)
+    .slice(0, LARGO_MAXIMO_DE_SLUG - sufijo.length - 1)
+    .replace(/-+$/, '');
+  return base === '' ? sufijo : `${base}-${sufijo}`;
+}

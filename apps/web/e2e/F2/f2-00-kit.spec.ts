@@ -11,7 +11,7 @@
  * no que esté mal.
  */
 
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 
 import {
   borrarCorporate,
@@ -30,13 +30,27 @@ const SONNET = 'claude-sonnet-5';
 
 const estado: { tenantId?: string; t22?: ResultadoDePrueba; creados: string[] } = { creados: [] };
 
+/**
+ * Un contexto de API para todo el fichero. El `request` de Playwright es de
+ * cada test: la cookie de `/lab` que se consigue en `beforeAll` no llegaría a
+ * los tests ni a `afterAll`, que es justo quien tiene que limpiar.
+ */
+const conexion: { contexto?: APIRequestContext } = {};
+
+function api(): APIRequestContext {
+  if (conexion.contexto === undefined)
+    throw new Error('El contexto de /lab no se ha creado en beforeAll.');
+  return conexion.contexto;
+}
+
 test.describe('Kit de F2 · librería LLM y prompts', () => {
   test.skip(labPassword === undefined, 'Sin E2E_LAB_PASSWORD no se puede entrar en /lab.');
 
-  test.beforeAll(async ({ request, baseURL }) => {
-    await labApiContext(request, baseURL ?? '');
+  test.beforeAll(async ({ playwright, baseURL }) => {
+    conexion.contexto = await playwright.request.newContext({ baseURL: baseURL ?? '' });
+    await labApiContext(api(), baseURL ?? '');
     estado.tenantId = await crearCorporate(
-      request,
+      api(),
       baseURL ?? '',
       `E2E F2 Modelos Demo ${SELLO_F2}`,
       3,
@@ -44,15 +58,15 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
     estado.creados.push(estado.tenantId);
   });
 
-  test.afterAll(async ({ request, baseURL }) => {
-    for (const id of estado.creados) await borrarCorporate(request, baseURL ?? '', id);
+  test.afterAll(async ({ baseURL }) => {
+    for (const id of estado.creados) await borrarCorporate(api(), baseURL ?? '', id);
+    await api().dispose();
   });
 
   test('T2.1 · clasificar «Ahora mismo no, escríbeme en enero»: modelo ligero, NO_AHORA, enero, < 0,001 €', async ({
-    request,
     baseURL,
   }) => {
-    const { status, r } = await probar(request, baseURL ?? '', {
+    const { status, r } = await probar(api(), baseURL ?? '', {
       modo: 'plantilla',
       tenantId: estado.tenantId,
       plantilla: 'clasificar-respuesta',
@@ -69,10 +83,9 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
   });
 
   test('T2.2 · redactar un email para un director financiero de una asesoría: modelo medio, con asunto y coste', async ({
-    request,
     baseURL,
   }) => {
-    const { status, r } = await probar(request, baseURL ?? '', {
+    const { status, r } = await probar(api(), baseURL ?? '', {
       modo: 'plantilla',
       tenantId: estado.tenantId,
       plantilla: 'redactar-email',
@@ -89,10 +102,9 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
   });
 
   test('T2.3 · el mismo tenant con otro prospecto acierta en caché y cuesta menos', async ({
-    request,
     baseURL,
   }) => {
-    const { r } = await probar(request, baseURL ?? '', {
+    const { r } = await probar(api(), baseURL ?? '', {
       modo: 'plantilla',
       tenantId: estado.tenantId,
       plantilla: 'redactar-email',
@@ -109,7 +121,6 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
   });
 
   test('T2.5 · salida malformada: un fallo se corrige en el reintento; dos, se marca sin romper nada', async ({
-    request,
     baseURL,
   }) => {
     const base = {
@@ -118,18 +129,17 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
       plantilla: 'clasificar-respuesta',
       entrada: { respuesta: 'Dadme de baja' },
     };
-    const una = await probar(request, baseURL ?? '', { ...base, estropear: 1 });
+    const una = await probar(api(), baseURL ?? '', { ...base, estropear: 1 });
     expect(una.r).toMatchObject({ estado: 'valida', intentos: 2 });
     expect(una.r.datos?.['categoria']).toBe('BAJA');
 
-    const dos = await probar(request, baseURL ?? '', { ...base, estropear: 2 });
+    const dos = await probar(api(), baseURL ?? '', { ...base, estropear: 2 });
     expect(dos.status, 'marcar una salida inválida no es un error del servidor').toBe(200);
     expect(dos.r).toMatchObject({ estado: 'fallida', intentos: 2 });
     expect(dos.r.errores?.length).toBeGreaterThan(0);
   });
 
   test('T2.6 · Langfuse tiene la traza separada por tenant y agente, con coste', async ({
-    request,
     baseURL,
   }) => {
     const trazaId = estado.t22?.trazaId ?? '';
@@ -146,7 +156,7 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
     await expect
       .poll(
         async () => {
-          const respuesta = await request.get(`${baseURL ?? ''}/api/lab/traza?id=${trazaId}`);
+          const respuesta = await api().get(`${baseURL ?? ''}/api/lab/traza?id=${trazaId}`);
           traza = (await respuesta.json()) as typeof traza;
           return traza.existe && (traza.costeEur ?? 0) > 0;
         },
@@ -160,13 +170,12 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
   });
 
   test('Presupuesto · con el presupuesto casi agotado, la llamada no se hace y lo explica', async ({
-    request,
     baseURL,
   }) => {
     // Una clasificación reserva unos 0,0016 € y cuesta unos 0,0008 €: con
     // 0,002 € cabe la primera y la segunda ya no.
     const pobre = await crearCorporate(
-      request,
+      api(),
       baseURL ?? '',
       `E2E F2 Sin Presupuesto Demo ${SELLO_F2}`,
       0.002,
@@ -178,9 +187,9 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
       plantilla: 'clasificar-respuesta',
       entrada: { respuesta: 'Me interesa, ¿cuándo podemos hablar?' },
     };
-    const primera = await probar(request, baseURL ?? '', base);
+    const primera = await probar(api(), baseURL ?? '', base);
     expect(primera.r.estado).toBe('valida');
-    const segunda = await probar(request, baseURL ?? '', base);
+    const segunda = await probar(api(), baseURL ?? '', base);
     expect(segunda.r).toMatchObject({ estado: 'bloqueada', costeEur: 0 });
     expect(segunda.r.mensaje).toMatch(/quedan .* € libres|agotado/);
   });
@@ -200,11 +209,10 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
   });
 
   test('T2.4 · el lote de 20 respuestas termina, acierta al menos 18 y cuesta la mitad por unidad', async ({
-    request,
     baseURL,
   }) => {
     test.setTimeout(27 * 60_000);
-    const lanzado = await request.post(`${baseURL ?? ''}/api/lab/lote`, {
+    const lanzado = await api().post(`${baseURL ?? ''}/api/lab/lote`, {
       data: { tenantId: estado.tenantId },
     });
     const lote = (await lanzado.json()) as { estado: string; loteId?: string; error?: string };
@@ -225,7 +233,7 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
     await expect
       .poll(
         async () => {
-          const respuesta = await request.get(`${baseURL ?? ''}/api/lab/lotes`);
+          const respuesta = await api().get(`${baseURL ?? ''}/api/lab/lotes`);
           const { lotes } = (await respuesta.json()) as { lotes: Lote[] };
           encontrado = lotes.find((l) => l.loteId === lote.loteId);
           return encontrado?.terminado ?? false;
