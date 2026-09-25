@@ -5,10 +5,9 @@
  * presupuesto de un corporate de prueba que el propio test crea y borra. Una
  * pasada completa cuesta unos céntimos.
  *
- * T2.4 espera a que la Batch API termine el lote, y eso depende de Anthropic:
- * normalmente, unos minutos; en el peor caso, horas. El test espera hasta 25
- * minutos y, si no ha terminado, falla diciendo que el lote sigue en proceso,
- * no que esté mal.
+ * T2.4 espera a que la Batch API termine el lote y a que Inngest lo recoja.
+ * Un lote de 20 suele terminar en un par de minutos; el test espera hasta 25
+ * y, si no, el mensaje dice las dos causas posibles y cómo distinguirlas.
  */
 
 import { expect, test, type APIRequestContext } from '@playwright/test';
@@ -172,13 +171,14 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
   test('Presupuesto · con el presupuesto casi agotado, la llamada no se hace y lo explica', async ({
     baseURL,
   }) => {
-    // Una clasificación reserva unos 0,0016 € y cuesta unos 0,0008 €: con
-    // 0,002 € cabe la primera y la segunda ya no.
+    // Una clasificación reserva unos 0,0020 € (todo el prompt a precio de
+    // escritura en caché y los 300 tokens de salida posibles) y cuesta unos
+    // 0,0008 €: con 0,0025 € cabe la primera y la segunda ya no.
     const pobre = await crearCorporate(
       api(),
       baseURL ?? '',
       `E2E F2 Sin Presupuesto Demo ${SELLO_F2}`,
-      0.002,
+      0.0025,
     );
     estado.creados.push(pobre);
     const base = {
@@ -241,7 +241,7 @@ test.describe('Kit de F2 · librería LLM y prompts', () => {
         {
           timeout: 25 * 60_000,
           intervals: [20_000],
-          message: `El lote ${lote.loteId ?? ''} sigue en proceso en la Batch API: no es un fallo del sistema, repite el caso más tarde.`,
+          message: `El lote ${lote.loteId ?? ''} no se ha recogido en 25 minutos. Dos causas posibles: que siga en proceso en la Batch API (compruébalo en la consola de Anthropic) o que Inngest no tenga registrada la función recoger-lote-llm (PUT a /api/inngest, runbook de modelos).`,
         },
       )
       .toBe(true);

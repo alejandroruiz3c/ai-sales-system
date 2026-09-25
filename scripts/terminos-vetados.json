@@ -49,6 +49,11 @@
       "id": "enunciado-del-principio",
       "patron": "(tampoco (el|los) de TurbineH|TurbineH solo aporta|TurbineH como corporate|de TurbineH como negocio)",
       "motivo": "El propio enunciado del principio (plan §0, CLAUDE.md, CONTRIBUTING) tiene que poder nombrar lo que prohíbe."
+    },
+    {
+      "id": "aviso-de-incumplimiento-en-staging",
+      "patron": "corporate «TURBINEH» de staging",
+      "motivo": "El informe de F2 avisa a Alex de que en la base de staging hay un registro con ese nombre, creado desde el panel y no marcado como de prueba, que contradice la regla permanente 3. Nombrarlo es la forma de señalar el incumplimiento, no de afirmarlo. Patrón literal y estrecho a propósito."
     }
   ],
   "reglas": [
