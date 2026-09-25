@@ -25,6 +25,7 @@ import {
 } from '@sales-os/agent-prueba';
 
 import { baseDeDatos } from './base-de-datos.ts';
+import { slugDesdeNombre } from './slug.ts';
 import { borrarUsuario, listarUsuarios } from './supabase/admin.ts';
 
 export interface CorporateDePrueba {
@@ -82,7 +83,7 @@ export async function corporatesDePrueba(): Promise<readonly CorporateDePrueba[]
   }));
 }
 
-async function esDemo(tenantId: string): Promise<boolean> {
+export async function esDemo(tenantId: string): Promise<boolean> {
   const fila = await baseDeDatos().comoSistema(
     'Comprobar que el corporate sobre el que va a actuar /lab está marcado como de prueba',
     (ctx) =>
@@ -326,4 +327,103 @@ export async function resetDeLaSalaDePruebas(entorno: string): Promise<Resultado
     usuariosBorrados: dePrueba.length,
     sistemaVacio: (restante?.tenants ?? 1) === 0 && (restante?.perfiles ?? 1) === 0,
   };
+}
+
+/** Tope del presupuesto de un corporate creado desde `/lab`: la sala no reparte dinero. */
+export const PRESUPUESTO_MAXIMO_DE_PRUEBA_EUR = 50;
+
+/**
+ * Crea un corporate de prueba con presupuesto, sin pasar por el panel.
+ *
+ * Existe para los E2E de F2 y para el kit: el probador de modelos cobra en el
+ * presupuesto de un corporate de prueba, y en cuanto staging tiene un usuario
+ * el asistente de primer arranque deja de existir, así que un test ya no puede
+ * darse de alta y crear uno. Tres guardas:
+ *
+ *   1. no existe en producción;
+ *   2. el corporate nace **siempre** marcado `es_demo`, que es la frontera de
+ *      todo lo que hace `/lab` y lo que permite que el reset lo borre;
+ *   3. el presupuesto tiene tope.
+ *
+ * Nace sin miembros: no aparece en el panel de nadie, solo en `/lab`.
+ */
+export async function crearCorporateDePrueba(
+  entorno: string,
+  nombre: string,
+  presupuestoEur: number,
+): Promise<{ readonly id: string; readonly nombre: string }> {
+  if (entorno === 'production') {
+    throw new Error('Crear corporates de prueba desde la sala no existe en producción.');
+  }
+  const limpio = nombre.trim();
+  if (limpio.length < 3 || limpio.length > 120) {
+    throw new Error('El nombre tiene que tener entre 3 y 120 caracteres.');
+  }
+  if (
+    !Number.isFinite(presupuestoEur) ||
+    presupuestoEur < 0 ||
+    presupuestoEur > PRESUPUESTO_MAXIMO_DE_PRUEBA_EUR
+  ) {
+    throw new Error(`El presupuesto va de 0 a ${String(PRESUPUESTO_MAXIMO_DE_PRUEBA_EUR)} €.`);
+  }
+  const slug = `${slugDesdeNombre(limpio)}-${Date.now().toString(36)}`;
+
+  return baseDeDatos().comoSistema(
+    'Crear un corporate de prueba desde /lab para el probador de modelos (F2)',
+    async (ctx) => {
+      const fila = await ctx.unaFila<{ id: string }>(
+        `insert into public.tenants (nombre, slug, es_demo) values ($1, $2, true) returning id`,
+        [limpio, slug],
+      );
+      if (fila === undefined) throw new Error('No se ha podido crear el corporate de prueba.');
+      await ctx.consultar(
+        `insert into public.tenant_budgets (tenant_id, mes, limite_eur)
+         values ($1, date_trunc('month', now())::date, $2)`,
+        [fila.id, presupuestoEur],
+      );
+      await ctx.consultar(
+        `select app.registrar_evento($1::uuid, 'tenant.created',
+           jsonb_build_object('nombre', $2::text, 'slug', $3::text, 'es_demo', true,
+                              'presupuesto_mensual_eur', $4::numeric),
+           'sistema', 'lab')`,
+        [fila.id, limpio, slug, presupuestoEur],
+      );
+      return { id: fila.id, nombre: limpio };
+    },
+  );
+}
+
+/**
+ * Borra **un** corporate de prueba, con sus secretos.
+ *
+ * El reset de la sala borra todos los de prueba, y eso está bien para repetir
+ * el kit desde cero, pero es demasiado para un E2E que solo quiere limpiar lo
+ * que ha creado: se llevaría por delante los corporates con los que alguien
+ * esté ejecutando el kit a mano. `app.purgar_tenant_demo` se niega con
+ * cualquier corporate que no sea de prueba.
+ */
+export async function borrarCorporateDePrueba(entorno: string, tenantId: string): Promise<boolean> {
+  if (entorno === 'production') {
+    throw new Error('Borrar corporates desde la sala de pruebas no existe en producción.');
+  }
+  if (!(await esDemo(tenantId))) {
+    throw new Error('La sala de pruebas solo borra corporates de prueba.');
+  }
+  return baseDeDatos().comoSistema(
+    'Borrar un corporate de prueba concreto desde /lab (limpieza de los E2E de F2)',
+    async (ctx) => {
+      const secretos = await ctx.consultar<{ nombre: string }>(
+        'select nombre from public.tenant_secrets where tenant_id = $1',
+        [tenantId],
+      );
+      for (const secreto of secretos) {
+        await ctx.consultar('select app.borrar_secreto($1::uuid, $2)', [tenantId, secreto.nombre]);
+      }
+      const fila = await ctx.unaFila<{ ok: boolean }>(
+        'select app.purgar_tenant_demo($1::uuid) as ok',
+        [tenantId],
+      );
+      return fila?.ok === true;
+    },
+  );
 }

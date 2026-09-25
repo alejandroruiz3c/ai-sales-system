@@ -52,6 +52,14 @@ export const env = {
   betterStackSourceToken: read('BETTER_STACK_SOURCE_TOKEN'),
   betterStackIngestingHost: read('BETTER_STACK_INGESTING_HOST'),
 
+  /**
+   * Clave del proveedor de modelos. Solo la lee `lib/llm.ts`, que construye el
+   * router: ningún otro sitio del panel llama a un modelo (CLAUDE.md §1).
+   */
+  anthropicApiKey: read('ANTHROPIC_API_KEY'),
+  /** Euros por dólar para convertir el precio de los modelos. Por defecto, 0,93. */
+  tipoCambioUsdEur: read('LLM_TIPO_CAMBIO_USD_EUR'),
+
   langfuseHost: read('LANGFUSE_HOST'),
   langfusePublicKey: read('LANGFUSE_PUBLIC_KEY'),
   langfuseSecretKey: read('LANGFUSE_SECRET_KEY'),

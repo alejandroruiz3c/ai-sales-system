@@ -16,7 +16,17 @@
  *     función que devuelve el valor solo la puede ejecutar `service_role`.
  */
 
-export { crearBaseDeDatos, type BaseDeDatos, type ConfigBaseDeDatos } from './cliente.ts';
+export {
+  crearBaseDeDatos,
+  type BaseDeDatos,
+  type ConfigBaseDeDatos,
+  type Contexto,
+} from './cliente.ts';
+export {
+  crearPresupuestoDeGasto,
+  type ConsultaSql,
+  type Ejecutor,
+} from './presupuesto-de-gasto.ts';
 
 /**
  * Las migraciones **no se exportan desde aquí**, sino desde

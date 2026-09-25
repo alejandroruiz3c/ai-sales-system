@@ -8,6 +8,7 @@
 export {
   PERFIL_CLINICA_AURORA_DEMO,
   PERFIL_LOGISTICA_NORTE_DEMO,
+  IDS_DE_PERFIL_DE_PRUEBA,
   PERFILES_DE_PRUEBA,
   type IdDePerfilDePrueba,
 } from './perfiles.ts';

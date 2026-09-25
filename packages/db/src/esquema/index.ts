@@ -331,8 +331,35 @@ export const spendLedger = pgTable(
     eventId: uuid('event_id'),
     creadoPor: uuid('creado_por'),
     creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+    // F2.5 · la caché y el modo, para poder explicar el coste de cada llamada.
+    tokensCacheLeidos: integer('tokens_cache_leidos').notNull().default(0),
+    tokensCacheEscritos: integer('tokens_cache_escritos').notNull().default(0),
+    modo: text('modo').notNull().default('directo'),
   },
   (t) => [index('spend_ledger_por_fecha').on(t.tenantId, t.fecha)],
+);
+
+// ── spend_reservations (F2.5) ────────────────────────────────────────────────
+// Lo que una llamada en curso **podría** costar. Cuenta contra el límite del
+// mes hasta que se liquida o caduca: es lo que permite cortar antes de llamar.
+
+export const spendReservations = pgTable(
+  'spend_reservations',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    tenantId: uuid('tenant_id').notNull(),
+    agente: text('agente').notNull(),
+    importeEur: numeric('importe_eur', { precision: 12, scale: 6 }).notNull(),
+    referencia: text('referencia'),
+    caducaEn: timestamp('caduca_en', { withTimezone: true }).notNull(),
+    liquidadaEn: timestamp('liquidada_en', { withTimezone: true }),
+    apunteId: uuid('apunte_id'),
+    creadoPor: uuid('creado_por'),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('spend_reservations_vivas').on(t.tenantId, t.caducaEn)],
 );
 
 // ── máquinas ─────────────────────────────────────────────────────────────────

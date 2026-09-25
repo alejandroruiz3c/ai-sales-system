@@ -2,7 +2,11 @@ import { elegirModelo, estimarTokens } from '@sales-os/llm';
 import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
 
-import { PERFIL_CLINICA_AURORA_DEMO, PERFILES_DE_PRUEBA } from './fixtures/index.ts';
+import {
+  IDS_DE_PERFIL_DE_PRUEBA,
+  PERFIL_CLINICA_AURORA_DEMO,
+  PERFILES_DE_PRUEBA,
+} from './fixtures/index.ts';
 import {
   ErrorDePlantilla,
   huellaDePlantilla,
@@ -13,7 +17,7 @@ import {
 } from './plantilla.ts';
 import { clasificarRespuesta } from './plantillas/clasificar-respuesta.ts';
 import { redactarEmail } from './plantillas/redactar-email.ts';
-import { PLANTILLAS } from './registro.ts';
+import { IDS_DE_PLANTILLA, PLANTILLAS } from './registro.ts';
 
 const HOY = '2026-09-25';
 const prospecto = { prospecto: { cargo: 'Director financiero', sector: 'Asesoría' } };
@@ -116,6 +120,11 @@ describe('renderizar (F2.6)', () => {
 });
 
 describe('validarPlantilla', () => {
+  it('la lista de ids coincide con el registro, y la de perfiles con los perfiles', () => {
+    expect([...IDS_DE_PLANTILLA].sort()).toEqual(Object.keys(PLANTILLAS).sort());
+    expect([...IDS_DE_PERFIL_DE_PRUEBA].sort()).toEqual(Object.keys(PERFILES_DE_PRUEBA).sort());
+  });
+
   it('todas las plantillas del registro son válidas y su clave es su id', () => {
     for (const [clave, plantilla] of Object.entries(PLANTILLAS)) {
       expect(validarPlantilla(plantilla), clave).toEqual([]);

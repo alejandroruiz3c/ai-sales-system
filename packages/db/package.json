@@ -2,7 +2,7 @@
   "name": "@sales-os/db",
   "version": "0.0.0",
   "private": true,
-  "description": "Esquema Drizzle, migraciones versionadas, pol\u00edticas RLS y seeds",
+  "description": "Esquema Drizzle, migraciones versionadas, políticas RLS y seeds",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
@@ -19,12 +19,13 @@
     "@sales-os/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "zod": "catalog:"
   },
   "dependencies": {
     "@sales-os/core": "workspace:*",
+    "@sales-os/llm": "workspace:*",
     "drizzle-orm": "0.45.3",
-    "postgres": "3.4.9",
-    "zod": "catalog:"
+    "postgres": "3.4.9"
   }
 }

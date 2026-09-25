@@ -187,3 +187,19 @@ describe('un tenant sin presupuesto no ejecuta llamadas LLM (F1.13)', () => {
     ).rejects.toThrow(/coste negativo/);
   });
 });
+
+describe('F1.13 · un editor también cobra (arreglo de la migración 0010)', () => {
+  it('cobrar_llamada con la sesión de un editor encuentra el presupuesto y lo descuenta', async () => {
+    const eva = await db.crearUsuario('eva.editora@ejemplo.test', 'Eva');
+    const otro = await db.crearTenant(ana, 'Corporate Editora Demo', 'editora-demo', 1);
+    await db.anadirMiembro(otro, eva, 'editor');
+    const filas = await db.comoUsuario<{ r: Cobro }>(
+      eva,
+      `select app.cobrar_llamada($1, 0.05::numeric, 'prueba', 'llm', 'modelo-ligero', 100, 50) as r`,
+      [otro],
+    );
+    // Antes de 0010, el `for update` bajo RLS no veía la fila para un editor y
+    // respondía «sin presupuesto».
+    expect(filas[0]?.r).toMatchObject({ permitida: true });
+  });
+});

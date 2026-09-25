@@ -18,7 +18,11 @@ export const PLANTILLAS = {
 
 export type IdDePlantilla = keyof typeof PLANTILLAS;
 
-export const IDS_DE_PLANTILLA = Object.keys(PLANTILLAS) as IdDePlantilla[];
+/** Las claves del registro, como tupla: para `z.enum` y para los selectores. Un test comprueba que coinciden. */
+export const IDS_DE_PLANTILLA = [
+  'clasificar-respuesta',
+  'redactar-email',
+] as const satisfies readonly IdDePlantilla[];
 
 export function esIdDePlantilla(id: string): id is IdDePlantilla {
   return Object.hasOwn(PLANTILLAS, id);

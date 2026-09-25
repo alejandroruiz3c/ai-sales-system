@@ -231,6 +231,11 @@ export async function levantarBaseDePruebas(): Promise<BaseDePruebas> {
         [tenantId],
       );
       await crudo(
+        `insert into public.spend_reservations (tenant_id, agente, importe_eur, caduca_en)
+         values ($1, 'prueba', 0.01, now() + interval '15 minutes')`,
+        [tenantId],
+      );
+      await crudo(
         `insert into public.machines (tenant_id, tipo, nombre, salud)
          values ($1, 'buzon-google', 'sembrado', 'buena')`,
         [tenantId],
@@ -248,6 +253,7 @@ export async function levantarBaseDePruebas(): Promise<BaseDePruebas> {
         'machines',
         'memberships',
         'spend_ledger',
+        'spend_reservations',
         'tenant_budgets',
         'tenant_file_versions',
         'tenant_files',

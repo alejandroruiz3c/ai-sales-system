@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 
 /**
  * Redirección con `Location` **relativo**.
@@ -18,4 +19,27 @@ export function isSecureRequest(request: Request): boolean {
   const forwarded = request.headers.get('x-forwarded-proto');
   if (forwarded) return forwarded.split(',')[0]?.trim() === 'https';
   return new URL(request.url).protocol === 'https:';
+}
+
+/**
+ * La respuesta de error de una ruta de `/lab`: 400 si la petición no valida,
+ * 503 si falta configurar el proveedor de modelos, 400 con el mensaje en el
+ * resto. Nunca un 500 con la traza: el caso T2.5 exige que un fallo «se marque
+ * sin romper nada», y eso incluye la pantalla.
+ */
+export function errorDeLab(error: unknown): NextResponse {
+  if (error instanceof ZodError) {
+    const primero = error.issues[0];
+    return NextResponse.json(
+      { error: primero?.message ?? 'La petición no es válida.', campo: primero?.path.join('.') },
+      { status: 400 },
+    );
+  }
+  if (error instanceof Error && error.name === 'ModelosNoConfigurados') {
+    return NextResponse.json({ error: error.message }, { status: 503 });
+  }
+  return NextResponse.json(
+    { error: error instanceof Error ? error.message : 'error desconocido' },
+    { status: 400 },
+  );
 }

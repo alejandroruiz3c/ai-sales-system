@@ -9,6 +9,7 @@
  * evento sale, se ejecuta y vuelve.
  */
 
+import { nombreInngest } from '@sales-os/core';
 import { eventType, Inngest } from 'inngest';
 import { z } from 'zod';
 
@@ -27,6 +28,24 @@ export const helloRequested = eventType('sales-os/hello.requested.v1', {
     requestedBy: z.string().min(1),
   }),
 });
+
+/**
+ * Un lote de la Batch API enviado desde `/lab` (F2.3, caso T2.4). La función
+ * `recoger-lote-llm` lo consulta hasta que termina y anota el resultado. El
+ * nombre sale de `nombreInngest`, igual que el del evento de la tabla.
+ */
+const esquemaLoteLlmEnviado = z.object({
+  tenantId: z.uuid(),
+  loteId: z.string().min(1),
+  reservaId: z.uuid(),
+  hoy: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export type LoteLlmEnviado = z.infer<typeof esquemaLoteLlmEnviado>;
+
+export const NOMBRE_LOTE_LLM_ENVIADO = nombreInngest('llm.batch.submitted');
+
+export const loteLlmEnviado = eventType(NOMBRE_LOTE_LLM_ENVIADO, { schema: esquemaLoteLlmEnviado });
 
 const inngestEnv = process.env['INNGEST_ENV'];
 
