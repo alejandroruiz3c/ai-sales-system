@@ -26,6 +26,7 @@ export {
   estimarTokens,
   FACTOR_LOTE,
   sumarUso,
+  TIPO_CAMBIO_USD_EUR_POR_DEFECTO,
   USO_VACIO,
   type OpcionesDeCoste,
   type Uso,

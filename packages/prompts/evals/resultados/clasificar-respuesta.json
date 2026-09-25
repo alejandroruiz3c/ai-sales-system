@@ -1,0 +1,119 @@
+{
+  "plantilla": "clasificar-respuesta",
+  "version": "1.f604153e",
+  "huella": "d10427e4288b7fa50ac561642d3b36969af306d3723adc4eada0a35caeada307",
+  "modelo": "claude-haiku-4-5-20251001",
+  "fecha": "2026-09-25T09:50:47.664Z",
+  "casos": 20,
+  "aprobados": 20,
+  "puntuacion": 1,
+  "umbral": 0.9,
+  "costeEur": 0.016154,
+  "anterior": {
+    "puntuacion": 1,
+    "huella": "1d040a9aca5084ad2d8b25c85d44cc775657d57b622a8924ec4720b5a764655e"
+  },
+  "aceptacionDeBajada": null,
+  "detalle": [
+    {
+      "caso": "r01",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r02",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r03",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r04",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r05",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r06",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r07",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r08",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r09",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r10",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r11",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r12",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r13",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r14",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r15",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r16",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r17",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r18",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r19",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    },
+    {
+      "caso": "r20",
+      "aprobado": true,
+      "motivo": "All assertions passed"
+    }
+  ]
+}

@@ -86,6 +86,14 @@ export interface PeticionDeGeneracion<T> {
   /** La parte que cambia en cada llamada: el prospecto, el mensaje a clasificar. */
   readonly mensaje: string;
   readonly esquema?: z.ZodType<T>;
+  /**
+   * Si el proveedor debe forzar la forma de la salida (salidas estructuradas).
+   * Por defecto, sí. Cuesta tokens de entrada: el esquema se añade al prompt
+   * (unos 450 con Haiku 4.5, más que el propio prompt de una clasificación).
+   * En tareas masivas y baratas puede salir más a cuenta desactivarlo y dejar
+   * la forma a la validación Zod y a su único reintento, que se hacen igual.
+   */
+  readonly formatoEstricto?: boolean;
   readonly maxTokens: number;
   readonly plantilla?: OrigenDePlantilla;
   readonly referencia?: string;
@@ -265,7 +273,9 @@ export function crearRouter(config: ConfigRouter): Router {
       sistema: sistemaCacheado(peticion.bloquesFijos),
       mensajes,
       maxTokens: peticion.maxTokens,
-      ...(peticion.esquema === undefined ? {} : { esquema: peticion.esquema }),
+      ...(peticion.esquema === undefined || peticion.formatoEstricto === false
+        ? {}
+        : { esquema: peticion.esquema }),
     };
     const tokensDeEntrada = estimarTokens(
       [...peticion.bloquesFijos, ...mensajes.map((m) => m.texto)].join('\n'),
@@ -494,7 +504,9 @@ export function crearRouter(config: ConfigRouter): Router {
             sistema,
             mensajes: [{ rol: 'usuario', texto: e.mensaje }],
             maxTokens: peticion.maxTokens,
-            ...(peticion.esquema === undefined ? {} : { esquema: peticion.esquema }),
+            ...(peticion.esquema === undefined || peticion.formatoEstricto === false
+              ? {}
+              : { esquema: peticion.esquema }),
           },
         })),
       );

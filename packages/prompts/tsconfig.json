@@ -1,7 +1,8 @@
 {
   "extends": "@sales-os/config/tsconfig/library.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "${configDir}/node_modules/.cache/tsbuildinfo.json"
+    "tsBuildInfoFile": "${configDir}/node_modules/.cache/tsbuildinfo.json",
+    "erasableSyntaxOnly": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "evals/**/*.ts", "scripts/**/*.ts"]
 }
