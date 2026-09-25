@@ -63,11 +63,13 @@ export {
 } from './presupuesto.ts';
 
 export {
-  eventosDeLangfuse,
+  cuerpoOtelDeLangfuse,
+  idDeTrazaOtel,
   TRAZADOR_NULO,
   TrazadorEnMemoria,
   TrazadorLangfuse,
   type ConfigLangfuse,
+  type SpanOtel,
   type IntentoTrazado,
   type ResultadoTrazado,
   type TrazaDeLlamada,

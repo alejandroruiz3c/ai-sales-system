@@ -155,3 +155,8 @@ export const PERFILES_DE_PRUEBA = {
 } as const;
 
 export type IdDePerfilDePrueba = keyof typeof PERFILES_DE_PRUEBA;
+
+export const IDS_DE_PERFIL_DE_PRUEBA = [
+  'clinica-aurora-demo',
+  'logistica-norte-demo',
+] as const satisfies readonly IdDePerfilDePrueba[];

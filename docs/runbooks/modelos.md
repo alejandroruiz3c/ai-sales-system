@@ -1,0 +1,40 @@
+# Runbook · Llamadas a modelos: presupuesto, caché, salidas, trazas y lotes
+
+**Cuándo se usa:** cuando una llamada a un modelo no hace lo que se espera. Es
+el material con el que el Copiloto (F2B) diagnosticará «¿por qué no ha pasado
+X?» en cualquier agente, porque todos llaman a los modelos por el mismo router.
+
+Piezas: el router (`packages/llm`), el presupuesto en la base
+(`app.autorizar_gasto` / `app.liquidar_gasto`, migración 0010), las plantillas
+(`packages/prompts`) y Langfuse. Para probar cualquiera de ellas: `/lab` →
+Probador de modelos.
+
+## El protocolo, en una línea
+
+**Reservar el coste máximo → llamar → validar (un reintento como mucho) →
+liquidar el coste real → trazar.** Cada fallo típico es uno de esos pasos.
+
+## Fallos típicos
+
+| Síntoma                                                         | Causa                                                                                      | Dónde se ve                                                                      | Qué hacer                                                                                                                       |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `estado: bloqueada`, motivo `sin_presupuesto`                   | El tenant no tiene presupuesto este mes, o es 0 €                                          | `tenant_budgets` del mes                                                         | Asignarlo en Ajustes → Presupuesto                                                                                              |
+| `estado: bloqueada`, motivo `presupuesto_agotado`               | Lo gastado este mes ya llega al límite                                                     | `app.gasto_del_mes(tenant)`, evento `budget.threshold.reached` con `100`         | Ampliar el presupuesto. El corte es a propósito                                                                                 |
+| `estado: bloqueada`, motivo `presupuesto_insuficiente`          | Queda presupuesto, pero no el **coste máximo** de esta llamada (toda su salida posible)    | El mensaje dice cuánto queda libre y cuánto está reservado por llamadas en curso | Ampliar el presupuesto, o esperar a que terminen las llamadas en curso. Una reserva huérfana caduca sola (15 min; 25 h un lote) |
+| Un editor recibe «sin presupuesto» y la propietaria no          | Ya no debería pasar: era el fallo de `for update` bajo RLS, corregido en la migración 0010 | `app.bloquear_presupuesto`                                                       | Si reaparece, es una regresión: test en `packages/db/pruebas/presupuesto.test.ts`                                               |
+| `cacheAcertada: false` siempre                                  | El bloque fijo no llega al mínimo de caché del modelo (4.096 tokens en Haiku 4.5)          | `avisoDeCache` en la respuesta y en `/lab`                                       | Normal en tareas ligeras. Si es una tarea media, revisa que nada variable (fecha, prospecto) esté en un bloque fijo             |
+| `cacheAcertada: false` en la segunda llamada de una tarea media | Han pasado más de 5 minutos, o el perfil ha cambiado un carácter                           | `uso.cacheEscrita` > 0 en las dos llamadas                                       | Normal tras una pausa. `validarPlantilla` impide variables de entrada en bloques fijos                                          |
+| `estado: fallida`                                               | La salida no cumplió el esquema ni en el reintento                                         | `errores` en la respuesta; traza con la etiqueta `salida-invalida`               | Leer los errores. Si se repite, la plantilla es ambigua: se corrige la plantilla y pasa por evals                               |
+| `estado: error`                                                 | El proveedor falló o rechazó la petición                                                   | `mensaje`; la reserva se liberó con coste 0                                      | Si es un 429 o un 5xx, reintentar más tarde. Si es un rechazo, revisar el contenido                                             |
+| La traza no aparece en Langfuse                                 | Langfuse no configurado, o la traza falló (no rompe la llamada)                            | Log `No se ha podido registrar la traza en Langfuse`; `/api/lab/traza?id=`       | Comprobar `LANGFUSE_*`. Las trazas van por OpenTelemetry (`/api/public/otel/v1/traces`), no por la API de ingesta, que se apaga |
+| Un lote sigue «en proceso»                                      | La Batch API tarda de minutos a 24 horas                                                   | `/lab` → Modo lote; función `recoger-lote-llm` en Inngest                        | Esperar. Si pasan 24 h, la función falla y la reserva caduca sola                                                               |
+
+## Lo que no es un fallo
+
+- **Una clasificación sin caché.** Su prompt tiene unos 500 tokens y Haiku no
+  cachea por debajo de 4.096. Rellenarlo para que cachee costaría más.
+- **El coste en Langfuse con «$».** Langfuse no tiene moneda. Los importes son
+  euros, igual que en el libro de gasto; lo dice el metadato `moneda`.
+- **Un reintento de vez en cuando.** Las clasificaciones no fuerzan la forma de
+  la salida (`formatoEstricto: false`), porque el esquema forzado añade unos
+  450 tokens de entrada. La validación y su reintento lo cubren.

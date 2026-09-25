@@ -96,7 +96,7 @@ Desempates: baja con rechazo es BAJA; origen de datos gana a todo; fecha futura 
     },
     {
       nombre: 'Fecha de recontacto',
-      texto: `fechaRecontacto: cuándo volver a escribir o cuándo vuelve la persona. AAAA-MM-DD si da el día; AAAA-MM si da el mes o una época («después del verano» es septiembre). El año es el de la próxima vez que llegue esa fecha desde la fecha de hoy indicada. Sin fecha, null.`,
+      texto: `fechaRecontacto: cuándo volver a escribir o cuándo vuelve la persona. AAAA-MM-DD si da el día; AAAA-MM si da el mes o una época («después del verano» es septiembre). Si dice que está fuera hasta una fecha, usa esa misma fecha. El año es el de la próxima vez que llegue esa fecha desde la fecha de hoy indicada. Sin fecha, null.`,
     },
     {
       nombre: 'Qué nunca haces',

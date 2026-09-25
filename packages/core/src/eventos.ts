@@ -67,6 +67,12 @@ export const NOMBRES_DE_EVENTO = [
   'cs.feedback.product',
   'opinion.opportunity.detected',
 
+  // Modelos (F2): un lote de la Batch API, al enviarse y al recogerse. El
+  // lote tarda de minutos a horas, y la tabla `events` es la que guarda qué
+  // se envió y qué volvió (ADR 0002), no la cola.
+  'llm.batch.submitted',
+  'llm.batch.completed',
+
   // Capacidad y salud (F13)
   'machine.limit.reached',
   'machine.health.degraded',

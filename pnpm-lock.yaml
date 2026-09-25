@@ -89,6 +89,12 @@ importers:
       '@sales-os/integrations':
         specifier: workspace:*
         version: link:../../packages/integrations
+      '@sales-os/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
+      '@sales-os/prompts':
+        specifier: workspace:*
+        version: link:../../packages/prompts
       '@sentry/nextjs':
         specifier: 10.74.0
         version: 10.74.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/exporter-trace-otlp-http@0.222.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(next@16.3.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@24.10.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.111.0)
@@ -376,15 +382,15 @@ importers:
       '@sales-os/core':
         specifier: workspace:*
         version: link:../core
+      '@sales-os/llm':
+        specifier: workspace:*
+        version: link:../llm
       drizzle-orm:
         specifier: 0.45.3
         version: 0.45.3(@electric-sql/pglite@0.5.8)(@opentelemetry/api@1.9.1)(@types/pg@8.15.6)(postgres@3.4.9)
       postgres:
         specifier: 3.4.9
         version: 3.4.9
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.5
     devDependencies:
       '@electric-sql/pglite':
         specifier: 0.5.8
@@ -401,6 +407,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@24.10.1)(vite@8.3.0(@types/node@24.10.1)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.5
 
   packages/integrations:
     dependencies:
