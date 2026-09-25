@@ -25,7 +25,7 @@ import {
 } from '@sales-os/agent-prueba';
 
 import { baseDeDatos } from './base-de-datos.ts';
-import { slugDesdeNombre } from './slug.ts';
+import { slugConSufijo } from './slug.ts';
 import { borrarUsuario, listarUsuarios } from './supabase/admin.ts';
 
 export interface CorporateDePrueba {
@@ -366,7 +366,7 @@ export async function crearCorporateDePrueba(
   ) {
     throw new Error(`El presupuesto va de 0 a ${String(PRESUPUESTO_MAXIMO_DE_PRUEBA_EUR)} €.`);
   }
-  const slug = `${slugDesdeNombre(limpio)}-${Date.now().toString(36)}`;
+  const slug = slugConSufijo(limpio, Date.now().toString(36));
 
   return baseDeDatos().comoSistema(
     'Crear un corporate de prueba desde /lab para el probador de modelos (F2)',

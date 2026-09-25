@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { slugDesdeNombre } from './slug.ts';
+import { LARGO_MAXIMO_DE_SLUG, slugConSufijo, slugDesdeNombre } from './slug.ts';
 
 describe('slugDesdeNombre', () => {
   it('quita acentos y eñes en vez de borrarlas', () => {
@@ -34,5 +34,23 @@ describe('slugDesdeNombre', () => {
         true,
       );
     }
+  });
+});
+
+describe('slugConSufijo', () => {
+  const VALIDO = /^[a-z0-9]([a-z0-9-]{0,47}[a-z0-9])?$/;
+
+  it('con un nombre largo, cabe en el check de la tabla tenants', () => {
+    const slug = slugConSufijo(
+      'E2E F2 Sin Presupuesto Demo 1790331957327753 con más texto',
+      'mg0x7k2a',
+    );
+    expect(slug.length).toBeLessThanOrEqual(LARGO_MAXIMO_DE_SLUG);
+    expect(slug).toMatch(VALIDO);
+    expect(slug.endsWith('-mg0x7k2a')).toBe(true);
+  });
+
+  it('con un nombre corto, no recorta', () => {
+    expect(slugConSufijo('Aurora Demo', 'x1')).toBe('aurora-demo-x1');
   });
 });
