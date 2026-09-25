@@ -1,6 +1,6 @@
 # ADR 0009 · Tablas de plataforma sin `tenant_id`
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (2026-09-25)
 - **Fecha:** 2026-09-24
 - **Decide:** Alejandro Ruiz
 - **Autor:** Claude Code
@@ -51,9 +51,13 @@ Toda tabla del esquema `public` cumple **una** de estas dos condiciones:
 2. está en una **lista escrita** de tablas de plataforma, con su motivo, y su
    política RLS se apoya en `auth.uid()` en lugar de en el tenant.
 
-La lista vive en el código, no en este documento:
-`TABLAS_SIN_TENANT_ID`, en `packages/db/src/esquema/index.ts`. Hoy tiene dos
-entradas:
+### Lista cerrada de tablas exentas
+
+La lista es **cerrada**: son exactamente estas dos tablas y ninguna más. Está
+escrita aquí, que es donde se decide, y repetida en el código, que es donde se
+comprueba: `TABLAS_SIN_TENANT_ID`, en `packages/db/src/esquema/index.ts`. Las
+dos copias tienen que coincidir. Si alguna vez no coinciden, manda este
+documento y el código se corrige.
 
 | Tabla      | Por qué no lleva `tenant_id`                                             | Cómo se aísla                                                                |
 | ---------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
@@ -99,10 +103,11 @@ que la comprobación recorra `public` entero sin excepciones que discutir.
   política de `perfiles` esperando `tenant_id` no lo va a encontrar. Mitigación:
   el comentario está en la migración, junto a la tabla, y este ADR se nombra
   ahí.
-- **La lista puede crecer por comodidad.** Mitigación: no hay ninguna razón
-  prevista para que crezca. Si en el futuro hace falta una tabla de plataforma
-  más (por ejemplo, un catálogo de modelos de LLM), lo honesto es preguntarse
-  antes si de verdad no es configuración de tenant.
+- **La lista puede crecer por comodidad.** Mitigación: la lista es cerrada y
+  crecer cuesta un ADR propio (condición de Alex, abajo). Si en el futuro hace
+  falta una tabla de plataforma más (por ejemplo, un catálogo de modelos de
+  LLM), lo honesto es preguntarse antes si de verdad no es configuración de
+  tenant.
 
 ## Alternativas consideradas
 
@@ -116,6 +121,15 @@ que la comprobación recorra `public` entero sin excepciones que discutir.
 3. **`perfiles` con `tenant_id` y una fila por pertenencia.** Es la opción 1 del
    contexto. Rechazada: duplica el dato y lo desincroniza.
 
-## Decisión de Alex
+## Decisión de Alex (2026-09-25)
 
-_Pendiente._
+**Aceptado**, con dos condiciones que pasan a ser vinculantes:
+
+1. **La lista de tablas exentas es cerrada y está documentada en este ADR**
+   con su justificación: `perfiles` y `tenants`, apartado «Lista cerrada de
+   tablas exentas».
+2. **Cualquier tabla nueva sin `tenant_id` exige un ADR propio**, aceptado
+   antes de añadirla a `TABLAS_SIN_TENANT_ID`. Editar el array sin ADR no pasa
+   revisión aunque el test quede en verde. La condición está escrita en
+   `CLAUDE.md` §1 (y en su copia `AGENTS.md`), junto a la regla «Nada sin
+   `tenant_id`».

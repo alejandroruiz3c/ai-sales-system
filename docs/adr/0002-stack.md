@@ -67,7 +67,9 @@ Un solo lenguaje, un solo repo, el menor número de proveedores posible.
 **Aceptado.** Con tres precisiones que pasan a ser vinculantes:
 
 1. **Región UE, concretada.** Vercel en `fra1` (Fráncfort) y Supabase en
-   Fráncfort, los dos proyectos. Ninguna función, base de datos ni cola sale de
+   Fráncfort, los dos proyectos. _(La región de Supabase la sustituye el
+   [ADR 0010](0010-region-de-supabase-staging-irlanda.md): staging está en
+   Irlanda.)_ Ninguna función, base de datos ni cola sale de
    la UE. Cualquier proveedor nuevo que no pueda garantizar región UE necesita
    un ADR propio antes de entrar.
 2. **Inngest se acepta en la ruta crítica**, porque sin durabilidad no hay
