@@ -2,14 +2,16 @@
 
 Plataforma de ventas agéntica multi-corporate, desarrollada por TurbineH.
 
+> **En desarrollo.** La implementación llega a F2 (librería LLM y prompts), pendiente de validación de fase. Las capacidades comerciales del plan no están todas implementadas y el producto no se presenta como listo para producción.
+
 **SALES OS nace vacío.** No trae ningún corporate, producto, precio, ICP,
 argumentario ni modelo de negocio precargado, tampoco el de TurbineH, que solo
 aporta el dominio, el repositorio y la marca de la plataforma. Todo el
 conocimiento comercial entra por el onboarding de cada corporate y vive en la
 base de datos de su tenant. Lo comprueba `pnpm sistema-vacio` en cada PR.
 
-Cada corporate es un tenant aislado que, a partir de tres inputs (deck, web y
-argumentario), obtiene su propio sistema de ventas completo: prospección,
+La visión del producto es que cada corporate sea un tenant aislado que, a partir
+de tres inputs (deck, web y argumentario), obtenga su propio sistema de ventas: prospección,
 cualificación, outreach multicanal coordinado, cierre, facturación, upsell y
 generación de opinión.
 
