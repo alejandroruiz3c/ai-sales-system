@@ -71,3 +71,10 @@ La existencia de un paquete y su test de manifiesto no significa que el agente
 esté implementado. Consultar el plan y los informes antes de anunciar capacidades.
 
 Ninguna fase empieza sin el `GO FX` de Alex. Ver [AGENTS.md](AGENTS.md).
+
+### Verificación local de mantenimiento
+
+El 26 de septiembre de 2026 se ejecutaron `pnpm verify:rapido` y `pnpm audit`
+en un clon limpio: 385 tests pasaron y la auditoría no reportó vulnerabilidades.
+No se repitieron E2E de staging ni llamadas a proveedores. Este resultado no
+sustituye el check de despliegue del PR ni la revisión obligatoria.
