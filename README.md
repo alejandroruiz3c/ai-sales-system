@@ -2,14 +2,16 @@
 
 Plataforma de ventas agéntica multi-corporate, desarrollada por TurbineH.
 
+> **En desarrollo.** La implementación llega a F2 (librería LLM y prompts), pendiente de validación de fase. Las capacidades comerciales del plan no están todas implementadas y el producto no se presenta como listo para producción.
+
 **SALES OS nace vacío.** No trae ningún corporate, producto, precio, ICP,
 argumentario ni modelo de negocio precargado, tampoco el de TurbineH, que solo
 aporta el dominio, el repositorio y la marca de la plataforma. Todo el
 conocimiento comercial entra por el onboarding de cada corporate y vive en la
 base de datos de su tenant. Lo comprueba `pnpm sistema-vacio` en cada PR.
 
-Cada corporate es un tenant aislado que, a partir de tres inputs (deck, web y
-argumentario), obtiene su propio sistema de ventas completo: prospección,
+La visión del producto es que cada corporate sea un tenant aislado que, a partir
+de tres inputs (deck, web y argumentario), obtenga su propio sistema de ventas: prospección,
 cualificación, outreach multicanal coordinado, cierre, facturación, upsell y
 generación de opinión.
 
@@ -47,9 +49,34 @@ infra/                Hetzner (Docker) y Supabase
 
 ## Estado
 
-| Fase                         | Estado                                                           |
-| ---------------------------- | ---------------------------------------------------------------- |
-| F0 · Fundaciones y auditoría | En validación — ver [`docs/entregas/F0.md`](docs/entregas/F0.md) |
-| F1 · Núcleo multi-tenant     | Bloqueada hasta `GO F0`                                          |
+Estado documental actualizado el 26 de septiembre de 2026, contrastado con los
+informes de entrega y el código de `main`:
 
-Ninguna fase empieza sin el `GO FX` de Alex. Ver la regla de parada en `CLAUDE.md`.
+| Fase                         | Estado documentado                                                      |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| F0 · Fundaciones y auditoría | Entrega disponible en [F0](docs/entregas/F0.md)                         |
+| F1 · Núcleo multi-tenant     | Entrega disponible en [F1](docs/entregas/F1.md)                         |
+| F2 · Librería LLM y prompts  | Entregada; validación de Alex pendiente según [F2](docs/entregas/F2.md) |
+| F2B y posteriores            | No se inician sin la aprobación de fase correspondiente                 |
+
+Los informes contienen resultados históricos de pruebas, no una certificación de
+la revisión actual. Las últimas ejecuciones de GitHub Actions consultadas el
+26 de septiembre terminan en `startup_failure`; verificar también el check de
+Vercel y el resultado local de `pnpm verify` antes de fusionar.
+
+### Implementación y estructura reservada
+
+El núcleo de datos, router LLM, plantillas y agente de prueba tienen implementación.
+`packages/studio`, `packages/capacity`, los diez agentes comerciales y
+`apps/worker-browser` contienen estructura reservada para fases posteriores.
+La existencia de un paquete y su test de manifiesto no significa que el agente
+esté implementado. Consultar el plan y los informes antes de anunciar capacidades.
+
+Ninguna fase empieza sin el `GO FX` de Alex. Ver [AGENTS.md](AGENTS.md).
+
+### Verificación local de mantenimiento
+
+El 26 de septiembre de 2026 se ejecutaron `pnpm verify:rapido` y `pnpm audit`
+en un clon limpio: 385 tests pasaron y la auditoría no reportó vulnerabilidades.
+No se repitieron E2E de staging ni llamadas a proveedores. Este resultado no
+sustituye el check de despliegue del PR ni la revisión obligatoria.
