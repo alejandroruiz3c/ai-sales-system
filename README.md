@@ -47,9 +47,27 @@ infra/                Hetzner (Docker) y Supabase
 
 ## Estado
 
-| Fase                         | Estado                                                           |
-| ---------------------------- | ---------------------------------------------------------------- |
-| F0 · Fundaciones y auditoría | En validación — ver [`docs/entregas/F0.md`](docs/entregas/F0.md) |
-| F1 · Núcleo multi-tenant     | Bloqueada hasta `GO F0`                                          |
+Estado documental actualizado el 26 de septiembre de 2026, contrastado con los
+informes de entrega y el código de `main`:
 
-Ninguna fase empieza sin el `GO FX` de Alex. Ver la regla de parada en `CLAUDE.md`.
+| Fase                         | Estado documentado                                                      |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| F0 · Fundaciones y auditoría | Entrega disponible en [F0](docs/entregas/F0.md)                         |
+| F1 · Núcleo multi-tenant     | Entrega disponible en [F1](docs/entregas/F1.md)                         |
+| F2 · Librería LLM y prompts  | Entregada; validación de Alex pendiente según [F2](docs/entregas/F2.md) |
+| F2B y posteriores            | No se inician sin la aprobación de fase correspondiente                 |
+
+Los informes contienen resultados históricos de pruebas, no una certificación de
+la revisión actual. Las últimas ejecuciones de GitHub Actions consultadas el
+26 de septiembre terminan en `startup_failure`; verificar también el check de
+Vercel y el resultado local de `pnpm verify` antes de fusionar.
+
+### Implementación y estructura reservada
+
+El núcleo de datos, router LLM, plantillas y agente de prueba tienen implementación.
+`packages/studio`, `packages/capacity`, los diez agentes comerciales y
+`apps/worker-browser` contienen estructura reservada para fases posteriores.
+La existencia de un paquete y su test de manifiesto no significa que el agente
+esté implementado. Consultar el plan y los informes antes de anunciar capacidades.
+
+Ninguna fase empieza sin el `GO FX` de Alex. Ver [AGENTS.md](AGENTS.md).
