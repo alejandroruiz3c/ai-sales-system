@@ -21,7 +21,7 @@
     "@sales-os/integrations": "workspace:*",
     "@sales-os/llm": "workspace:*",
     "@sales-os/prompts": "workspace:*",
-    "@sentry/nextjs": "10.74.0",
+    "@sentry/nextjs": "11.0.0",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.117.1",
     "inngest": "4.20.0",
