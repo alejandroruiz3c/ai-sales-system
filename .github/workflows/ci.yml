@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Instalar pnpm
         uses: pnpm/action-setup@v4
@@ -65,7 +65,7 @@ jobs:
     timeout-minutes: 20
     needs: quality
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Comprobar que hay URL de staging
         id: target
