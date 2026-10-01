@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Instalar pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Instalar Node
         uses: actions/setup-node@v5
@@ -81,7 +81,7 @@ jobs:
 
       - name: Instalar pnpm
         if: steps.target.outputs.listo == 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Instalar Node
         if: steps.target.outputs.listo == 'true'
