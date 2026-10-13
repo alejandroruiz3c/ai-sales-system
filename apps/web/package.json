@@ -33,7 +33,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.0",
     "@sales-os/config": "workspace:*",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "catalog:",
