@@ -15,7 +15,7 @@
     "eventos:reproceso": "node src/cli/reproceso.ts"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.8",
+    "@electric-sql/pglite": "0.5.10",
     "@sales-os/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@sales-os/core": "workspace:*",
     "@sales-os/llm": "workspace:*",
-    "drizzle-orm": "0.45.3",
+    "drizzle-orm": "0.45.4",
     "postgres": "3.4.9"
   }
 }
